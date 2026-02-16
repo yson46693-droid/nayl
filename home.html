@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AmrNayl academy - الرئيسية</title>
+    <meta name="description" content="منصة تعليمية احترافية متخصصة في كورسات صيانة الهواتف المحمولة">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="manifest" href="manifest.json">
+    <link rel="shortcut icon" href="fav.ico" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@500;700;800&display=swap" rel="stylesheet">
+    <style>
+        /* عند فتح المودال: منع التمرير خلفه فقط (التمرير داخل #page-scroll فلا يُمسّ) */
+        #aboutModal.modal-open {
+            display: flex !important;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+        }
+        #aboutModal .modal-overlay {
+            touch-action: none;
+        }
+        .footer-link-btn {
+            background: none;
+            border: none;
+            padding: 0;
+            font: inherit;
+            color: rgba(255, 255, 255, 0.7);
+            cursor: pointer;
+            text-decoration: none;
+            transition: color 0.3s ease;
+            display: inline-flex;
+            align-items: center;
+        }
+        .footer-link-btn:hover {
+            color: var(--primary-blue);
+        }
+        /* التمرير داخل #page-scroll فقط - الـ body لا يتحرك */
+        body.home-page {
+            overflow: hidden !important;
+            height: 100vh !important;
+        }
+        #page-scroll {
+            overflow-y: auto;
+            overflow-x: hidden;
+            height: 100vh;
+            -webkit-overflow-scrolling: touch;
+        }
+        body.about-modal-open #page-scroll {
+            overflow: hidden !important;
+        }
+        #page-scroll::-webkit-scrollbar {
+            width: 10px;
+        }
+        #page-scroll::-webkit-scrollbar-track {
+            background: var(--bg-light);
+        }
+        #page-scroll::-webkit-scrollbar-thumb {
+            background: var(--primary-blue);
+            border-radius: 5px;
+        }
+        #page-scroll::-webkit-scrollbar-thumb:hover {
+            background: #3a7bc8;
+        }
+    </style>
+</head>
+
+<body class="home-page">
+    <!-- About Modal - ثابت في الواجهة، لا يؤثر على موضع التمرير -->
+    <div id="aboutModal" class="modal" style="display: none;" aria-hidden="true" role="dialog" aria-modal="true" aria-labelledby="aboutModalTitle">
+        <div class="modal-overlay" onclick="closeAboutModal();"></div>
+        <div class="modal-content"
+            style="max-width: 650px; max-height: 90vh; overflow: hidden; display: flex; flex-direction: column;">
+            <div class="modal-header"
+                style="display: flex; justify-content: space-between; align-items: center; background: linear-gradient(135deg, #2196f3 0%, #1976d2 100%); color: white; padding: 20px;">
+                <h2 id="aboutModalTitle" style="margin: 0; font-size: 1.3rem;"><i class="bi bi-info-circle" style="margin-left: 10px;"></i>عن
+                    المنصة</h2>
+                <button type="button" onclick="closeAboutModal();"
+                    style="background: rgba(255,255,255,0.2); border: none; font-size: 1.2rem; cursor: pointer; color: white; width: 32px; height: 32px; border-radius: 50%; display: flex; align-items: center; justify-content: center;">&times;</button>
+            </div>
+            <div class="modal-body" style="padding: 0; overflow-y: auto; flex: 1;">
+                <div style="text-align: center; padding: 30px; background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);">
+                    <img src="pics/logo.png" alt="AmrNayl Academy"
+                        style="width: 90px; border-radius: 16px; margin-bottom: 15px; box-shadow: 0 8px 25px rgba(0,0,0,0.15);">
+                    <h3 style="color: #1a2332; margin-bottom: 8px; font-size: 1.4rem;">أكاديمية المهندس عمرو نايل</h3>
+                    <p style="color: #64748b; line-height: 1.7; max-width: 450px; margin: 0 auto; font-size: 0.95rem;">
+                        المنصة العربية الرائدة في تعليم صيانة الهواتف المحمولة باحترافية.
+                        نقدم محتوى تقني متخصص يجمع بين النظرية والتطبيق العملي.
+                    </p>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; border-bottom: 1px solid #e2e8f0;">
+                    <div style="text-align: center; padding: 20px; border-left: 1px solid #e2e8f0;">
+                        <i class="bi bi-people-fill" style="font-size: 1.5rem; color: #2196f3;"></i>
+                        <div style="font-size: 1.5rem; font-weight: 800; color: #1a2332; margin: 5px 0;">500+</div>
+                        <div style="font-size: 0.8rem; color: #64748b;">متدرب نشط</div>
+                    </div>
+                    <div style="text-align: center; padding: 20px; border-left: 1px solid #e2e8f0;">
+                        <i class="bi bi-play-btn-fill" style="font-size: 1.5rem; color: #2196f3;"></i>
+                        <div style="font-size: 1.5rem; font-weight: 800; color: #1a2332; margin: 5px 0;">50+</div>
+                        <div style="font-size: 0.8rem; color: #64748b;">دورة تدريبية</div>
+                    </div>
+                    <div style="text-align: center; padding: 20px;">
+                        <i class="bi bi-award-fill" style="font-size: 1.5rem; color: #2196f3;"></i>
+                        <div style="font-size: 1.5rem; font-weight: 800; color: #1a2332; margin: 5px 0;">10+</div>
+                        <div style="font-size: 0.8rem; color: #64748b;">سنوات خبرة</div>
+                    </div>
+                </div>
+                <div style="padding: 25px;">
+                    <h4 style="margin: 0 0 15px; color: #1a2332; display: flex; align-items: center; gap: 10px;">
+                        <i class="bi bi-person-badge" style="color: #2196f3;"></i>
+                        عن المهندس عمرو نايل
+                    </h4>
+                    <div style="display: flex; flex-direction: column; gap: 12px;">
+                        <div style="display: flex; align-items: flex-start; gap: 12px; padding: 12px; background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); border-radius: 10px; border-right: 3px solid #2196f3;">
+                            <i class="bi bi-phone-fill" style="font-size: 1.2rem; color: #1976d2; flex-shrink: 0;"></i>
+                            <span style="color: #1a2332; font-size: 0.9rem;">خبير معتمد في صيانة الهواتف الذكية (iPhone & Android)</span>
+                        </div>
+                        <div style="display: flex; align-items: flex-start; gap: 12px; padding: 12px; background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); border-radius: 10px; border-right: 3px solid #2196f3;">
+                            <i class="bi bi-tools" style="font-size: 1.2rem; color: #1976d2; flex-shrink: 0;"></i>
+                            <span style="color: #1a2332; font-size: 0.9rem;">خبرة أكثر من 10 سنوات في مجال التدريب والصيانة</span>
+                        </div>
+                        <div style="display: flex; align-items: flex-start; gap: 12px; padding: 12px; background: linear-gradient(135deg, #e3f2fd 0%, #bbdefb 100%); border-radius: 10px; border-right: 3px solid #2196f3;">
+                            <i class="bi bi-youtube" style="font-size: 1.2rem; color: #1976d2; flex-shrink: 0;"></i>
+                            <span style="color: #1a2332; font-size: 0.9rem;">مؤسس مركز وقناة م/ عمرو نايل التعليمية</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer" style="border-top: 1px solid #e2e8f0; padding: 15px 20px;">
+                <button type="button" class="btn btn-primary" onclick="closeAboutModal();"
+                    style="width: 100%;"><i class="bi bi-x-circle" style="margin-left: 8px;"></i>إغلاق</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- كل المحتوى القابل للتمرير داخل هذا الـ div - المودال لا يغيّر موضع المستخدم -->
+    <div id="page-scroll">
+    <!-- شريط التنقل -->
+    <nav class="navbar navbar-home">
+        <div class="nav-container">
+            <a href="home.html" class="logo nav-home-logo">
+                <span class="logo-text">AmrNayl academy</span>
+                <img src="pics/logo.png" alt="AMR NAYL ACADEMY" width="50" height="50" class="logo-img">
+            </a>
+            <div class="nav-links nav-home-actions">
+                <button id="installAppBtn" class="btn btn-outline nav-action-btn" type="button" style="display: none;">
+                    <i class="bi bi-download"></i>
+                    <span>تثبيت</span>
+                </button>
+                <a href="index.html" class="nav-link nav-action-link">
+                    <i class="bi bi-box-arrow-in-left"></i>
+                    <span>تسجيل الدخول</span>
+                </a>
+                <a href="courses.html" class="btn btn-primary nav-action-btn">
+                    <i class="bi bi-collection-play"></i>
+                    <span>تصفح الكورسات</span>
+                </a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- قسم البطل -->
+    <section class="hero">
+        <div class="hero-background">
+            <img src="pics/1.jpg" alt="صيانة الهواتف المحمولة">
+            <div class="hero-overlay"></div>
+        </div>
+        <div class="hero-content">
+            <h1 class="hero-title"> منصة تعليمية متخصصة في صيانة الهواتف </h1>
+            <p class="hero-subtitle">كورسات حصرية للفنيين من الصفر الي الاحتراف</p>
+            <div class="hero-buttons">
+                <a href="signup.html" class="btn btn-primary hero-cta-btn">
+                    <i class="bi bi-person-plus-fill"></i>
+                    <span>انضم إلينا</span>
+                </a>
+                <a href="#how-it-works" class="btn btn-secondary hero-cta-btn">
+                    <i class="bi bi-question-circle"></i>
+                    <span>كيفية الاستخدام</span>
+                </a>
+            </div>
+        </div>
+        <!-- تأثير التموج -->
+        <div class="hero-wave">
+            <svg class="hero-wave-svg" viewBox="0 0 1200 120" preserveAspectRatio="none" shape-rendering="geometricPrecision">
+                <path class="hero-wave-path"
+                    d="M0,46.29c47.79,22.2,103.59,32.17,158,28,70.36-5.37,136.33-33.31,206.8-37.5C438.64,32.43,512.34,53.67,583,72.05c69.27,18,138.3,24.88,209.4,13.08,36.15-6,69.85-17.84,104.45-29.34C989.49,25,1113-14.29,1200,52.47V120H0Z"
+                    fill="#ffffff"></path>
+            </svg>
+        </div>
+    </section>
+
+    <!-- قسم كيف يعمل -->
+    <section class="how-it-works" id="how-it-works">
+        <h2 class="section-title">كيف يعمل النظام؟</h2>
+        <div class="steps-container">
+            <div class="step">
+                <div class="step-number">1</div>
+                <div class="step-icon">
+                    <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
+                        <rect width="80" height="80" rx="12" fill="#E3F2FD" />
+                        <path
+                            d="M30 35H50M30 45H50M25 55H55C57.7614 55 60 52.7614 60 50V30C60 27.2386 57.7614 25 55 25H25C22.2386 25 20 27.2386 20 30V50C20 52.7614 22.2386 55 25 55Z"
+                            stroke="#1976D2" stroke-width="2" stroke-linecap="round" />
+                    </svg>
+                </div>
+                <h3 class="step-title">تسجيل الدخول</h3>
+                <p class="step-description">سجل دخول الي المنصه او انشئ حساب جديد مجانا</p>
+            </div>
+
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-icon">
+                    <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
+                        <rect width="80" height="80" rx="12" fill="#FFF3E0" />
+                        <circle cx="40" cy="35" r="8" stroke="#F57C00" stroke-width="2" />
+                        <path d="M40 43V50M35 50H45" stroke="#F57C00" stroke-width="2" stroke-linecap="round" />
+                        <rect x="25" y="25" width="30" height="20" rx="2" stroke="#F57C00" stroke-width="2" />
+                    </svg>
+                </div>
+                <h3 class="step-title">احصل على كود الوصول</h3>
+                <p class="step-description">ستحصل على كود خاص للوصول للمحتوى</p>
+            </div>
+
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-icon">
+                    <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
+                        <rect width="80" height="80" rx="12" fill="#E8F5E9" />
+                        <rect x="25" y="25" width="30" height="22" rx="2" stroke="#388E3C" stroke-width="2" />
+                        <path d="M35 47L35 55M45 47L45 55M30 55L50 55" stroke="#388E3C" stroke-width="2"
+                            stroke-linecap="round" />
+                        <circle cx="40" cy="35" r="3" fill="#388E3C" />
+                    </svg>
+                </div>
+                <h3 class="step-title">شاهد بأمان</h3>
+                <p class="step-description">تمتع بالمشاهدة الآمنة والمحمية</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- قسم لماذا نحن -->
+    <section class="why-choose">
+        <h2 class="section-title">لماذا تختارنا؟</h2>
+        <div class="features-container">
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg width="60" height="60" viewBox="0 0 60 60" fill="none">
+                        <circle cx="30" cy="30" r="28" fill="#00BCD4" fill-opacity="0.1" />
+                        <path
+                            d="M30 20V30L35 35M45 30C45 38.2843 38.2843 45 30 45C21.7157 45 15 38.2843 15 30C15 21.7157 21.7157 15 30 15C38.2843 15 45 21.7157 45 30Z"
+                            stroke="#00BCD4" stroke-width="2" stroke-linecap="round" />
+                    </svg>
+                </div>
+                <h3 class="feature-title">بث آمن ومشفر</h3>
+                <p class="feature-description">حماية كاملة للمحتوى عبر تشفير متقدم</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg width="60" height="60" viewBox="0 0 60 60" fill="none">
+                        <circle cx="30" cy="30" r="28" fill="#2196F3" fill-opacity="0.1" />
+                        <path
+                            d="M30 15V25M30 35V45M20 30H25M35 30H40M30 45C38.2843 45 45 38.2843 45 30C45 21.7157 38.2843 15 30 15C21.7157 15 15 21.7157 15 30C15 38.2843 21.7157 45 30 45Z"
+                            stroke="#2196F3" stroke-width="2" stroke-linecap="round" />
+                    </svg>
+                </div>
+                <h3 class="feature-title">وصول من جهاز واحد</h3>
+                <p class="feature-description">الكود يعمل على جهاز واحد فقط طوال فترة الصلاحية</p>
+            </div>
+
+            <div class="feature-card">
+                <div class="feature-icon">
+                    <svg width="60" height="60" viewBox="0 0 60 60" fill="none">
+                        <circle cx="30" cy="30" r="28" fill="#FF9800" fill-opacity="0.1" />
+                        <path
+                            d="M30 14C21.1634 14 14 21.1634 14 30V35C14 38.3137 16.6863 41 20 41H22V29H16V30C16 22.268 22.268 16 30 16C37.732 16 44 22.268 44 30V29H38V41H40C43.3137 41 46 38.3137 46 35V30C46 21.1634 38.8366 14 30 14Z M38 31H44V39H40C38.8954 39 38 38.1046 38 37V31Z M22 31V37C22 38.1046 21.1046 39 20 39H16V31H22Z"
+                            stroke="#FF9800" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                    </svg>
+                </div>
+                <h3 class="feature-title">دعم فني 24/7</h3>
+                <p class="feature-description">فريق دعم متخصص جاهز لمساعدتك في أي وقت</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- قسم الإحصائيات -->
+    <section class="stats-section">
+        <div class="container">
+            <h2 style="text-align: center; color: white; margin-bottom: 40px; font-size: 2rem;">
+                <i class="bi bi-graph-up-arrow" style="margin-left: 10px;"></i>
+                إنجازاتنا بالأرقام
+            </h2>
+            <div class="stats-grid">
+                <div class="stat-card"
+                    style="background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); border-radius: 16px; padding: 30px; text-align: center;">
+                    <div
+                        style="width: 60px; height: 60px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px;">
+                        <i class="bi bi-people-fill" style="font-size: 1.8rem; color: white;"></i>
+                    </div>
+                    <div class="stat-number" style="font-size: 2.5rem; font-weight: 800; color: white;">500+</div>
+                    <div class="stat-label" style="color: rgba(255,255,255,0.8); font-size: 1rem;">متدرب نشط</div>
+                </div>
+                <div class="stat-card"
+                    style="background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); border-radius: 16px; padding: 30px; text-align: center;">
+                    <div
+                        style="width: 60px; height: 60px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px;">
+                        <i class="bi bi-play-circle-fill" style="font-size: 1.8rem; color: white;"></i>
+                    </div>
+                    <div class="stat-number" style="font-size: 2.5rem; font-weight: 800; color: white;">50+</div>
+                    <div class="stat-label" style="color: rgba(255,255,255,0.8); font-size: 1rem;">دورة تدريبية</div>
+                </div>
+                <div class="stat-card"
+                    style="background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); border-radius: 16px; padding: 30px; text-align: center;">
+                    <div
+                        style="width: 60px; height: 60px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px;">
+                        <i class="bi bi-clock-fill" style="font-size: 1.8rem; color: white;"></i>
+                    </div>
+                    <div class="stat-number" style="font-size: 2.5rem; font-weight: 800; color: white;">100+</div>
+                    <div class="stat-label" style="color: rgba(255,255,255,0.8); font-size: 1rem;">ساعة محتوى</div>
+                </div>
+                <div class="stat-card"
+                    style="background: rgba(255,255,255,0.1); backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2); border-radius: 16px; padding: 30px; text-align: center;">
+                    <div
+                        style="width: 60px; height: 60px; background: rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 15px;">
+                        <i class="bi bi-emoji-smile-fill" style="font-size: 1.8rem; color: white;"></i>
+                    </div>
+                    <div class="stat-number" style="font-size: 2.5rem; font-weight: 800; color: white;">98%</div>
+                    <div class="stat-label" style="color: rgba(255,255,255,0.8); font-size: 1rem;">نسبة الرضا</div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- الفوتر -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-content">
+                <div class="footer-section">
+                    <div class="logo">
+                        <img src="pics/logo.png" alt="AMR NAYL ACADEMY" width="50" height="50"
+                            style="border-radius: 8px;">
+                        <span>اكاديمية م/ عمرو نايل</span>
+                    </div>
+                    <p class="footer-description">- منصتك الأولى لتعلم صيانة الهواتف المحمولة باحترافية</p>
+                </div>
+                <div class="footer-section">
+                    <h4><i class="bi bi-link-45deg" style="margin-left: 8px;"></i>روابط سريعة</h4>
+                    <ul class="footer-links">
+                        <li><a href="courses.html"><i class="bi bi-play-circle"
+                                    style="margin-left: 8px;"></i>الكورسات</a></li>
+                        <li><button type="button" class="footer-link-btn" onclick="openAboutModal();"><i
+                                    class="bi bi-info-circle" style="margin-left: 8px;"></i>من
+                                نحن</button></li>
+                        <li><a href="tel:+201060631033"><i class="bi bi-telephone" style="margin-left: 8px;"></i>اتصل
+                                بنا</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section">
+                    <h4><i class="bi bi-chat-dots" style="margin-left: 8px;"></i>تواصل معنا</h4>
+                    <ul class="footer-links">
+                        <li><a href="mailto:amrnayl23@gmail.com"
+                                style="direction: ltr; unicode-bidi: embed; display: inline-flex; align-items: center; gap: 8px;"><i
+                                    class="bi bi-envelope" style="order: 1;"></i>amrnayl23@gmail.com</a>
+                        </li>
+                        <li><a href="https://wa.me/201060631033" target="_blank"
+                                style="direction: ltr; unicode-bidi: embed; display: inline-flex; align-items: center; gap: 8px;"><i
+                                    class="bi bi-whatsapp" style="order: 1; color: #25d366;"></i>+20
+                                106 063 1033</a></li>
+                    </ul>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p> جميع الحقوق محفوظة © 2026</p>
+            </div>
+        </div>
+    </footer>
+    </div>
+    <!-- نهاية #page-scroll -->
+
+    <!-- PWA Install Instructions Modal -->
+    <div id="installModal" class="modal" style="display: none;">
+        <div class="modal-overlay" onclick="closeInstallModal()"></div>
+        <div class="modal-content"
+            style="max-width: 500px; max-height: 90vh; overflow: hidden; display: flex; flex-direction: column;">
+            <div class="modal-header"
+                style="display: flex; justify-content: space-between; align-items: center; flex-direction: row-reverse;">
+                <button onclick="closeInstallModal()"
+                    style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #64748b;">&times;</button>
+                <h3 style="margin: 0;">كيفية تثبيت التطبيق</h3>
+            </div>
+            <div class="modal-body" id="installInstructions"
+                style="padding: 20px; text-align: center; display: flex; flex-direction: column; gap: 12px; overflow-y: auto; flex: 1;">
+                <!-- Instructions will be injected by JS -->
+            </div>
+            <div class="modal-footer" style="border-top: 1px solid #e2e8f0; padding: 15px 20px;">
+                <button class="btn btn-primary" onclick="closeInstallModal()" style="width: 100%;">فهمت</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        (function () {
+            var aboutModalTouchHandler = null;
+
+            window.openAboutModal = function () {
+                var el = document.getElementById('aboutModal');
+                if (!el) return;
+                /* التمرير داخل #page-scroll فلا نحتاج حفظ/استعادة - نمنع فقط تمرير الخلفية */
+                document.body.classList.add('about-modal-open');
+                el.style.display = '';
+                el.classList.add('modal-open');
+                el.setAttribute('aria-hidden', 'false');
+                aboutModalTouchHandler = function (ev) {
+                    if (!ev.target.closest || !ev.target.closest('#aboutModal .modal-content')) {
+                        ev.preventDefault();
+                    }
+                };
+                document.addEventListener('touchmove', aboutModalTouchHandler, { passive: false });
+            };
+
+            window.closeAboutModal = function () {
+                var el = document.getElementById('aboutModal');
+                if (!el) return;
+                el.classList.remove('modal-open');
+                el.style.display = 'none';
+                el.setAttribute('aria-hidden', 'true');
+                if (aboutModalTouchHandler) {
+                    document.removeEventListener('touchmove', aboutModalTouchHandler, { passive: false });
+                    aboutModalTouchHandler = null;
+                }
+                document.body.classList.remove('about-modal-open');
+            };
+        })();
+    </script>
+    <script src="js/pwa.js"></script>
+    <script src="js/deviceUUID.js"></script>
+    <script src="js/deviceFingerprint.js"></script>
+    <script src="js/tracking.js"></script>
+    <script src="js/main.js"></script>
+</body>
+
+</html>

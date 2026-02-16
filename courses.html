@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AmrNayl academy - استكشف الكورسات</title>
+    <meta name="description" content="استكشف كورساتنا المتخصصة في صيانة الهواتف المحمولة">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/support-modal.css">
+    <link rel="shortcut icon" href="fav.ico" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+</head>
+
+<body>
+    <!-- شريط التنقل -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-links">
+                <div class="profile-dropdown">
+                    <div class="profile-avatar">
+                        <i class="bi bi-person-fill"></i>
+                    </div>
+                    <div class="dropdown-menu">
+                        <a href="profile.html" class="dropdown-item">
+                            <i class="bi bi-person-circle"></i>
+                            <span>الملف الشخصي</span>
+                        </a>
+                        <a href="#" class="dropdown-item open-support-modal"
+                            onclick="openSupportModal(); return false;">
+                            <i class="bi bi-headset"></i>
+                            <span>الدعم الفني</span>
+                        </a>
+                        <a href="index.html" class="dropdown-item logout-item">
+                            <i class="bi bi-box-arrow-left"></i>
+                            <span>تسجيل الخروج</span>
+                        </a>
+                    </div>
+                </div>
+                <a href="profile.html?tab=course-codes" class="nav-link"><i class="bi bi-upc-scan"
+                        style="margin-left: 6px;"></i>أكوادي</a>
+                <a href="my-courses.html" class="nav-link"><i class="bi bi-collection-play-fill"
+                        style="margin-left: 6px;"></i>كورساتي</a>
+                <a href="recharge.html" class="nav-link"><i class="bi bi-wallet2" style="margin-left: 6px;"></i>صفحة
+                    الشحن</a>
+                <a href="courses.html" class="nav-link active"><i class="bi bi-grid-fill"
+                        style="margin-left: 6px;"></i>الكورسات</a>
+            </div>
+            <a href="home.html" class="logo" style="text-decoration: none;">
+                <span>AmrNayl academy</span>
+                <img src="pics/logo.png" alt="AMR NAYL ACADEMY" width="50" height="50" style="border-radius: 8px;">
+            </a>
+        </div>
+    </nav>
+
+    <!-- قسم الكورسات -->
+    <section class="courses-section">
+        <div class="container">
+            <div class="page-header">
+                <h1 class="page-title">استكشف الكورسات التدريبية</h1>
+                <p class="page-subtitle">اختر من بين مجموعة واسعة من الكورسات المتخصصة في صيانة الهواتف</p>
+            </div>
+
+            <div class="courses-grid" id="courses-grid">
+                <!-- تُحمّل الكورسات ديناميكياً من API -->
+                <div class="courses-loading" id="courses-loading">جاري تحميل الكورسات...</div>
+                <div class="courses-empty" id="courses-empty" style="display: none;">لا توجد كورسات متاحة حالياً.</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Support Modal -->
+    <div id="support-modal" class="support-modal">
+        <div class="support-modal-overlay"></div>
+        <div class="support-modal-content">
+            <button class="support-modal-close">
+                <i class="bi bi-x-lg"></i>
+            </button>
+            <div class="support-modal-header">
+                <h2 class="support-modal-title">تواصل مع الدعم الفني</h2>
+                <p class="support-modal-subtitle">نحن هنا لمساعدتك في أي وقت</p>
+            </div>
+            <div class="support-channels">
+                <a href="tel:01060631033" class="support-btn btn-phone">
+                    <div class="support-icon"><i class="bi bi-telephone-fill"></i></div>
+                    <div class="support-info">
+                        <span class="support-label">اتصال هاتفي</span>
+                        <span class="support-value">01060631033</span>
+                    </div>
+                </a>
+                <a href="https://wa.me/201060631033" target="_blank" class="support-btn btn-whatsapp">
+                    <div class="support-icon"><i class="bi bi-whatsapp"></i></div>
+                    <div class="support-info">
+                        <span class="support-label">واتساب</span>
+                        <span class="support-value">01060631033</span>
+                    </div>
+                </a>
+                <a href="https://t.me/+201060631033" target="_blank" class="support-btn btn-telegram">
+                    <div class="support-icon"><i class="bi bi-telegram"></i></div>
+                    <div class="support-info">
+                        <span class="support-label">تليجرام</span>
+                        <span class="support-value">01060631033</span>
+                    </div>
+                </a>
+                <a href="https://www.facebook.com/share/1AWZvuarWP/" target="_blank" class="support-btn btn-facebook">
+                    <div class="support-icon"><i class="bi bi-facebook"></i></div>
+                    <div class="support-info">
+                        <span class="support-label">فيسبوك</span>
+                        <span class="support-value">AmrNayl Academy</span>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/auth-check.js"></script>
+    <script>
+        // حماية الصفحة - التحقق من تسجيل الدخول
+        document.addEventListener('DOMContentLoaded', async function () {
+            await protectPage('index.html');
+        });
+    </script>
+    <script src="js/main.js"></script>
+    <script src="js/profile-dropdown.js"></script>
+    <script src="js/courses-list.js"></script>
+    <script src="js/support-modal.js"></script>
+</body>
+
+</html>

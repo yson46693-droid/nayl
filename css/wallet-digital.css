@@ -1,0 +1,910 @@
+/* ===========================
+   Digital Wallet Card Styles
+   تصميم محفظة رقمية احترافي
+   =========================== */
+
+.wallet-digital-card {
+    position: relative;
+    background: linear-gradient(135deg, #1a2332 0%, #243447 50%, #1a2332 100%);
+    border-radius: 24px;
+    padding: 0;
+    margin-bottom: var(--spacing-xl);
+    box-shadow:
+        0 20px 60px rgba(0, 0, 0, 0.3),
+        0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+    overflow: hidden;
+    min-height: 220px;
+    perspective: 1000px;
+}
+
+.wallet-card-gradient {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background:
+        radial-gradient(circle at 20% 30%, rgba(74, 144, 226, 0.3) 0%, transparent 50%),
+        radial-gradient(circle at 80% 70%, rgba(255, 159, 67, 0.2) 0%, transparent 50%);
+    z-index: 1;
+}
+
+.wallet-card-shine {
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg,
+            transparent 30%,
+            rgba(255, 255, 255, 0.1) 50%,
+            transparent 70%);
+    animation: shine 8s infinite;
+    z-index: 2;
+}
+
+@keyframes shine {
+    0% {
+        transform: translateX(-100%) translateY(-100%) rotate(45deg);
+    }
+
+    100% {
+        transform: translateX(100%) translateY(100%) rotate(45deg);
+    }
+}
+
+.wallet-card-content-digital {
+    position: relative;
+    z-index: 3;
+    padding: var(--spacing-xl);
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-lg);
+    height: 100%;
+}
+
+.wallet-card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.wallet-card-chip {
+    opacity: 0.9;
+    filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3));
+}
+
+.wallet-card-logo {
+    opacity: 0.9;
+    animation: float 3s ease-in-out infinite;
+}
+
+@keyframes float {
+
+    0%,
+    100% {
+        transform: translateY(0px);
+    }
+
+    50% {
+        transform: translateY(-8px);
+    }
+}
+
+.wallet-card-number {
+    display: flex;
+    gap: 16px;
+    align-items: center;
+    font-family: 'Courier New', monospace;
+    letter-spacing: 4px;
+}
+
+.card-number-segment {
+    color: rgba(255, 255, 255, 0.95);
+    font-size: 1.1rem;
+    font-weight: 700;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.wallet-card-balance {
+    margin: var(--spacing-md) 0;
+}
+
+.balance-label-digital {
+    color: rgba(255, 255, 255, 0.8);
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.balance-amount-digital-wrapper {
+    display: flex;
+    align-items: baseline;
+    gap: 12px;
+}
+
+.balance-amount-digital {
+    color: white;
+    font-size: 2.5rem;
+    font-weight: 900;
+    margin: 0;
+    letter-spacing: -2px;
+    line-height: 1;
+    text-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+    font-family: 'Cairo', sans-serif;
+}
+
+.currency-symbol-digital {
+    color: rgba(255, 255, 255, 0.9);
+    font-size: 1.3rem;
+    font-weight: 700;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+.wallet-card-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+    margin-top: auto;
+}
+
+.wallet-card-holder,
+.wallet-card-expiry {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.holder-label-digital,
+.expiry-label-digital {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 0.75rem;
+    margin: 0;
+    text-transform: uppercase;
+    letter-spacing: 1px;
+}
+
+.holder-name-digital,
+.expiry-date-digital {
+    color: white;
+    font-size: 1rem;
+    font-weight: 700;
+    margin: 0;
+    text-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* أزرار العمليات الرقمية */
+.wallet-actions-digital {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: var(--spacing-lg);
+    margin-bottom: var(--spacing-xl);
+}
+
+.btn-wallet-digital {
+    background: white;
+    border: 2px solid transparent;
+    border-radius: 16px;
+    padding: var(--spacing-lg);
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    cursor: pointer;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+    position: relative;
+    overflow: hidden;
+}
+
+.btn-wallet-digital::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent);
+    transition: left 0.5s;
+}
+
+.btn-wallet-digital:hover::before {
+    left: 100%;
+}
+
+.btn-wallet-digital:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.15);
+}
+
+.btn-icon-digital {
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 28px;
+    transition: all 0.3s ease;
+}
+
+.btn-recharge-digital .btn-icon-digital {
+    background: linear-gradient(135deg, rgba(76, 175, 80, 0.15) 0%, rgba(76, 175, 80, 0.05) 100%);
+    color: #4CAF50;
+}
+
+.btn-recharge-digital:hover {
+    border-color: #4CAF50;
+    background: linear-gradient(135deg, rgba(76, 175, 80, 0.05) 0%, rgba(76, 175, 80, 0.02) 100%);
+}
+
+.btn-recharge-digital:hover .btn-icon-digital {
+    background: linear-gradient(135deg, rgba(76, 175, 80, 0.25) 0%, rgba(76, 175, 80, 0.15) 100%);
+    transform: scale(1.1);
+}
+
+.btn-withdraw-digital .btn-icon-digital {
+    background: linear-gradient(135deg, rgba(255, 159, 67, 0.15) 0%, rgba(255, 159, 67, 0.05) 100%);
+    color: #ff9f43;
+}
+
+.btn-withdraw-digital:hover {
+    border-color: #ff9f43;
+    background: linear-gradient(135deg, rgba(255, 159, 67, 0.05) 0%, rgba(255, 159, 67, 0.02) 100%);
+}
+
+.btn-withdraw-digital:hover .btn-icon-digital {
+    background: linear-gradient(135deg, rgba(255, 159, 67, 0.25) 0%, rgba(255, 159, 67, 0.15) 100%);
+    transform: scale(1.1);
+}
+
+.btn-text-digital {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    text-align: right;
+    flex: 1;
+}
+
+.btn-title-digital {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: var(--primary-dark);
+    margin: 0;
+}
+
+.btn-subtitle-digital {
+    font-size: 0.9rem;
+    color: var(--text-gray);
+    margin: 0;
+}
+
+/* جدول طلبات تعبئة الرصيد */
+.recharge-requests-section {
+    background: white;
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-xl);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    margin-bottom: var(--spacing-xl);
+}
+
+.section-header-modern {
+    margin-bottom: var(--spacing-lg);
+    padding-bottom: var(--spacing-md);
+    border-bottom: 2px solid var(--bg-light);
+}
+
+.section-heading-modern {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--primary-dark);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.section-heading-modern i {
+    color: var(--primary-blue);
+    font-size: 1.3rem;
+}
+
+.recharge-requests-table-container {
+    overflow-x: auto;
+    border-radius: var(--radius-md);
+    border: 1px solid #e0e6ed;
+}
+
+.recharge-requests-table {
+    width: 100%;
+    border-collapse: collapse;
+    background: white;
+}
+
+.recharge-requests-table thead {
+    background: linear-gradient(135deg, #f5f7fa 0%, #ffffff 100%);
+}
+
+.recharge-requests-table th {
+    padding: var(--spacing-md);
+    text-align: right;
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: var(--primary-dark);
+    border-bottom: 2px solid #e0e6ed;
+    white-space: nowrap;
+}
+
+.recharge-requests-table td {
+    padding: var(--spacing-md);
+    text-align: right;
+    border-bottom: 1px solid #f0f4f8;
+    font-size: 0.95rem;
+}
+
+.recharge-request-row {
+    transition: all 0.3s ease;
+}
+
+.recharge-request-row:hover {
+    background: #f8fafc;
+}
+
+.request-id {
+    font-weight: 700;
+    color: var(--primary-blue);
+    font-family: 'Courier New', monospace;
+}
+
+.request-amount {
+    font-weight: 700;
+    color: var(--primary-dark);
+    font-size: 1rem;
+}
+
+.request-method {
+    color: var(--text-gray);
+}
+
+.request-date {
+    color: var(--text-gray);
+    font-size: 0.9rem;
+}
+
+.status-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 6px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    white-space: nowrap;
+}
+
+.status-pending {
+    background: rgba(255, 159, 67, 0.15);
+    color: #ff9f43;
+}
+
+.status-approved {
+    background: rgba(76, 175, 80, 0.15);
+    color: #4CAF50;
+}
+
+.status-rejected {
+    background: rgba(244, 67, 54, 0.15);
+    color: #f44336;
+}
+
+.status-cancelled {
+    background: rgba(139, 149, 165, 0.15);
+    color: #8b95a5;
+}
+
+.request-actions {
+    display: flex;
+    gap: 8px;
+    justify-content: flex-end;
+}
+
+.btn-view-receipt,
+.btn-view-notes {
+    width: 36px;
+    height: 36px;
+    border-radius: 8px;
+    border: 2px solid transparent;
+    background: var(--bg-light);
+    color: var(--primary-blue);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    font-size: 16px;
+}
+
+.btn-view-receipt:hover {
+    background: rgba(74, 144, 226, 0.1);
+    border-color: var(--primary-blue);
+    color: var(--primary-blue);
+    transform: scale(1.1);
+}
+
+.btn-view-notes:hover {
+    background: rgba(255, 159, 67, 0.1);
+    border-color: #ff9f43;
+    color: #ff9f43;
+    transform: scale(1.1);
+}
+
+.loading-state,
+.empty-state {
+    text-align: center;
+    padding: var(--spacing-xl);
+    color: var(--text-gray);
+}
+
+.loading-state i,
+.empty-state i {
+    font-size: 2rem;
+    margin-bottom: var(--spacing-sm);
+    opacity: 0.5;
+}
+
+/* Modal عرض الإيصال */
+.receipt-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 10000;
+    display: flex;
+    align-items: flex-start;
+    /* Align to top to support scrolling if content is very long */
+    justify-content: center;
+    overflow-y: auto;
+    /* Allow scrolling within the modal if needed */
+    padding: var(--spacing-lg);
+}
+
+.receipt-modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.9);
+    backdrop-filter: blur(8px);
+}
+
+.receipt-modal-content.enhanced-modal {
+    position: relative;
+    z-index: 10001;
+    background: white;
+    border-radius: var(--radius-lg);
+    width: 100%;
+    max-width: 800px;
+    /* Larger max-width */
+    margin: auto;
+    /* Center vertically if flex-start is used */
+    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    animation: modalSlideUp 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes modalSlideUp {
+    from {
+        transform: translateY(50px);
+        opacity: 0;
+    }
+
+    to {
+        transform: translateY(0);
+        opacity: 1;
+    }
+}
+
+.receipt-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: var(--spacing-lg);
+    border-bottom: 1px solid #e0e6ed;
+    background: #f8fafc;
+}
+
+.receipt-title {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--primary-dark);
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.receipt-title i {
+    color: var(--primary-blue);
+}
+
+.receipt-actions {
+    display: flex;
+    gap: 10px;
+}
+
+.receipt-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    border: none;
+    text-decoration: none;
+}
+
+.download-btn {
+    background: rgba(74, 144, 226, 0.1);
+    color: var(--primary-blue);
+}
+
+.download-btn:hover {
+    background: var(--primary-blue);
+    color: white;
+}
+
+.close-btn {
+    background: rgba(244, 67, 54, 0.1);
+    color: #f44336;
+}
+
+.close-btn:hover {
+    background: #f44336;
+    color: white;
+}
+
+.receipt-image-container {
+    padding: var(--spacing-lg);
+    background: #f1f5f9;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 300px;
+}
+
+.receipt-image {
+    max-width: 100%;
+    max-height: 80vh;
+    /* Limit height to viewport height */
+    height: auto;
+    border-radius: var(--radius-md);
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    object-fit: contain;
+}
+
+@media (max-width: 640px) {
+    .receipt-modal {
+        padding: 0;
+    }
+
+    .receipt-modal-content.enhanced-modal {
+        height: 100%;
+        max-height: 100%;
+        border-radius: 0;
+        max-width: 100%;
+    }
+
+    .receipt-image {
+        max-height: 70vh;
+    }
+}
+
+/* تحسين سجل المعاملات */
+.transactions-section-premium {
+    background: white;
+    border-radius: var(--radius-lg);
+    padding: var(--spacing-xl);
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.transactions-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: var(--spacing-lg);
+    padding-bottom: var(--spacing-md);
+    border-bottom: 2px solid var(--bg-light);
+}
+
+.section-heading-premium {
+    font-size: 1.5rem;
+    font-weight: 800;
+    color: var(--primary-dark);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.section-heading-premium i {
+    color: var(--primary-blue);
+    font-size: 1.4rem;
+}
+
+.transactions-filter {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+}
+
+.filter-select {
+    padding: 10px 16px;
+    border: 2px solid #e0e6ed;
+    border-radius: var(--radius-sm);
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--primary-dark);
+    background: white;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.filter-select:focus {
+    outline: none;
+    border-color: var(--primary-blue);
+    box-shadow: 0 0 0 4px rgba(74, 144, 226, 0.1);
+}
+
+.transactions-list-premium {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    min-height: 200px;
+}
+
+.transaction-item-premium {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md);
+    border-radius: var(--radius-md);
+    background: var(--bg-light);
+    transition: all 0.3s ease;
+    border: 2px solid transparent;
+    animation: slideInRight 0.4s ease;
+}
+
+.transaction-item-premium:hover {
+    background: white;
+    border-color: rgba(74, 144, 226, 0.2);
+    transform: translateX(-4px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+}
+
+.transaction-icon-premium {
+    width: 56px;
+    height: 56px;
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.transaction-item-premium.credit .transaction-icon-premium {
+    background: linear-gradient(135deg, rgba(76, 175, 80, 0.2) 0%, rgba(76, 175, 80, 0.05) 100%);
+    color: #4CAF50;
+}
+
+.transaction-item-premium.debit .transaction-icon-premium {
+    background: linear-gradient(135deg, rgba(255, 159, 67, 0.2) 0%, rgba(255, 159, 67, 0.05) 100%);
+    color: #ff9f43;
+}
+
+.transaction-details-premium {
+    flex: 1;
+}
+
+.transaction-title-premium {
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: var(--primary-dark);
+    margin: 0 0 6px 0;
+}
+
+.transaction-date-premium {
+    font-size: 0.85rem;
+    color: var(--text-gray);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.transaction-amount-premium {
+    font-size: 1.25rem;
+    font-weight: 800;
+    flex-shrink: 0;
+}
+
+.transaction-amount-premium.credit {
+    color: #4CAF50;
+}
+
+.transaction-amount-premium.debit {
+    color: #ff9f43;
+}
+
+/* Animation Keyframes */
+@keyframes slideInRight {
+    from {
+        opacity: 0;
+        transform: translateX(-20px);
+    }
+
+    to {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+/* Pagination Styles */
+.pagination-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: var(--spacing-md);
+    margin-top: var(--spacing-xl);
+    padding-top: var(--spacing-lg);
+    border-top: 2px solid var(--bg-light);
+}
+
+.pagination-btn {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 18px;
+    background: white;
+    border: 2px solid #e0e6ed;
+    border-radius: var(--radius-sm);
+    color: var(--primary-dark);
+    font-weight: 600;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.pagination-btn:hover:not(:disabled) {
+    background: var(--primary-blue);
+    border-color: var(--primary-blue);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(74, 144, 226, 0.3);
+}
+
+.pagination-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+}
+
+.pagination-numbers {
+    display: flex;
+    gap: 8px;
+}
+
+.pagination-number {
+    width: 40px;
+    height: 40px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: var(--radius-sm);
+    background: white;
+    border: 2px solid #e0e6ed;
+    color: var(--primary-dark);
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: all 0.3s ease;
+}
+
+.pagination-number:hover {
+    border-color: var(--primary-blue);
+    color: var(--primary-blue);
+}
+
+.pagination-number.active {
+    background: var(--primary-blue);
+    border-color: var(--primary-blue);
+    color: white;
+    box-shadow: 0 4px 12px rgba(74, 144, 226, 0.3);
+}
+
+/* Empty State */
+.transactions-empty {
+    text-align: center;
+    padding: var(--spacing-xxl);
+    color: var(--text-gray);
+}
+
+.transactions-empty svg {
+    margin-bottom: var(--spacing-md);
+    opacity: 0.5;
+}
+
+.transactions-empty h4 {
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: var(--primary-dark);
+    margin-bottom: 8px;
+}
+
+.transactions-empty p {
+    font-size: 0.95rem;
+    margin: 0;
+}
+
+/* Responsive Design */
+@media (max-width: 968px) {
+    .wallet-actions-digital {
+        grid-template-columns: 1fr;
+    }
+
+    .balance-amount-digital {
+        font-size: 2rem;
+    }
+
+    .wallet-digital-card {
+        min-height: 200px;
+    }
+}
+
+@media (max-width: 640px) {
+    .balance-amount-digital {
+        font-size: 1.8rem;
+    }
+
+    .currency-symbol-digital {
+        font-size: 1.1rem;
+    }
+
+    .wallet-card-content-digital {
+        padding: var(--spacing-lg);
+    }
+
+    .btn-wallet-digital {
+        padding: var(--spacing-md);
+    }
+
+    .card-number-segment {
+        font-size: 0.9rem;
+        letter-spacing: 2px;
+    }
+
+    .recharge-requests-table-container {
+        overflow-x: scroll;
+    }
+
+    .recharge-requests-table {
+        min-width: 600px;
+    }
+
+    .transactions-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: var(--spacing-md);
+    }
+
+    .pagination-btn span {
+        display: none;
+    }
+}

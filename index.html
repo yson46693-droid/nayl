@@ -1,0 +1,217 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AmrNayl academy - تسجيل الدخول</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="shortcut icon" href="fav.ico" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+</head>
+
+<body class="login-page">
+    <!-- توجيه مستخدمي الهواتف إلى النسخة المخصصة -->
+    <script>
+        (function() {
+            var w = window.innerWidth || document.documentElement.clientWidth;
+            if (w <= 768) {
+                window.location.replace('index-mobile.html');
+            }
+        })();
+    </script>
+    <div class="signup-full-container">
+        <!-- Info Panel (Right Side in RTL) -->
+        <div class="signup-info-panel-new">
+            <div class="overlay-grad"></div>
+            <div class="image-bg">
+                <img src="pics/logo.png" alt="Fingerprint Background">
+            </div>
+            <div class="info-overlay-content">
+                <div class="welcome-text-overlay">
+                    <h2 class="welcome-title">مرحباً بعودتك</h2>
+                    <p class="welcome-subtitle">قم بتسجيل الدخول إلى المنصة
+                        لتتمكن من استخدام خدماتنا</p>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Form Panel (Left Side in RTL) -->
+        <div class="signup-form-panel">
+            <div class="form-content-wrapper">
+                <div class="form-header-modern">
+                    <span class="subtitle">مرحباً بك</span>
+                    <h1>تسجيل الدخول<span class="dot">.</span></h1>
+                    <p class="login-prompt">ليس لديك حساب؟ <a href="signup.html">إنشاء حساب جديد</a></p>
+                </div>
+
+                <form class="login-form" id="loginForm">
+                    <!-- حقل البريد الإلكتروني -->
+                    <div class="form-group block-style" id="emailGroup">
+                        <label for="email"><i class="bi bi-envelope-fill"
+                                style="margin-left: 6px; color: #2196f3;"></i>البريد الإلكتروني</label>
+                        <div class="input-wrapper">
+                            <input type="email" id="email" placeholder="أدخل بريدك الإلكتروني" required>
+                            <div class="block-icon">
+                                <i class="bi bi-envelope" style="font-size: 1.2rem;"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="form-group block-style">
+                        <label for="password"><i class="bi bi-lock-fill"
+                                style="margin-left: 6px; color: #2196f3;"></i>كلمة المرور</label>
+                        <div class="input-wrapper">
+                            <input type="password" id="password" placeholder="أدخل كلمة المرور" required>
+                            <button type="button" class="toggle-password" id="togglePassword"
+                                aria-label="إظهار كلمة المرور"
+                                style="background: none; border: none; padding: 0; cursor: pointer;">
+                                <i class="bi bi-eye eye-icon" style="font-size: 1.2rem; color: #64748b;"></i>
+                                <i class="bi bi-eye-slash eye-off-icon"
+                                    style="font-size: 1.2rem; color: #64748b; display: none;"></i>
+                            </button>
+                        </div>
+                    </div>
+
+                    <div class="form-options"
+                        style="display: flex; justify-content: space-between; align-items: center; margin: 12px 0;">
+                        <label class="custom-checkbox-wrapper"
+                            style="display: flex; align-items: center; gap: 10px; cursor: pointer; user-select: none;">
+                            <input type="checkbox" id="remember" style="display: none;">
+                            <span class="custom-checkbox" style="
+                                width: 20px;
+                                height: 20px;
+                                border: 2px solid #cbd5e1;
+                                border-radius: 5px;
+                                display: inline-flex;
+                                align-items: center;
+                                justify-content: center;
+                                transition: all 0.2s ease;
+                                background: #fff;
+                            ">
+                                <i class="bi bi-check"
+                                    style="color: #fff; font-size: 14px; font-weight: bold; opacity: 0; transition: opacity 0.2s;"></i>
+                            </span>
+                            <span style="font-size: 0.9rem; color: #64748b;">تذكرني</span>
+                        </label>
+                        <style>
+                            .custom-checkbox-wrapper input:checked+.custom-checkbox {
+                                background: linear-gradient(135deg, #2196f3, #1976d2) !important;
+                                border-color: #2196f3 !important;
+                            }
+
+                            .custom-checkbox-wrapper input:checked+.custom-checkbox i {
+                                opacity: 1 !important;
+                            }
+
+                            .custom-checkbox-wrapper:hover .custom-checkbox {
+                                border-color: #2196f3;
+                                box-shadow: 0 0 0 3px rgba(33, 150, 243, 0.15);
+                            }
+                        </style>
+                        <a href="forgot-password.html" class="forgot-password"
+                            style="color: #2196f3; text-decoration: none; font-size: 0.85rem; font-weight: 600;"><i
+                                class="bi bi-key" style="margin-left: 4px;"></i>نسيت
+                            كلمة المرور؟</a>
+                    </div>
+
+                    <button type="submit" class="btn-primary-modern" style="width: 100%; margin-top: 8px;">
+                        <i class="bi bi-box-arrow-in-left" style="margin-left: 8px;"></i>
+                        تسجيل الدخول
+                    </button>
+
+                    <button type="button" class="btn-outline" id="fingerprintLoginBtn"
+                        style="display: none; width: 100%; margin-top: 8px; align-items: center; justify-content: center; gap: 8px;">
+                        <i class="bi bi-fingerprint" style="font-size: 1.1rem;"></i>
+                        تسجيل الدخول بالبصمة
+                    </button>
+
+                    <button type="button" class="btn-outline" id="termsBtn"
+                        style="width: 20%; margin: 8px auto 0; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                        <i class="bi bi-file-earmark-text"></i>
+                        الشروط والأحكام
+                    </button>
+                </form>
+            </div>
+
+            <div class="form-footer">
+                <a href="home.html" class="footer-logo"
+                    style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 0.5rem;">
+                    <img src="pics/logo.png" alt="AMR NAYL ACADEMY" width="40" height="40" style="border-radius: 6px;">
+                    <span>AmrNayl Academy</span>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Terms and Conditions Modal -->
+    <div id="termsModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <div class="modal-header">
+                <h2>الشروط والأحكام</h2>
+            </div>
+            <div class="modal-body">
+                <div class="term-section warning">
+                    <h3>⚠️ تحذير قانوني هام</h3>
+                    <p>جميع الفيديوهات والمحتوى التعليمي الموجود على منصة AmrNayl Academy محمي بموجب حقوق الملكية
+                        الفكرية. يُحظر تماماً تسجيل، أو نسخ، أو إعادة توزيع، أو بيع أي جزء من المحتوى بأي شكل من
+                        الأشكال.</p>
+                    <p class="highlight">أي شخص يقوم بتسريب الكورسات أو بيعها بطريقة غير رسمية يعرض نفسه للمساءلة
+                        القانونية والحظر النهائي من المنصة والملاحقة القضائية.</p>
+                </div>
+
+                <div class="term-section">
+                    <h3>1. الملكية الفكرية</h3>
+                    <p>جميع الحقوق محفوظة للمهندس عمرو نايل. تتضمن الملكية الفكرية الفيديوهات، الملفات، النصوص،
+                        والشروحات. الاشتراك في الكورس يمنحك رخصة مشاهدة شخصية فقط ولا يجوز مشاركة الحساب مع أشخاص
+                        آخرين.
+                    </p>
+                </div>
+
+                <div class="term-section">
+                    <h3>2. سياسة الاستخدام</h3>
+                    <p>يجب استخدام المنصة لأغراض تعليمية فقط. يُمنع استخدام أي أدوات آلية لجمع البيانات أو محاولة
+                        اختراق
+                        الموقع. إدارة المنصة تحتفظ بالحق في إيقاف حساب أي مستخدم يخالف هذه السياسات دون استرداد
+                        المبلغ
+                        المدفوع.</p>
+                </div>
+
+                <div class="term-section">
+                    <h3>3. سياسة الاسترداد</h3>
+                    <p>نظراً لطبيعة المحتوى الرقمي، لا يمكن استرداد المبلغ المدفوع بعد تفعيل الكورس وبدء المشاهدة،
+                        إلا
+                        في حالات استثنائية تقررها إدارة المنصة.</p>
+                </div>
+
+                <div class="term-section warning">
+                    <h3>4. سياسة الجهاز الواحد ومشاهدة المحتوى</h3>
+                    <p>يُمنع منعاً باتاً مشاهدة الكورس بعد الشراء على جهازين مختلفين. نظام الحماية سيتعرف على أي استخدام متعدد الأجهزة وسيقوم بتعليق حسابك فوراً. في هذه الحالة لن تتمكن من استخدام الحساب على المنصة ولا من استرداد أموالك مرة أخرى.</p>
+                    <p class="highlight">أي محاولة تحايل أو خرق لسياسة الخصوصية أو لشروط الاستخدام تعرّض جهازك للحظر النهائي من استخدام المنصة.</p>
+                </div>
+
+                <div class="term-section">
+                    <h3>5. التحديثات والتعديلات</h3>
+                    <p>نحتفظ بالحق في تحديث هذه الشروط في أي وقت. استمرارك في استخدام المنصة يعني موافقتك على أحدث
+                        نسخة
+                        من الشروط والأحكام.</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="closeTermsBtn" class="btn btn-primary">إغلاق</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/deviceUUID.js"></script>
+    <script src="js/deviceFingerprint.js"></script>
+    <script src="js/tracking.js"></script>
+    <script src="js/webauthn.js"></script>
+    <script src="js/auth-check.js"></script>
+    <script src="js/login.js"></script>
+</body>
+
+</html>

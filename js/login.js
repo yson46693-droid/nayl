@@ -1,0 +1,332 @@
+// Login functionality
+document.addEventListener('DOMContentLoaded', async function () {
+    // إذا كانت هناك جلسة نشطة بالفعل، تحويل المستخدم إلى صفحة الكورسات
+    if (typeof checkAuth === 'function') {
+        try {
+            const isAuthenticated = await checkAuth();
+            if (isAuthenticated) {
+                window.location.href = 'courses.html';
+                return;
+            }
+        } catch (e) {
+            console.error('Auth check on login page:', e);
+        }
+    }
+
+    const loginForm = document.getElementById('loginForm');
+    const togglePasswordBtn = document.getElementById('togglePassword');
+    const passwordInput = document.getElementById('password');
+    const emailInput = document.getElementById('email');
+
+    // Toggle password visibility
+    if (togglePasswordBtn && passwordInput) {
+        togglePasswordBtn.addEventListener('click', function () {
+            const eyeIcon = this.querySelector('.eye-icon');
+            const eyeOffIcon = this.querySelector('.eye-off-icon');
+
+            if (passwordInput.type === 'password') {
+                passwordInput.type = 'text';
+                eyeIcon.style.display = 'none';
+                eyeOffIcon.style.display = 'inline-block';
+                this.setAttribute('aria-label', 'إخفاء كلمة المرور');
+            } else {
+                passwordInput.type = 'password';
+                eyeIcon.style.display = 'inline-block';
+                eyeOffIcon.style.display = 'none';
+                this.setAttribute('aria-label', 'إظهار كلمة المرور');
+            }
+        });
+    }
+
+    // Handle login form submission
+    if (loginForm) {
+        loginForm.addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const email = emailInput.value.trim();
+            const password = passwordInput.value;
+            const remember = document.getElementById('remember').checked;
+            const submitButton = loginForm.querySelector('button[type="submit"]');
+
+            // التحقق من البريد الإلكتروني
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (!email || !emailRegex.test(email)) {
+                showError('الرجاء إدخال بريد إلكتروني صحيح');
+                return;
+            }
+
+            // التحقق من كلمة المرور
+            if (!password) {
+                showError('الرجاء إدخال كلمة المرور');
+                return;
+            }
+
+            // تعطيل الزر أثناء الإرسال
+            const originalButtonText = submitButton.innerHTML;
+            submitButton.disabled = true;
+            submitButton.innerHTML = '<i class="bi bi-hourglass-split" style="margin-left: 8px;"></i>جاري تسجيل الدخول...';
+
+            try {
+                // الحصول على معرف الجهاز (UUID من localStorage) - مطلوب للحظر حسب الجهاز
+                const deviceUuid = (typeof window.getDeviceUUID === 'function' ? window.getDeviceUUID() : null) || localStorage.getItem('device_uuid_v1') || '';
+                if (!deviceUuid) {
+                    showError('يرجى إعادة تحميل الصفحة ثم المحاولة مجدداً.');
+                    submitButton.disabled = false;
+                    submitButton.innerHTML = originalButtonText;
+                    return;
+                }
+
+                // إرسال طلب تسجيل الدخول إلى API
+                const response = await fetch('/api/auth/login.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        identifier: email,
+                        identifier_type: 'email',
+                        password: password,
+                        remember: remember,
+                        device_uuid: deviceUuid
+                    })
+                });
+
+                const result = await response.json();
+
+                if (!response.ok || !result.success) {
+                    // عرض رسالة الخطأ
+                    const errorMessage = result.error || 'حدث خطأ أثناء تسجيل الدخول';
+                    showError(errorMessage);
+                    submitButton.disabled = false;
+                    submitButton.innerHTML = originalButtonText;
+                    return;
+                }
+
+                // حفظ بيانات المستخدم والجلسة
+                const userData = result.data.user;
+                const sessionData = result.data.session;
+
+                if (remember) {
+                    localStorage.setItem('userIdentifier', email);
+                    localStorage.setItem('identifierType', 'email');
+                    localStorage.setItem('isLoggedIn', 'true');
+                    localStorage.setItem('sessionToken', sessionData.token);
+                    localStorage.setItem('sessionExpiresAt', sessionData.expires_at);
+                    localStorage.setItem('userEmail', email);
+                    // حفظ بيانات المستخدم الكاملة
+                    localStorage.setItem('userData', JSON.stringify(userData));
+                } else {
+                    sessionStorage.setItem('userIdentifier', email);
+                    sessionStorage.setItem('identifierType', 'email');
+                    sessionStorage.setItem('isLoggedIn', 'true');
+                    sessionStorage.setItem('sessionToken', sessionData.token);
+                    sessionStorage.setItem('sessionExpiresAt', sessionData.expires_at);
+                    sessionStorage.setItem('userEmail', email);
+                    // حفظ بيانات المستخدم الكاملة
+                    sessionStorage.setItem('userData', JSON.stringify(userData));
+                }
+
+                // إظهار رسالة نجاح
+                showSuccess('تم تسجيل الدخول بنجاح');
+
+                // إعادة التوجيه إلى صفحة الكورسات بعد ثانية واحدة
+                setTimeout(() => {
+                    window.location.href = 'courses.html';
+                }, 1000);
+
+            } catch (error) {
+                console.error('Login error:', error);
+                showError('حدث خطأ في الاتصال. يرجى المحاولة مرة أخرى');
+                submitButton.disabled = false;
+                submitButton.innerHTML = originalButtonText;
+            }
+        });
+    }
+
+    // وظيفة لإظهار رسائل الخطأ
+    function showError(message) {
+        // إزالة أي رسائل سابقة
+        const existingError = document.querySelector('.login-error-message');
+        if (existingError) {
+            existingError.remove();
+        }
+
+        // إنشاء رسالة خطأ جديدة
+        const errorDiv = document.createElement('div');
+        errorDiv.className = 'login-error-message';
+        errorDiv.style.cssText = `
+            background: #fee;
+            border: 1px solid #fcc;
+            color: #c33;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            animation: fadeIn 0.3s ease;
+        `;
+        errorDiv.innerHTML = `
+            <i class="bi bi-exclamation-circle-fill" style="font-size: 1.2rem;"></i>
+            <span>${message}</span>
+        `;
+
+        // إدراج الرسالة قبل النموذج
+        const formContent = loginForm.parentElement;
+        formContent.insertBefore(errorDiv, loginForm);
+
+        // إزالة الرسالة بعد 5 ثوان
+        setTimeout(() => {
+            if (errorDiv.parentElement) {
+                errorDiv.style.animation = 'fadeOut 0.3s ease';
+                setTimeout(() => errorDiv.remove(), 300);
+            }
+        }, 5000);
+    }
+
+    // وظيفة لإظهار رسائل النجاح
+    function showSuccess(message) {
+        // إزالة أي رسائل سابقة
+        const existingMessage = document.querySelector('.login-success-message');
+        if (existingMessage) {
+            existingMessage.remove();
+        }
+
+        // إنشاء رسالة نجاح جديدة
+        const successDiv = document.createElement('div');
+        successDiv.className = 'login-success-message';
+        successDiv.style.cssText = `
+            background: #efe;
+            border: 1px solid #cfc;
+            color: #3c3;
+            padding: 12px 16px;
+            border-radius: 8px;
+            margin-bottom: 16px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            animation: fadeIn 0.3s ease;
+        `;
+        successDiv.innerHTML = `
+            <i class="bi bi-check-circle-fill" style="font-size: 1.2rem;"></i>
+            <span>${message}</span>
+        `;
+
+        // إدراج الرسالة قبل النموذج
+        const formContent = loginForm.parentElement;
+        formContent.insertBefore(successDiv, loginForm);
+    }
+
+    // Terms Modal Functionality
+    const termsModal = document.getElementById('termsModal');
+    const termsBtn = document.getElementById('termsBtn');
+    const closeModal = document.querySelector('.close-modal');
+    const closeTermsBtn = document.getElementById('closeTermsBtn');
+
+    if (termsModal && termsBtn) {
+        // Open modal
+        termsBtn.addEventListener('click', function () {
+            termsModal.style.display = 'block';
+            document.body.style.overflow = 'hidden';
+        });
+
+        // Close modal (X icon)
+        if (closeModal) {
+            closeModal.addEventListener('click', function () {
+                termsModal.style.display = 'none';
+                document.body.style.overflow = '';
+            });
+        }
+
+        // Close modal (Close button)
+        if (closeTermsBtn) {
+            closeTermsBtn.addEventListener('click', function () {
+                termsModal.style.display = 'none';
+                document.body.style.overflow = '';
+            });
+        }
+
+        // Close when clicking outside
+        window.addEventListener('click', function (e) {
+            if (e.target === termsModal) {
+                termsModal.style.display = 'none';
+                document.body.style.overflow = '';
+            }
+        });
+    }
+
+    // تسجيل الدخول بالبصمة (WebAuthn) — يفحص البصمات المسجلة على هذا الجهاز للموقع دون طلب الإيميل
+    const fingerprintLoginBtn = document.getElementById('fingerprintLoginBtn');
+    if (fingerprintLoginBtn && typeof window.WebAuthn !== 'undefined') {
+        if (window.WebAuthn.isSupported()) {
+            fingerprintLoginBtn.style.display = 'flex';
+        }
+
+        fingerprintLoginBtn.addEventListener('click', function () {
+            const remember = document.getElementById('remember') ? document.getElementById('remember').checked : false;
+
+            fingerprintLoginBtn.disabled = true;
+            fingerprintLoginBtn.innerHTML = '<i class="bi bi-hourglass-split" style="margin-left: 8px;"></i>جاري التحقق...';
+
+            window.WebAuthn.login(
+                '',
+                remember,
+                function (userData, sessionData) {
+                    var email = (userData && userData.email) ? userData.email : '';
+                    if (remember) {
+                        localStorage.setItem('userIdentifier', email);
+                        localStorage.setItem('identifierType', 'email');
+                        localStorage.setItem('isLoggedIn', 'true');
+                        localStorage.setItem('sessionToken', sessionData.token);
+                        localStorage.setItem('sessionExpiresAt', sessionData.expires_at);
+                        localStorage.setItem('userEmail', email);
+                        localStorage.setItem('userData', JSON.stringify(userData));
+                    } else {
+                        sessionStorage.setItem('userIdentifier', email);
+                        sessionStorage.setItem('identifierType', 'email');
+                        sessionStorage.setItem('isLoggedIn', 'true');
+                        sessionStorage.setItem('sessionToken', sessionData.token);
+                        sessionStorage.setItem('sessionExpiresAt', sessionData.expires_at);
+                        sessionStorage.setItem('userEmail', email);
+                        sessionStorage.setItem('userData', JSON.stringify(userData));
+                    }
+                    showSuccess('تم تسجيل الدخول بنجاح');
+                    setTimeout(function () {
+                        window.location.href = 'courses.html';
+                    }, 1000);
+                },
+                function (err) {
+                    fingerprintLoginBtn.disabled = false;
+                    fingerprintLoginBtn.innerHTML = '<i class="bi bi-fingerprint" style="font-size: 1.1rem;"></i> تسجيل الدخول بالبصمة';
+                    showError(err || 'فشل تسجيل الدخول بالبصمة');
+                }
+            );
+        });
+    }
+});
+
+// إضافة تأثيرات CSS
+const style = document.createElement('style');
+style.textContent = `
+    @keyframes fadeIn {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    @keyframes fadeOut {
+        from {
+            opacity: 1;
+            transform: translateY(0);
+        }
+        to {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+    }
+`;
+document.head.appendChild(style);

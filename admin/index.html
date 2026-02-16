@@ -1,0 +1,1403 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>لوحة التحكم | AmrNayl academy</title>
+    <link rel="stylesheet" href="../css/style.css">
+    <link rel="stylesheet" href="../css/admin.css">
+    <link rel="stylesheet" href="../css/transfer-modal.css">
+
+    <!-- PWA Settings -->
+    <link rel="manifest" href="manifest.json">
+    <link rel="shortcut icon" href="../pics/cp.png" type="image/png">
+    <link rel="apple-touch-icon" href="../pics/cp.png">
+    <meta name="theme-color" content="#0d6efd">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Nayl Admin">
+
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+
+    <script>
+        // التحقق من جلسة الأدمن + حفظ التوكن المُجدَّد + مؤقت الخمول (تسجيل خروج بعد عدم نشاط)
+        (function () {
+            function getCookie(name) {
+                const value = `; ${document.cookie}`;
+                const parts = value.split(`; ${name}=`);
+                if (parts.length === 2) return parts.pop().split(';').shift();
+                return null;
+            }
+
+            function setAdminTokenCookie(token) {
+                if (!token) return;
+                const maxAge = 12 * 60 * 60; // 12 ساعة
+                document.cookie = "admin_session_token=" + encodeURIComponent(token) + "; path=/; max-age=" + maxAge + "; SameSite=Lax";
+            }
+
+            function clearAdminSession() {
+                document.cookie = "admin_session_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+                localStorage.removeItem('admin_info');
+                localStorage.removeItem('admin_session_token');
+                window.location.href = 'login.html';
+            }
+
+            // مؤقت الخمول: 25 دقيقة (أقل قليلاً من السيرفر 30 دقيقة)
+            var ADMIN_IDLE_MINUTES = 25;
+            var adminIdleTimer = null;
+
+            function resetAdminIdleTimer() {
+                if (adminIdleTimer) clearTimeout(adminIdleTimer);
+                adminIdleTimer = setTimeout(function () {
+                    clearAdminSession();
+                }, ADMIN_IDLE_MINUTES * 60 * 1000);
+            }
+
+            const localToken = localStorage.getItem('admin_session_token');
+            const cookieToken = getCookie('admin_session_token');
+            const token = localToken || cookieToken;
+
+            if (!token) {
+                window.location.href = 'login.html';
+                return;
+            }
+
+            try {
+                fetch('../api/admin/auth/verify.php', {
+                    method: 'GET',
+                    headers: { 'Authorization': 'Bearer ' + token },
+                    credentials: 'include'
+                })
+                    .then(function (response) {
+                        if (!response.ok) throw new Error('INVALID_SESSION');
+                        return response.json();
+                    })
+                    .then(function (result) {
+                        if (!result.success) throw new Error('INVALID_SESSION');
+
+                        if (result.data) {
+                            var data = result.data;
+                            if (data.new_token) {
+                                localStorage.setItem('admin_session_token', data.new_token);
+                                setAdminTokenCookie(data.new_token);
+                                delete data.new_token;
+                            }
+                            localStorage.setItem('admin_info', JSON.stringify(data));
+                        }
+                        // بدء مؤقت الخمول بعد نجاح التحقق
+                        resetAdminIdleTimer();
+                        ['mousedown', 'keydown', 'scroll', 'touchstart'].forEach(function (ev) {
+                            document.addEventListener(ev, resetAdminIdleTimer);
+                        });
+                    })
+                    .catch(function () {
+                        clearAdminSession();
+                    });
+            } catch (e) {
+                window.location.href = 'login.html';
+            }
+        })();
+    </script>
+</head>
+
+<body class="admin-body">
+    <!-- Sidebar -->
+    <aside class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="logo">
+                <img src="../pics/logo.png" alt="AMR NAYL ACADEMY" width="50" height="50" style="border-radius: 8px;">
+            </div>
+            <span class="sidebar-title">لوحة التحكم</span>
+        </div>
+
+        <ul class="sidebar-menu">
+            <li class="menu-item">
+                <a href="#" class="menu-link active" data-tab="dashboard">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M3 12l2-2m0 0l7-7 7 7M5 10v10a1 1 0 001 1h3m10-11l2 2m-2-2v10a1 1 0 01-1 1h-3m-6 0a1 1 0 001-1v-4a1 1 0 011-1h2a1 1 0 011 1v4a1 1 0 001 1m-6 0h6" />
+                    </svg>
+                    <span>الرئيسية</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="#" class="menu-link" data-tab="users">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z" />
+                    </svg>
+                    <span>الحسابات المسجلة</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="#" class="menu-link" data-tab="codes">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z" />
+                    </svg>
+                    <span>أكواد الكورسات</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="#" class="menu-link" data-tab="discount-codes">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M7 7h.01M7 3h5c.512 0 1.024.195 1.414.586l7 7a2 2 0 010 2.828l-7 7a2 2 0 01-2.828 0l-7-7A1.994 1.994 0 013 12V7a4 4 0 014-4z" />
+                    </svg>
+                    <span>أكواد الخصم</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="#" class="menu-link" data-tab="videos">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M15 10l4.553-2.276A1 1 0 0121 8.618v6.764a1 1 0 01-1.447.894L15 14M5 18h8a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v8a2 2 0 002 2z" />
+                    </svg>
+                    <span>رفع الفيديوهات</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="#" class="menu-link" data-tab="devices">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M9 3v2m6-2v2M9 19v2m6-2v2M5 9H3m2 6H3m18-6h-2m2 6h-2M7 19h10a2 2 0 002-2V7a2 2 0 00-2-2H7a2 2 0 00-2 2v10a2 2 0 002 2zM9 9h6v6H9V9z" />
+                    </svg>
+                    <span>الأجهزة المستخدمة</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="#" class="menu-link" data-tab="recharge-requests">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M17 9V7a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2m2 4h10a2 2 0 002-2v-6a2 2 0 00-2-2H9a2 2 0 00-2 2v6a2 2 0 002 2zm7-5a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                    <span>طلبات الشحن</span>
+                    <span id="pendingRechargeCountBadge" class="sidebar-badge"
+                        style="background: #e2e8f0; color: #4a5568;">...</span>
+                </a>
+            </li>
+            <li class="menu-item">
+                <a href="#" class="menu-link" data-tab="complaints">
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round"
+                            d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+                    </svg>
+                    <span>قسم الشكاوي</span>
+                </a>
+            </li>
+        </ul>
+
+        <div class="sidebar-footer">
+            <a href="javascript:void(0)" onclick="adminLogout()" class="logout-btn">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round"
+                        d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                </svg>
+                <span>تسجيل الخروج</span>
+            </a>
+
+            <script>
+                async function adminLogout() {
+                    try {
+                        const token = localStorage.getItem('admin_session_token') || getCookie('admin_session_token');
+                        const response = await fetch('../api/admin/auth/logout.php', {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({ token: token })
+                        });
+                        // Clear session data
+                        document.cookie = "admin_session_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+                        localStorage.removeItem('admin_info');
+                        localStorage.removeItem('admin_session_token');
+                        window.location.href = 'login.html';
+                    } catch (error) {
+                        console.error('Logout failed:', error);
+                        document.cookie = "admin_session_token=; expires=Thu, 01 Jan 1970 00:00:00 UTC; path=/;";
+                        localStorage.removeItem('admin_info');
+                        localStorage.removeItem('admin_session_token');
+                        window.location.href = 'login.html';
+                    }
+                }
+            </script>
+        </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Top Bar -->
+        <header class="top-bar">
+            <div class="search-bar">
+                <svg class="search-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                    stroke-width="2">
+                    <circle cx="11" cy="11" r="8"></circle>
+                    <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                </svg>
+                <input type="text" placeholder="ابحث عن مستخدم، كود، أو جهاز...">
+            </div>
+
+            <div class="user-profile-nav">
+                <div class="notifications-wrapper" style="position: relative;">
+                    <button class="notifications-btn" onclick="toggleNotifications()">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                            <path d="M13.73 21a2 2 0 01-3.46 0"></path>
+                        </svg>
+                        <span class="unread-badge" id="notificationBadge" style="display: none;">0</span>
+                    </button>
+                    <!-- Notifications Dropdown -->
+                    <div class="notifications-dropdown" id="notificationsDropdown" style="display: none;">
+                        <div class="dropdown-header">
+                            <span style="font-weight: bold;">الإشعارات</span>
+                            <button onclick="clearAllNotifications()" class="clear-all-btn">حذف الكل</button>
+                        </div>
+                        <ul class="dropdown-list" id="notificationList">
+                            <!-- Items will be injected here -->
+                            <li class="empty-notif">لا توجد إشعارات جديدة</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="admin-info">
+                    <div class="admin-avatar">A</div>
+                    <span style="font-weight: 700;">أدمن الموقع</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Sections -->
+        <div class="main-content-inner">
+
+            <!-- Dashboard Overview -->
+            <section id="dashboard" class="dashboard-section active">
+                <div class="section-header">
+                    <div class="section-title-wrapper">
+                        <h2>نظرة عامة على النظام</h2>
+                        <p>أهلاً بك مجدداً، إليك ملخص نشاط المنصة اليوم.</p>
+                    </div>
+                </div>
+
+                <div class="stats-overview">
+                    <div class="stat-card-admin">
+                        <div class="stat-icon blue">
+                            <i class="bi bi-people" style="font-size: 1.5rem;"></i>
+                        </div>
+                        <div class="stat-details">
+                            <h3>إجمالي المستخدمين</h3>
+                            <div class="stat-value" id="totalUsersCount">1,248</div>
+                            <div class="stat-trend up">↑ 12% من الشهر الماضي</div>
+                        </div>
+                    </div>
+                    <div class="stat-card-admin">
+                        <div class="stat-icon orange">
+                            <i class="bi bi-key" style="font-size: 1.5rem;"></i>
+                        </div>
+                        <div class="stat-details">
+                            <h3>الأكواد النشطة</h3>
+                            <div class="stat-value" id="activeCodesCount">350</div>
+                            <div class="stat-trend up">↑ 5% زيادة</div>
+                        </div>
+                    </div>
+                    <div class="stat-card-admin">
+                        <div class="stat-icon green">
+                            <i class="bi bi-cash-stack" style="font-size: 1.5rem;"></i>
+                        </div>
+                        <div class="stat-details">
+                            <h3>مبالغ الشحن </h3>
+                            <div class="stat-value" id="monthlySalesTotal">...</div>
+                            <div class="stat-trend up">إجمالي مبالغ الشحن  </div>
+                        </div>
+                    </div>
+                    <div class="stat-card-admin">
+                        <div class="stat-icon blue">
+                            <i class="bi bi-globe" style="font-size: 1.5rem;"></i>
+                        </div>
+                        <div class="stat-details">
+                            <h3>زوار الموقع (Unique)</h3>
+                            <div class="stat-value" id="siteVisitorsCount">...</div>
+                            <div class="stat-trend up">محدث الآن</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="data-card">
+                    <div class="section-header"
+                        style="padding: 24px; border-bottom: 1px solid #edf2f7; margin-bottom: 0;">
+                        <h3 style="font-weight: 800;">آخر التسجيلات</h3>
+                    </div>
+                    <div class="table-responsive">
+                        <table id="recentUsersTable">
+                            <thead>
+                                <tr>
+                                    <th>المعرف</th>
+                                    <th>المستخدم</th>
+                                    <th>رقم الهاتف</th>
+                                    <th>تاريخ الانضمام</th>
+                                    <th>الحالة</th>
+                                    <th>الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Mock Data -->
+                                <tr>
+                                    <td>—</td>
+                                    <td>
+                                        <div class="user-cell">
+                                            <div class="user-cell-avatar">MA</div>
+                                            <span>محمد أحمد</span>
+                                        </div>
+                                    </td>
+                                    <td>01012345678</td>
+                                    <td>20/01/2026</td>
+                                    <td><span class="badge badge-active">نشط</span></td>
+                                    <td>
+                                        <div class="actions-cell">
+                                            <button class="action-btn btn-view" title="عرض التفاصيل">
+                                                <i class="bi bi-eye-fill"></i>
+                                            </button>
+                                            <button class="action-btn btn-edit" title="تعديل">
+                                                <i class="bi bi-pencil-fill"></i>
+                                            </button>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Users Section -->
+            <section id="users" class="dashboard-section">
+                <div class="section-header">
+                    <div class="section-title-wrapper">
+                        <h2>إدارة الحسابات</h2>
+                        <p>إدارة وتعديل بيانات المستخدمين المسجلين في المنصة.</p>
+                    </div>
+                    <button class="btn btn-primary btn-with-icon" onclick="toggleAddUserForm()">
+                        <i class="bi bi-person-plus-fill"></i>
+                        <span>إضافة مستخدم جديد</span>
+                    </button>
+                </div>
+
+                <!-- Add User Form (Hidden by default) -->
+                <div id="addUserFormCard" class="data-card" style="display: none; margin-bottom: var(--spacing-xl);">
+                    <div class="section-header"
+                        style="padding: 24px; border-bottom: 1px solid #edf2f7; margin-bottom: 0;">
+                        <h3 style="font-weight: 800; margin: 0;">
+                            <i class="bi bi-person-plus-fill" style="color: var(--primary-blue); margin-left: 8px;"></i>
+                            إضافة مستخدم جديد
+                        </h3>
+                        <button onclick="toggleAddUserForm()" class="btn btn-secondary"
+                            style="padding: 8px 16px; font-size: 0.9rem;">
+                            <i class="bi bi-x-lg"></i>
+                            إلغاء
+                        </button>
+                    </div>
+                    <div style="padding: 24px;">
+                        <form id="addUserFormInline">
+                            <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--spacing-lg);">
+                                <div class="admin-form-group">
+                                    <label>
+                                        <i class="bi bi-person-fill"></i>
+                                        اسم المستخدم الكامل
+                                    </label>
+                                    <input type="text" id="newUserNameInline" placeholder="مثال: محمد أحمد" required>
+                                </div>
+                                <div class="admin-form-group">
+                                    <label>
+                                        <i class="bi bi-telephone-fill"></i>
+                                        رقم الهاتف
+                                    </label>
+                                    <input type="tel" id="newUserPhoneInline" placeholder="01012345678" required>
+                                </div>
+                                <div class="admin-form-group">
+                                    <label>
+                                        <i class="bi bi-lock-fill"></i>
+                                        كلمة المرور
+                                    </label>
+                                    <input type="password" id="newUserPassInline" placeholder="أدخل كلمة مرور قوية"
+                                        required>
+                                </div>
+                                <div class="admin-form-group">
+                                    <label>
+                                        <i class="bi bi-shield-check"></i>
+                                        الحالة
+                                    </label>
+                                    <select id="newUserStatusInline">
+                                        <option value="نشط">نشط</option>
+                                        <option value="معلق">معلق</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div
+                                style="margin-top: var(--spacing-xl); padding-top: var(--spacing-lg); border-top: 1px solid #edf2f7; display: flex; gap: var(--spacing-md); justify-content: flex-end;">
+                                <button type="button" onclick="toggleAddUserForm()" class="btn btn-secondary">
+                                    <i class="bi bi-x-circle"></i>
+                                    إلغاء
+                                </button>
+                                <button type="submit" class="btn btn-primary">
+                                    <i class="bi bi-check-circle"></i>
+                                    حفظ المستخدم
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="data-card">
+                    <div class="table-responsive">
+                        <table id="allUsersTable">
+                            <thead>
+                                <tr>
+                                    <th>المعرف</th>
+                                    <th>المستخدم</th>
+                                    <th>رقم الهاتف</th>
+                                    <th>رصيد المحفظة</th>
+                                    <th>الحالة</th>
+                                    <th>الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody id="usersTableBody">
+                                <!-- Data will be populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="pagination-container" id="usersPagination">
+                        <!-- Pagination will be added by JS -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Codes Section -->
+            <section id="codes" class="dashboard-section">
+                <div class="section-header">
+                    <div class="section-title-wrapper">
+                        <h2>إدارة أكواد الكورسات</h2>
+                        <p>إنشاء وتعديل وحذف أكواد تفعيل الكورسات للطلاب.</p>
+                    </div>
+                    <button class="btn btn-secondary btn-with-icon" onclick="openGenerateCodeModal()">
+                        <i class="bi bi-key-fill"></i>
+                        <span>إنشاء كود تفعيل</span>
+                    </button>
+                </div>
+
+                <div class="data-card">
+                    <div class="table-responsive">
+                        <table id="codesTable">
+                            <thead>
+                                <tr>
+                                    <th>الكود</th>
+                                    <th>الكورس المرتبط</th>
+                                    <th>تاريخ الإنشاء</th>
+                                    <th>حالة التفعيل</th>
+                                    <th>المستخدم</th>
+                                    <th>الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody id="codesTableBody">
+                                <!-- Data will be populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="pagination-container" id="codesPagination">
+                        <!-- Pagination will be added by JS -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Discount Codes Section -->
+            <section id="discount-codes" class="dashboard-section">
+                <div class="section-header">
+                    <div class="section-title-wrapper">
+                        <h2>أكواد الخصم</h2>
+                        <p>إنشاء أكواد خصم مرتبطة بكورس محدد، استخدام مرة واحدة لمستخدم واحد.</p>
+                    </div>
+                    <button class="btn btn-primary btn-with-icon" onclick="openCreateDiscountCodeModal()">
+                        <i class="bi bi-tag-fill"></i>
+                        <span>إنشاء كود خصم</span>
+                    </button>
+                </div>
+
+                <div id="addDiscountCodeCard" class="data-card" style="display: none; margin-bottom: var(--spacing-xl);">
+                    <div class="section-header" style="padding: 24px; border-bottom: 1px solid #edf2f7;">
+                        <h3 style="font-weight: 800; margin: 0;"><i class="bi bi-tag-fill" style="color: var(--primary-blue); margin-left: 8px;"></i> إنشاء كود خصم جديد</h3>
+                        <button type="button" class="btn btn-secondary" onclick="closeCreateDiscountCodeModal()"><i class="bi bi-x-lg"></i> إلغاء</button>
+                    </div>
+                    <div style="padding: 24px;">
+                        <form id="createDiscountCodeForm">
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--spacing-lg); margin-bottom: var(--spacing-lg);">
+                                <div class="admin-form-group">
+                                    <label><i class="bi bi-upc-scan"></i> كود الخصم</label>
+                                    <input type="text" id="discountCodeInput" placeholder="مثال: SAVE50" dir="ltr" maxlength="50" required>
+                                </div>
+                                <div class="admin-form-group">
+                                    <label><i class="bi bi-currency-exchange"></i> مبلغ الخصم (ج.م)</label>
+                                    <input type="number" id="discountAmountInput" min="0.01" step="0.01" placeholder="50" required>
+                                </div>
+                                <div class="admin-form-group">
+                                    <label><i class="bi bi-book"></i> الكورس</label>
+                                    <select id="discountCourseSelect" required>
+                                        <option value="">اختر الكورس</option>
+                                    </select>
+                                </div>
+                                <div class="admin-form-group">
+                                    <label><i class="bi bi-person-fill"></i> إضافة لمستخدم (اختياري)</label>
+                                    <input type="number" id="discountAssignedUserId" min="1" placeholder="معرف المستخدم (ID)" dir="ltr">
+                                    <small style="color: var(--text-gray); font-size: 0.85rem;">اتركه فارغاً ليكون الكود متاحاً لأي مستخدم. أو أدخل معرف المستخدم من قسم الحسابات.</small>
+                                </div>
+                            </div>
+                            <p id="discountCodeFormError" class="text-danger" style="display: none;"></p>
+                            <button type="submit" class="btn btn-primary">
+                                <i class="bi bi-check-lg"></i>
+                                <span>إنشاء كود الخصم</span>
+                            </button>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="data-card">
+                    <div class="table-responsive">
+                        <table id="discountCodesTable">
+                            <thead>
+                                <tr>
+                                    <th>الكود</th>
+                                    <th>مبلغ الخصم</th>
+                                    <th>الكورس</th>
+                                    <th>مخصص لـ</th>
+                                    <th>الحالة</th>
+                                    <th>المستخدم (إن وُجد)</th>
+                                    <th>تاريخ الاستخدام</th>
+                                </tr>
+                            </thead>
+                            <tbody id="discountCodesTableBody">
+                            </tbody>
+                        </table>
+                    </div>
+                    <p id="discountCodesEmpty" class="text-muted" style="text-align: center; padding: 24px; display: none;">لا توجد أكواد خصم. أنشئ كوداً من الزر أعلاه.</p>
+                </div>
+            </section>
+
+            <!-- Recharge Requests Section -->
+            <section id="recharge-requests" class="dashboard-section">
+                <div class="section-header">
+                    <div class="section-title-wrapper">
+                        <h2>طلبات الشحن</h2>
+                        <p>مراجعة وإدارة طلبات شحن المحفظة المقدمة من المستخدمين.</p>
+                    </div>
+                    <div style="display: flex; gap: var(--spacing-sm);">
+                        <button class="btn btn-secondary btn-with-icon" onclick="filterRechargeRequests('all')">
+                            <i class="bi bi-list-ul"></i>
+                            <span>الكل</span>
+                        </button>
+                        <button class="btn btn-primary btn-with-icon" onclick="filterRechargeRequests('pending')">
+                            <i class="bi bi-hourglass-split"></i>
+                            <span>قيد المراجعة</span>
+                        </button>
+                    </div>
+                </div>
+
+
+                <div class="data-card">
+                    <div class="table-responsive">
+                        <table id="rechargeRequestsTable">
+                            <thead>
+                                <tr>
+                                    <th>رقم الطلب</th>
+                                    <th>المستخدم</th>
+                                    <th>رقم الكاش/اليوزر</th>
+                                    <th>المبلغ</th>
+                                    <th>طريقة الدفع</th>
+                                    <th>التاريخ والوقت</th>
+                                    <th>الحالة</th>
+                                    <th style="text-align: center;">الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody id="rechargeRequestsTableBody">
+                                <!-- Data will be populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- Pagination container -->
+                    <div class="pagination-container" id="rechargeRequestsPagination">
+                        <!-- Pagination will be added by JS -->
+                    </div>
+                </div>
+            </section>
+
+            <!-- Videos Upload Section -->
+            <section id="videos" class="dashboard-section">
+                <div class="section-header">
+                    <div class="section-title-wrapper">
+                        <h2>إدارة فيديوهات الكورسات</h2>
+                        <p>رفع وإدارة فيديوهات الكورسات التعليمية.</p>
+                    </div>
+                </div>
+
+                <!-- Upload New Course Section -->
+                <div class="data-card" style="margin-bottom: var(--spacing-xl);">
+                    <div class="section-header"
+                        style="padding: 24px; border-bottom: 1px solid #edf2f7; margin-bottom: 0;">
+                        <h3 style="font-weight: 800;">رفع كورس جديد</h3>
+                    </div>
+                    <div style="padding: 24px;">
+                        <form id="uploadCourseForm">
+                            <div class="course-form-row">
+                                <div class="admin-form-group">
+                                    <label>عنوان الكورس الرئيسي</label>
+                                    <input type="text" id="courseTitle" placeholder="مثال: دورة صيانة الآيفون"
+                                        required>
+                                </div>
+                                <div class="admin-form-group">
+                                    <label>وصف الكورس</label>
+                                    <textarea id="courseDescription" rows="2" placeholder="وصف مختصر..."
+                                        required></textarea>
+                                </div>
+                            </div>
+                            <div class="admin-form-group" style="max-width: 200px;">
+                                <label>سعر الكورس (ج.م)</label>
+                                <input type="number" id="coursePrice" min="0" step="0.01" value="500" required placeholder="500">
+                            </div>
+                            <div class="admin-form-group">
+                                <label>واجهة الكورس</label>
+                                <div class="file-upload-wrapper file-upload-compact">
+                                    <input type="file" id="courseCoverImage" accept="image/*" name="courseCover">
+                                    <div class="file-upload-label">
+                                        <i class="bi bi-image" style="font-size: 1.25rem;"></i>
+                                        <span>اختر صورة واجهة الكورس</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Videos Container -->
+                            <div id="videosContainer">
+                                <div class="video-upload-item" data-video-index="0">
+                                    <div class="video-item-header">
+                                        <h4 style="font-size: 1rem; font-weight: 700; color: var(--primary-dark);">
+                                            الفيديو
+                                            #1</h4>
+                                    </div>
+                                    <div class="video-item-fields">
+                                        <div class="admin-form-group">
+                                            <label>عنوان الفيديو</label>
+                                            <input type="text" class="video-title" placeholder="مثال: مقدمة عن الكورس"
+                                                required>
+                                        </div>
+                                        <div class="admin-form-group">
+                                            <label>ترتيب الفيديو</label>
+                                            <input type="number" class="video-order" value="1" min="1" required>
+                                        </div>
+                                        <div class="admin-form-group">
+                                            <label>صورة واجهة الفيديو</label>
+                                            <div class="file-upload-wrapper">
+                                                <input type="file" class="video-thumbnail" accept="image/*" required>
+                                                <div class="file-upload-label">
+                                                    <i class="bi bi-image" style="font-size: 1.5rem;"></i>
+                                                    <span>اختر صورة الواجهة</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="admin-form-group">
+                                            <label>رفع الفيديو</label>
+                                            <div class="file-upload-wrapper">
+                                                <input type="file" class="video-file" accept="video/*" required>
+                                                <div class="file-upload-label">
+                                                    <i class="bi bi-file-earmark-play" style="font-size: 1.5rem;"></i>
+                                                    <span>اختر ملف الفيديو</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="admin-form-group" style="grid-column: 1 / -1;">
+                                            <label>تفاصيل وشرح الفيديو</label>
+                                            <textarea class="video-description" rows="3"
+                                                placeholder="اكتب وصف تفصيلي عن محتوى الفيديو..." required></textarea>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button type="button" class="btn btn-secondary btn-with-icon" id="addVideoBtn"
+                                style="margin-top: var(--spacing-md);">
+                                <i class="bi bi-plus-circle-fill"></i>
+                                <span>إضافة فيديو آخر</span>
+                            </button>
+
+                            <div
+                                style="margin-top: var(--spacing-xl); padding-top: var(--spacing-lg); border-top: 1px solid #edf2f7; display: flex; gap: var(--spacing-md); justify-content: flex-end;">
+                                <button type="reset" class="btn btn-secondary btn-with-icon">
+                                    <i class="bi bi-x-circle"></i>
+                                    <span>إلغاء</span>
+                                </button>
+                                <button type="submit" class="btn btn-primary btn-with-icon">
+                                    <i class="bi bi-cloud-upload-fill"></i>
+                                    <span>رفع الكورس</span>
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Existing Courses Table -->
+                <div class="data-card">
+                    <div class="section-header"
+                        style="padding: 24px; border-bottom: 1px solid #edf2f7; margin-bottom: 0;">
+                        <h3 style="font-weight: 800;">الكورسات الموجودة</h3>
+                        <div style="display: flex; gap: var(--spacing-sm); align-items: center;">
+                            <span style="color: var(--text-gray); font-size: 0.9rem;">عرض:</span>
+                            <select id="coursesPerPage"
+                                style="padding: 6px 12px; border: 1px solid #e0e6ed; border-radius: var(--radius-sm); font-family: inherit;">
+                                <option value="5">5</option>
+                                <option value="10" selected>10</option>
+                                <option value="20">20</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="table-responsive">
+                        <table id="coursesTable">
+                            <thead>
+                                <tr>
+                                    <th>عنوان الكورس</th>
+                                    <th>عدد الفيديوهات</th>
+                                    <th>تاريخ الرفع</th>
+                                    <th>الحالة</th>
+                                    <th style="text-align: center;">الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody id="coursesTableBody">
+                                <!-- Data will be populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="pagination-container" id="coursesPagination">
+                        <!-- Pagination will be added by JS -->
+                    </div>
+                </div>
+
+                <!-- Course Edit Page (Hidden by default) -->
+                <div id="courseEditPage" class="data-card" style="display: none;">
+                    <div class="section-header"
+                        style="padding: 24px; border-bottom: 1px solid #edf2f7; margin-bottom: 0;">
+                        <div style="display: flex; align-items: center; gap: var(--spacing-md);">
+                            <button onclick="closeCourseEditPage()" class="back-button" style="margin: 0;">
+                                <i class="bi bi-arrow-right"></i>
+                                رجوع للقائمة
+                            </button>
+                            <h3 style="font-weight: 800; margin: 0;">تعديل الكورس</h3>
+                        </div>
+                        <button class="btn btn-primary btn-with-icon" onclick="saveCourseChanges()">
+                            <i class="bi bi-save-fill"></i>
+                            <span>حفظ التعديلات</span>
+                        </button>
+                    </div>
+                    <div style="padding: 24px;">
+                        <div id="courseEditPageContent">
+                            <!-- Course edit content will be loaded here -->
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Course Edit/Preview Modal -->
+            <div class="modal-overlay" id="courseEditModal">
+                <div class="modal modal-large">
+                    <div class="modal-header">
+                        <h3 style="font-weight: 800;">تفاصيل وتعديل الكورس</h3>
+                        <button onclick="closeCourseEditModal()"
+                            style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-gray);">&times;</button>
+                    </div>
+                    <div class="modal-content" style="max-height: 70vh; overflow-y: auto;">
+                        <div id="courseEditContent">
+                            <!-- Course details will be loaded here -->
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary btn-with-icon" onclick="closeCourseEditModal()">
+                            <i class="bi bi-x-lg"></i>
+                            <span>إغلاق</span>
+                        </button>
+                        <button class="btn btn-primary btn-with-icon" onclick="saveCourseChanges()">
+                            <i class="bi bi-save-fill"></i>
+                            <span>حفظ التعديلات</span>
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Devices Section -->
+            <section id="devices" class="dashboard-section">
+                <div class="section-header">
+                    <div class="section-title-wrapper">
+                        <h2>الأجهزة المستخدمة</h2>
+                        <p>مراقبة الأجهزة التي سجلت الدخول باستخدام الأكواد لضمان الأمان.</p>
+                    </div>
+                </div>
+
+                <div class="data-card">
+                    <div class="table-responsive">
+                        <table id="devicesTable">
+                            <thead>
+                                <tr>
+                                    <th>نوع الجهاز</th>
+                                    <th>المستخدم</th>
+                                    <th>آخر نشاط</th>
+                                    <th>الموقع التقريبي</th>
+                                    <th>الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody id="devicesTableBody">
+                                <!-- Mock Data -->
+                                <tr>
+                                    <td>Samsung Galaxy S21</td>
+                                    <td>أحمد محمد</td>
+                                    <td>منذ ساعتين</td>
+                                    <td>القاهرة، مصر</td>
+                                    <td>
+                                        <button class="btn btn-delete btn-with-icon"
+                                            style="padding: 6px 12px; font-size: 0.75rem;">
+                                            <i class="bi bi-link-45deg"></i>
+                                            <span>إلغاء الارتباط</span>
+                                        </button>
+                                    </td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Complaints Section -->
+            <section id="complaints" class="dashboard-section">
+                <div class="section-header">
+                    <div class="section-title-wrapper">
+                        <h2>قسم الشكاوي</h2>
+                        <p>إدارة طلبات العملاء وتذاكر الدعم الفني والشكاوي.</p>
+                    </div>
+                </div>
+
+                <div class="stats-overview">
+                    <div class="stat-card-admin">
+                        <div class="stat-icon green">
+                            <i class="bi bi-envelope" style="font-size: 1.5rem;"></i>
+                        </div>
+                        <div class="stat-details">
+                            <h3>رسائل جديدة</h3>
+                            <div class="stat-value">12</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="data-card">
+                    <div class="table-responsive">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>العميل</th>
+                                    <th>الطلب/المشكلة</th>
+                                    <th>التاريخ</th>
+                                    <th>الحالة</th>
+                                    <th>الإجراءات</th>
+                                </tr>
+                            </thead>
+                            <tbody id="complaintsTableBody">
+                                <!-- Data will be populated by JS -->
+                            </tbody>
+                        </table>
+                    </div>
+                    <!-- Pagination -->
+                    <div class="pagination-container" id="complaintsPagination" style="display: none;">
+                        <button class="pagination-btn" id="complaints-prev-page" disabled>
+                            <i class="bi bi-chevron-right"></i>
+                            <span>السابق</span>
+                        </button>
+                        <div class="pagination-numbers" id="complaints-pagination-numbers">
+                            <!-- Numbers -->
+                        </div>
+                        <button class="pagination-btn" id="complaints-next-page" disabled>
+                            <span>التالي</span>
+                            <i class="bi bi-chevron-left"></i>
+                        </button>
+                    </div>
+                </div>
+            </section>
+    </main>
+
+    <!-- Modals -->
+    <!-- Generate Code Modal -->
+    <div class="modal-overlay" id="generateCodeModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 style="font-weight: 800;">إنشاء كود تفعيل جديد</h3>
+                <button onclick="closeModal('generateCodeModal')"
+                    style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">&times;</button>
+            </div>
+            <div class="modal-content">
+                <form id="generateCodeForm">
+                    <div class="admin-form-group">
+                        <label>
+                            <i class="bi bi-collection-play"></i>
+                            اختر الكورس
+                        </label>
+                        <select id="courseSelect" required>
+                            <option value="">-- اختر الكورس --</option>
+                            <!-- تُعبَّأ من الكورسات الموجودة عبر JS -->
+                        </select>
+                    </div>
+                    <div class="admin-form-group">
+                        <label>
+                            <i class="bi bi-hash"></i>
+                            عدد الأكواد المراد إنشاؤها
+                        </label>
+                        <input type="number" id="codesCount" value="1" min="1" max="100">
+                    </div>
+                    <div class="admin-form-group">
+                        <label>
+                            <i class="bi bi-calendar-check"></i>
+                            صلاحية الكود (بالأيام)
+                        </label>
+                        <input type="number" id="expiryDays" value="365">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary btn-with-icon" style="padding: 10px 20px;"
+                    onclick="closeModal('generateCodeModal')">
+                    <i class="bi bi-x-circle"></i>
+                    <span>إلغاء</span>
+                </button>
+                <button type="button" class="btn btn-primary btn-with-icon" style="padding: 10px 20px;"
+                    onclick="generateCodes()">
+                    <i class="bi bi-key-fill"></i>
+                    <span>إنشاء الآن</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add User Modal -->
+    <div class="modal-overlay" id="addUserModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 style="font-weight: 800;">إضافة مستخدم جديد</h3>
+                <button onclick="closeModal('addUserModal')"
+                    style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">&times;</button>
+            </div>
+            <div class="modal-content">
+                <form id="addUserForm">
+                    <div class="admin-form-group">
+                        <label>
+                            <i class="bi bi-person-fill"></i>
+                            اسم المستخدم الكامل
+                        </label>
+                        <input type="text" id="newUserName" placeholder="مثال: محمد أحمد" required>
+                    </div>
+                    <div class="admin-form-group">
+                        <label>
+                            <i class="bi bi-telephone-fill"></i>
+                            رقم الهاتف
+                        </label>
+                        <input type="tel" id="newUserPhone" placeholder="01012345678" required>
+                    </div>
+                    <div class="admin-form-group">
+                        <label>
+                            <i class="bi bi-lock-fill"></i>
+                            كلمة المرور
+                        </label>
+                        <input type="password" id="newUserPass" placeholder="أدخل كلمة مرور قوية" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary btn-with-icon" style="padding: 10px 20px;"
+                    onclick="closeModal('addUserModal')">
+                    <i class="bi bi-x-circle"></i>
+                    <span>إلغاء</span>
+                </button>
+                <button type="submit" form="addUserForm" class="btn btn-primary btn-with-icon"
+                    style="padding: 10px 20px;">
+                    <i class="bi bi-person-check-fill"></i>
+                    <span>حفظ المستخدم</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Transfer Image Modal -->
+    <div class="modal-overlay" id="transferImageModal">
+        <div class="modal modal-large">
+            <div class="modal-header">
+                <h3 style="font-weight: 800;">
+                    <i class="bi bi-image"></i>
+                    صورة إيصال التحويل
+                </h3>
+                <button onclick="closeTransferImageModal()"
+                    style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-gray);">&times;</button>
+            </div>
+            <div class="modal-content" style="padding: var(--spacing-xl); position: relative;">
+                <div id="transferImageContainer">
+                    <img id="transferImage" src="" alt="صورة التحويل" onclick="toggleImageZoom()">
+                    <!-- Image Controls -->
+                    <div class="image-controls">
+                        <button class="image-control-btn" onclick="zoomIn()" title="تكبير">
+                            <i class="bi bi-zoom-in"></i>
+                        </button>
+                        <button class="image-control-btn" onclick="zoomOut()" title="تصغير">
+                            <i class="bi bi-zoom-out"></i>
+                        </button>
+                        <button class="image-control-btn" onclick="resetZoom()" title="إعادة تعيين">
+                            <i class="bi bi-arrow-clockwise"></i>
+                        </button>
+                        <button class="image-control-btn" onclick="downloadImage()" title="تنزيل الصورة">
+                            <i class="bi bi-download"></i>
+                        </button>
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary btn-with-icon" onclick="closeTransferImageModal()">
+                    <i class="bi bi-x-circle"></i>
+                    <span>إغلاق</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Approve Recharge Modal -->
+    <div class="modal-overlay" id="approveRechargeModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 style="font-weight: 800;">
+                    <i class="bi bi-check-circle-fill" style="color: var(--accent-green); margin-left: 8px;"></i>
+                    تأكيد قبول طلب الشحن
+                </h3>
+                <button onclick="closeApproveModal()"
+                    style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-gray);">&times;</button>
+            </div>
+            <div class="modal-content">
+                <div
+                    style="background: #f0fdf4; border: 1px solid #86efac; border-radius: var(--radius-md); padding: var(--spacing-lg); margin-bottom: var(--spacing-lg);">
+                    <p style="margin: 0; color: var(--text-dark);">
+                        <i class="bi bi-info-circle-fill" style="color: var(--accent-green); margin-left: 6px;"></i>
+                        سيتم إضافة المبلغ إلى محفظة المستخدم <strong id="approveUserName"></strong>
+                    </p>
+                </div>
+                <div class="admin-form-group">
+                    <label>
+                        <i class="bi bi-cash-coin"></i>
+                        المبلغ المراد إضافته للمحفظة (جنيه)
+                    </label>
+                    <input type="number" id="approveAmount" min="1" step="0.01" required
+                        style="font-size: 1.1rem; font-weight: 600; color: var(--accent-green);">
+                    <small style="display: block; margin-top: 8px; color: var(--text-gray);">
+                        <i class="bi bi-lightbulb"></i>
+                        المبلغ الافتراضي هو <strong id="approveOriginalAmount"></strong> جنيه (قابل للتعديل)
+                    </small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeApproveModal()">
+                    <i class="bi bi-x-circle"></i>
+                    إلغاء
+                </button>
+                <button class="btn btn-primary" onclick="confirmApproveRecharge()">
+                    <i class="bi bi-check-circle"></i>
+                    تأكيد القبول
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reject Recharge Modal -->
+    <div class="modal-overlay" id="rejectRechargeModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 style="font-weight: 800;">
+                    <i class="bi bi-x-circle-fill" style="color: #ef4444; margin-left: 8px;"></i>
+                    رفض طلب الشحن
+                </h3>
+                <button onclick="closeRejectModal()"
+                    style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-gray);">&times;</button>
+            </div>
+            <div class="modal-content">
+                <div
+                    style="background: #fef2f2; border: 1px solid #fca5a5; border-radius: var(--radius-md); padding: var(--spacing-lg); margin-bottom: var(--spacing-lg);">
+                    <p style="margin: 0; color: var(--text-dark);">
+                        <i class="bi bi-exclamation-triangle-fill" style="color: #ef4444; margin-left: 6px;"></i>
+                        أنت على وشك رفض طلب شحن بقيمة <strong id="rejectAmount"></strong> جنيه للمستخدم <strong
+                            id="rejectUserName"></strong>
+                    </p>
+                </div>
+                <div class="admin-form-group">
+                    <label>
+                        <i class="bi bi-chat-left-text"></i>
+                        سبب الرفض <span style="color: #ef4444;">*</span>
+                    </label>
+                    <textarea id="rejectionReason" rows="4" placeholder="يرجى توضيح سبب رفض الطلب..." required
+                        style="resize: vertical;"></textarea>
+                    <small style="display: block; margin-top: 8px; color: var(--text-gray);">
+                        <i class="bi bi-info-circle"></i>
+                        سيتم إرسال السبب للمستخدم
+                    </small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeRejectModal()">
+                    <i class="bi bi-arrow-left"></i>
+                    إلغاء
+                </button>
+                <button class="btn btn-delete" onclick="confirmRejectRecharge()">
+                    <i class="bi bi-x-circle"></i>
+                    تأكيد الرفض
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Reply Complaint Modal -->
+    <div class="modal-overlay" id="replyComplaintModal">
+        <div class="modal">
+            <div class="modal-header">
+                <h3 style="font-weight: 800;">الرد على الشكوى</h3>
+                <button onclick="closeReplyModal()"
+                    style="background: none; border: none; font-size: 1.5rem; cursor: pointer;">&times;</button>
+            </div>
+            <div class="modal-content">
+                <div class="admin-form-group">
+                    <label>الشكوى:</label>
+                    <p id="complaintTextDisplay"
+                        style="background: #f8f9fa; padding: 10px; border-radius: 8px; font-size: 0.95rem; color: #444; max-height: 100px; overflow-y: auto;">
+                    </p>
+                </div>
+                <form id="replyComplaintForm">
+                    <input type="hidden" id="replyComplaintId">
+                    <div class="admin-form-group">
+                        <label>
+                            <i class="bi bi-reply-fill"></i>
+                            الرد
+                        </label>
+                        <textarea id="replyText" rows="4" placeholder="اكتب ردك هنا..." required
+                            style="resize: vertical;"></textarea>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeReplyModal()">
+                    <i class="bi bi-x-circle"></i>
+                    إلغاء
+                </button>
+                <button type="button" class="btn btn-primary" onclick="submitReply()">
+                    <i class="bi bi-send-fill"></i>
+                    إرسال الرد
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit User Modal -->
+    <div class="modal-overlay" id="editUserModal">
+        <div class="modal" style="max-width: 560px;">
+            <div class="modal-header">
+                <h3 style="font-weight: 800;">
+                    <i class="bi bi-pencil-fill" style="color: var(--primary-blue); margin-left: 8px;"></i>
+                    تعديل بيانات الحساب
+                </h3>
+                <button onclick="closeEditUserModal()"
+                    style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-gray);">&times;</button>
+            </div>
+            <div class="modal-content">
+                <form id="editUserForm">
+                    <input type="hidden" id="editUserId">
+                    <div class="edit-user-fields" style="display: grid; grid-template-columns: 1fr 1fr; gap: var(--spacing-lg);">
+                        <div class="admin-form-group">
+                            <label><i class="bi bi-person-fill"></i> الاسم الكامل</label>
+                            <input type="text" id="editUserName" placeholder="مثال: محمد أحمد" required>
+                        </div>
+                        <div class="admin-form-group">
+                            <label><i class="bi bi-telephone-fill"></i> رقم الهاتف</label>
+                            <input type="tel" id="editUserPhone" placeholder="01012345678" required>
+                        </div>
+                        <div class="admin-form-group" style="grid-column: 1 / -1;">
+                            <label><i class="bi bi-envelope-fill"></i> البريد الإلكتروني</label>
+                            <input type="email" id="editUserEmail" placeholder="user@example.com" required>
+                        </div>
+                        <div class="admin-form-group">
+                            <label><i class="bi bi-geo-alt-fill"></i> الدولة</label>
+                            <input type="text" id="editUserCountry" placeholder="مصر">
+                        </div>
+                        <div class="admin-form-group">
+                            <label><i class="bi bi-pin-map-fill"></i> المدينة</label>
+                            <input type="text" id="editUserCity" placeholder="القاهرة">
+                        </div>
+                        <div class="admin-form-group">
+                            <label><i class="bi bi-shield-check"></i> الحالة</label>
+                            <select id="editUserStatus">
+                                <option value="نشط">نشط</option>
+                                <option value="معلق">معلق</option>
+                            </select>
+                        </div>
+                        <div class="admin-form-group">
+                            <label><i class="bi bi-wallet2"></i> رصيد المحفظة (جنيه)</label>
+                            <input type="number" id="editUserWallet" min="0" step="0.01" placeholder="0">
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeEditUserModal()">
+                    <i class="bi bi-x-circle"></i> إلغاء
+                </button>
+                <button type="button" class="btn btn-primary" onclick="submitEditUser()">
+                    <i class="bi bi-check-circle"></i> حفظ التعديلات
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- View User Details Modal (قائمة الكورسات) -->
+    <div class="modal-overlay" id="viewUserDetailsModal">
+        <div class="modal" style="max-width: 480px;">
+            <div class="modal-header">
+                <h3 style="font-weight: 800;">
+                    <i class="bi bi-eye-fill" style="color: var(--primary-blue); margin-left: 8px;"></i>
+                    عرض التفاصيل — الكورسات المشترك بها
+                </h3>
+                <button onclick="closeViewUserDetailsModal()"
+                    style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-gray);">&times;</button>
+            </div>
+            <div class="modal-content">
+                <p id="viewUserDetailsName" style="font-weight: 700; color: var(--text-dark); margin-bottom: var(--spacing-lg);"></p>
+                <div id="viewUserDetailsCoursesList" style="max-height: 320px; overflow-y: auto;">
+                    <!-- قائمة الكورسات تُعبَّأ بالـ JS -->
+                </div>
+                <p id="viewUserDetailsEmpty" style="display: none; color: var(--text-gray); text-align: center; padding: var(--spacing-xl);">
+                    <i class="bi bi-collection" style="margin-left: 6px;"></i>
+                    لا يوجد كورسات مشترك بها.
+                </p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeViewUserDetailsModal()">
+                    <i class="bi bi-x-lg"></i> إغلاق
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Receipt Modal -->
+    <div class="modal-overlay" id="receiptModal" style="z-index: 100000; align-items: center; justify-content: center;">
+        <div class="modal"
+            style="width: auto; max-width: 90vw; max-height: 90vh; display: flex; flex-direction: column; background: #fff; border-radius: 12px; overflow: hidden; box-shadow: 0 15px 35px rgba(0,0,0,0.2);">
+            <div class="modal-header"
+                style="display: flex; justify-content: space-between; align-items: center; padding: 16px 20px; border-bottom: 1px solid #edf2f7; background: #fff;">
+                <h3 style="font-weight: 800; font-size: 1.1rem; margin: 0; color: #1a202c;">
+                    <i class="bi bi-receipt" style="margin-left: 8px; color: #4a90e2;"></i>
+                    إيصال التحويل
+                </h3>
+                <button onclick="closeReceiptModal()"
+                    style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: #718096; width: 32px; height: 32px; display: flex; align-items: center; justify-content: center; border-radius: 50%; transition: 0.2s;">&times;</button>
+            </div>
+
+            <div class="modal-content"
+                style="padding: 20px; display: flex; align-items: center; justify-content: center; background: #f8fafc; overflow: auto; min-width: 350px; min-height: 300px; position: relative;">
+                <div id="receiptLoadingState" style="text-align: center; color: #718096;">
+                    <div style="margin-bottom: 10px;">
+                        <div
+                            style="width: 30px; height: 30px; border: 3px solid #e2e8f0; border-top-color: #4a90e2; border-radius: 50%; animation: spin 1s linear infinite; margin: 0 auto;">
+                        </div>
+                    </div>
+                    <span>جاري تحميل الصورة...</span>
+                </div>
+                <img id="newReceiptImage" src="" alt="Receipt"
+                    style="max-width: 100%; max-height: 65vh; border-radius: 8px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); display: none;"
+                    onload="document.getElementById('receiptLoadingState').style.display='none'; this.style.display='block';"
+                    onerror="document.getElementById('receiptLoadingState').style.display='none'; this.style.display='none'; document.getElementById('receiptErrorState').style.display='block';">
+
+                <div id="receiptErrorState" style="text-align: center; color: #e53e3e; display: none;">
+                    <i class="bi bi-exclamation-circle"
+                        style="font-size: 2rem; margin-bottom: 8px; display: block;"></i>
+                    <span>تعذر تحميل صورة الإيصال</span>
+                </div>
+            </div>
+
+            <div class="modal-footer"
+                style="padding: 16px 20px; border-top: 1px solid #edf2f7; background: #fff; display: flex; justify-content: space-between; align-items: center;">
+                <a id="downloadReceiptBtn" href="#" download="receipt.jpg" class="btn btn-primary"
+                    style="display: inline-flex; align-items: center; gap: 8px; text-decoration: none;">
+                    <i class="bi bi-download"></i>
+                    <span>تحميل الإيصال</span>
+                </a>
+                <button onclick="closeReceiptModal()" class="btn btn-secondary"
+                    style="display: inline-flex; align-items: center; gap: 8px;">
+                    <i class="bi bi-x-lg"></i>
+                    <span>إغلاق</span>
+                </button>
+            </div>
+        </div>
+    </div>
+    <style>
+        .sidebar-badge {
+            background: #ff4d4d;
+            color: #fff;
+            font-size: 0.75rem;
+            font-weight: 700;
+            padding: 2px 6px;
+            border-radius: 99px;
+            margin-right: auto;
+            /* Push to left in RTL */
+            min-width: 20px;
+            text-align: center;
+            line-height: 1.4;
+            display: inline-block;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+
+    </div>
+    <script src="../js/admin.js?v=1.5"></script>
+    <!-- تم إيقاف سكربت mock القديم لطلبات الشحن واعتماد منطق الـ API الحقيقي في admin.js -->
+    <!-- <script src="../js/recharge-requests.js"></script> -->
+    <script src="../js/complaints-admin.js"></script>
+
+    <!-- PWA Service Worker Registration -->
+    <script>
+        // Display Admin Name
+        document.addEventListener('DOMContentLoaded', () => {
+            const adminInfo = localStorage.getItem('admin_info');
+            if (adminInfo) {
+                const admin = JSON.parse(adminInfo);
+                const adminNameEl = document.querySelector('.admin-info span');
+                const adminAvatarEl = document.querySelector('.admin-avatar');
+                if (adminNameEl && admin.full_name) {
+                    adminNameEl.textContent = admin.full_name;
+                }
+                if (adminAvatarEl && admin.full_name) {
+                    adminAvatarEl.textContent = admin.full_name.charAt(0).toUpperCase();
+                }
+            }
+        });
+
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('./sw.js')
+                    .then(registration => {
+                        console.log('Admin ServiceWorker registered successfully.');
+                    })
+                    .catch(err => {
+                        console.log('Admin ServiceWorker registration failed:', err);
+                    });
+            });
+        }
+    </script>
+</body>
+
+</html>

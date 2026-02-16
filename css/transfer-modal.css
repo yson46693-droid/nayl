@@ -1,0 +1,124 @@
+/* ===========================
+   Transfer Image Modal Styles
+   =========================== */
+
+#transferImageModal .modal {
+    width: auto;
+    max-width: 95vw;
+    max-height: 95vh;
+}
+
+#transferImageModal .modal-content {
+    max-height: 80vh;
+    overflow: auto;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #f8fafc;
+}
+
+#transferImageContainer {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 300px;
+}
+
+#transferImage {
+    max-width: 100%;
+    max-height: 75vh;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    border-radius: var(--radius-md);
+    box-shadow: var(--shadow-lg);
+    cursor: zoom-in;
+    transition: transform 0.3s ease;
+}
+
+#transferImage.zoomed {
+    cursor: zoom-out;
+    transform: scale(1.5);
+}
+
+/* Loading spinner for image */
+#transferImageContainer::before {
+    content: '';
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    border: 4px solid #e0e6ed;
+    border-top-color: var(--primary-blue);
+    border-radius: 50%;
+    animation: spinImage 1s linear infinite;
+}
+
+#transferImageContainer.loaded::before {
+    display: none;
+}
+
+@keyframes spinImage {
+    to {
+        transform: rotate(360deg);
+    }
+}
+
+/* Image controls */
+.image-controls {
+    position: absolute;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    gap: 10px;
+    background: rgba(0, 0, 0, 0.7);
+    padding: 10px 20px;
+    border-radius: 30px;
+    backdrop-filter: blur(10px);
+    z-index: 10;
+}
+
+.image-control-btn {
+    background: transparent;
+    border: none;
+    color: white;
+    cursor: pointer;
+    padding: 8px 12px;
+    border-radius: 50%;
+    transition: all 0.3s ease;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.image-control-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+    transform: scale(1.1);
+}
+
+.image-control-btn i {
+    font-size: 18px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+    #transferImage {
+        max-height: 60vh;
+    }
+
+    .image-controls {
+        bottom: 10px;
+        padding: 8px 15px;
+    }
+
+    .image-control-btn {
+        padding: 6px 10px;
+    }
+
+    .image-control-btn i {
+        font-size: 16px;
+    }
+}

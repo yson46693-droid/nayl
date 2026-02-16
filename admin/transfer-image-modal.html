@@ -1,0 +1,25 @@
+<!-- Transfer Image Modal -->
+<div class="modal-overlay" id="transferImageModal">
+    <div class="modal modal-large">
+        <div class="modal-header">
+            <h3 style="font-weight: 800;">
+                <i class="bi bi-image"></i>
+                صورة إيصال التحويل
+            </h3>
+            <button onclick="closeTransferImageModal()"
+                style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-gray);">&times;</button>
+        </div>
+        <div class="modal-content" style="padding: var(--spacing-xl);">
+            <div id="transferImageContainer" style="text-align: center;">
+                <img id="transferImage" src="" alt="صورة التحويل"
+                    style="max-width: 100%; max-height: 70vh; border-radius: var(--radius-md); box-shadow: var(--shadow-lg);">
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary btn-with-icon" onclick="closeTransferImageModal()">
+                <i class="bi bi-x-circle"></i>
+                <span>إغلاق</span>
+            </button>
+        </div>
+    </div>
+</div>

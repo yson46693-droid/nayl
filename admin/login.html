@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>تسجيل دخول المشرفين | AmrNayl Academy</title>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+    <link rel="stylesheet" href="../css/admin-auth.css">
+</head>
+
+<body>
+    <div class="login-container">
+        <div class="login-card">
+            <div class="logo-section">
+                <img src="../pics/logo.png" alt="Logo">
+            </div>
+
+            <h1 class="login-title">لوحة التحكم</h1>
+            <p class="login-subtitle">سجل دخولك لإدارة المنصة</p>
+
+            <div id="alertBox" class="alert"></div>
+
+            <form id="loginForm" onsubmit="handleLogin(event)">
+                <div class="form-group">
+                    <label for="username">
+                        <i class="bi bi-person"></i>
+                        اسم المستخدم
+                    </label>
+                    <input type="text" id="username" class="form-input" placeholder="ادخل اسم المستخدم" required
+                        autocomplete="username">
+                </div>
+
+                <div class="form-group">
+                    <label for="password">
+                        <i class="bi bi-lock"></i>
+                        كلمة المرور
+                    </label>
+                    <div class="input-wrapper">
+                        <input type="password" id="password" class="form-input" placeholder="ادخل كلمة المرور" required
+                            autocomplete="current-password">
+                        <i class="bi bi-eye password-toggle" id="togglePassword"></i>
+                    </div>
+                </div>
+
+                <button type="submit" class="login-btn" id="submitBtn">
+                    <span>تسجيل الدخول</span>
+                    <i class="bi bi-box-arrow-in-left"></i>
+                </button>
+            </form>
+
+            <div class="back-link-wrapper">
+                <a href="../home.html" class="back-to-site">
+                    <span>العودة للموقع الرئيسي</span>
+                    <i class="bi bi-house-door"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Check if already logged in
+        function getCookie(name) {
+            const value = `; ${document.cookie}`;
+            const parts = value.split(`; ${name}=`);
+            if (parts.length === 2) return parts.pop().split(';').shift();
+        }
+
+        if (getCookie('admin_session_token')) {
+            window.location.href = 'index.html';
+        }
+
+        // Password Visibility Toggle
+        const togglePassword = document.getElementById('togglePassword');
+        const password = document.getElementById('password');
+
+        if (togglePassword && password) {
+            togglePassword.addEventListener('click', function (e) {
+                const type = password.getAttribute('type') === 'password' ? 'text' : 'password';
+                password.setAttribute('type', type);
+                this.classList.toggle('bi-eye');
+                this.classList.toggle('bi-eye-slash');
+            });
+        }
+
+        async function handleLogin(e) {
+            e.preventDefault();
+
+            const usernameInput = document.getElementById('username');
+            const passwordInput = document.getElementById('password');
+            const submitBtn = document.getElementById('submitBtn');
+            const alertBox = document.getElementById('alertBox');
+
+            // Reset UI
+            alertBox.style.display = 'none';
+            alertBox.className = 'alert';
+            submitBtn.disabled = true;
+            const originalBtnContent = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> جاري التحقق...';
+
+            try {
+                const response = await fetch('../api/admin/auth/login.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        username: usernameInput.value.trim(),
+                        password: passwordInput.value,
+                        remember: true
+                    })
+                });
+
+                const data = await response.json();
+
+                if (data.success) {
+                    // Store Admin Info (Optional but helpful)
+                    localStorage.setItem('admin_info', JSON.stringify(data.admin));
+                    localStorage.setItem('admin_session_token', data.token);
+
+                    alertBox.textContent = 'تم تسجيل الدخول بنجاح! جاري التوجيه...';
+                    alertBox.className = 'alert alert-success';
+                    alertBox.style.display = 'block';
+
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 800);
+                } else {
+                    throw new Error(data.error || 'حدث خطأ أثناء تسجيل الدخول');
+                }
+
+            } catch (error) {
+                alertBox.textContent = error.message;
+                alertBox.className = 'alert alert-danger';
+                alertBox.style.display = 'block';
+                submitBtn.disabled = false;
+                submitBtn.innerHTML = originalBtnContent;
+            }
+        }
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AmrNayl academy - شحن رصيد المحفظة</title>
+    <meta name="description" content="شحن رصيد المحفظة في منصة AmrNayl academy">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/recharge.css">
+    <link rel="stylesheet" href="css/modals.css">
+    <link rel="stylesheet" href="css/support-modal.css">
+    <link rel="stylesheet" href="css/profile.css">
+    <link rel="shortcut icon" href="fav.ico" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+</head>
+
+<body class="recharge-page">
+    <!-- شريط التنقل -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-links">
+                <div class="profile-dropdown">
+                    <div class="profile-avatar">
+                        <i class="bi bi-person-fill"></i>
+                    </div>
+                    <div class="dropdown-menu">
+                        <a href="profile.html" class="dropdown-item">
+                            <i class="bi bi-person-circle"></i>
+                            <span>الملف الشخصي</span>
+                        </a>
+                        <a href="#" class="dropdown-item open-support-modal"
+                            onclick="openSupportModal(); return false;">
+                            <i class="bi bi-headset"></i>
+                            <span>الدعم الفني</span>
+                        </a>
+                        <a href="index.html" class="dropdown-item logout-item">
+                            <i class="bi bi-box-arrow-left"></i>
+                            <span>تسجيل الخروج</span>
+                        </a>
+                    </div>
+                </div>
+                <a href="profile.html?tab=course-codes" class="nav-link"><i class="bi bi-upc-scan"
+                        style="margin-left: 6px;"></i>أكوادي</a>
+                <a href="my-courses.html" class="nav-link"><i class="bi bi-collection-play-fill"
+                        style="margin-left: 6px;"></i>كورساتي</a>
+                <a href="recharge.html" class="nav-link active"><i class="bi bi-wallet2"
+                        style="margin-left: 6px;"></i>صفحة الشحن</a>
+                <a href="courses.html" class="nav-link"><i class="bi bi-grid-fill"
+                        style="margin-left: 6px;"></i>الكورسات</a>
+            </div>
+            <a href="home.html" class="logo" style="text-decoration: none;">
+                <span>AmrNayl academy</span>
+                <img src="pics/logo.png" alt="AMR NAYL ACADEMY" width="50" height="50" style="border-radius: 8px;">
+            </a>
+        </div>
+    </nav>
+
+    <!-- قسم شحن الرصيد -->
+    <section class="recharge-section">
+        <div class="container">
+            <!-- زر الرجوع -->
+            <a href="profile.html" class="back-button">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M12 16L6 10L12 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                </svg>
+                <span>العودة</span>
+            </a>
+
+            <div class="recharge-layout">
+                <!-- القسم الرئيسي للشحن -->
+                <div class="recharge-main">
+                    <h1 class="recharge-title">شحن رصيد المحفظة</h1>
+                    <p class="recharge-subtitle">أكمل التفاصيل لإتمام شحن رصيد المحفظة</p>
+
+                    <!-- تعليمات الاستخدام -->
+                    <div class="instructions-section">
+                        <button class="instructions-toggle" onclick="toggleInstructions()">
+                            <div class="instructions-header">
+                                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                    <circle cx="10" cy="10" r="8" stroke="#4a90e2" stroke-width="2" />
+                                    <path d="M10 6V10M10 14H10.01" stroke="#4a90e2" stroke-width="2"
+                                        stroke-linecap="round" />
+                                </svg>
+                                <span>كيفية شحن الرصيد</span>
+                            </div>
+                            <svg class="toggle-arrow" width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                <path d="M5 7.5L10 12.5L15 7.5" stroke="#4a90e2" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                            </svg>
+                        </button>
+                        <ol class="instructions-list" style="display: none;">
+                            <li>اختر طريقة الدفع المناسبة (Vodafone Cash أو InstaPay)</li>
+                            <li>قم بتحويل المبلغ المطلوب إلى الرقم المعروض</li>
+                            <li>التقط صورة لرسالة التحويل أو ارفع لقطة شاشة</li>
+                            <li>أدخل رقم موبايلك والمبلغ المحول</li>
+                            <li>اضغط على "إرسال طلب الشحن" وانتظر التأكيد</li>
+                        </ol>
+                    </div>
+
+                    <!-- قسم الدفع -->
+                    <div class="payment-section">
+                        <h2 class="payment-title">اختر طريقة الدفع</h2>
+
+                        <!-- خيار Vodafone Cash -->
+                        <div class="payment-method" data-method="vodafone">
+                            <div class="payment-method-header" onclick="togglePaymentMethod('vodafone')">
+                                <div class="payment-logo vodafone-logo">
+                                    <img src="pics/vf.png" alt="Vodafone Cash" width="50" height="50">
+                                </div>
+                                <div class="payment-info">
+                                    <h3>Vodafone Cash</h3>
+                                    <div class="payment-account-wrapper">
+                                        <p class="payment-account">حوّل على: 01060631033</p>
+                                        <button class="btn-copy" onclick="copyToClipboard('01060631033')"
+                                            title="نسخ الرقم">
+                                            <i class="bi bi-copy"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="toggle-icon">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                        <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2"
+                                            stroke-linecap="round" stroke-linejoin="round" />
+                                    </svg>
+                                </div>
+                            </div>
+
+                            <div class="payment-form">
+                                <div class="form-group">
+                                    <br>
+                                    <label for="vodafone-number">رقم موبايلك *</label>
+                                    <input type="tel" id="vodafone-number" class="form-input" dir="rtl"
+                                        placeholder="أدخل رقم الموبايل" required>
+                                    <small class="error-text" id="error-vodafone-number"></small>
+                                </div>
+                                <div class="form-group">
+                                    <label for="vodafone-amount">المبلغ المحول (بالجنيه) *</label>
+                                    <input type="number" id="vodafone-amount" class="form-input" dir="rtl"
+                                        placeholder="أدخل المبلغ" required>
+                                    <small class="error-text" id="error-vodafone-amount"></small>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="vodafone-image">صورة رسالة التحويل *</label>
+                                    <div class="image-upload-wrapper">
+                                        <input type="file" id="vodafone-image" class="file-input" accept="image/*"
+                                            capture="environment" required>
+                                        <label for="vodafone-image" class="file-upload-label">
+                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                                <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor"
+                                                    stroke-width="2" />
+                                                <circle cx="8.5" cy="8.5" r="1.5" fill="currentColor" />
+                                                <path d="M21 15L16 10L5 21" stroke="currentColor" stroke-width="2"
+                                                    stroke-linecap="round" stroke-linejoin="round" />
+                                            </svg>
+                                            <span>اضغط لرفع صورة أو التقاط صورة</span>
+                                        </label>
+                                        <div class="image-preview" id="vodafone-preview"></div>
+                                    </div>
+                                    <small class="error-text" id="error-vodafone-image"></small>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="vodafone-message">رسالة التحويل / رقم العملية (اختياري)</label>
+                                    <textarea id="vodafone-message" class="form-input form-textarea" dir="rtl" rows="3"
+                                        placeholder="مثال: رقم العملية 123456789 - تم التحويل الساعة 3:00 مساءً"></textarea>
+                                </div>
+
+                                <button class="btn-recharge vodafone-btn">
+                                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                        <path d="M10 3V17M3 10H17" stroke="currentColor" stroke-width="2"
+                                            stroke-linecap="round" />
+                                    </svg>
+                                    إرسال طلب الشحن
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- خيار InstaPay -->
+                        <div class="payment-method" data-method="instapay">
+                            <div class="payment-method-header" onclick="togglePaymentMethod('instapay')">
+                                <div class="payment-logo instapay-logo">
+                                    <img src="pics/insta.png" alt="InstaPay" width="50" height="50">
+                                </div>
+                                <div class="payment-info">
+                                    <h3>InstaPay</h3>
+                                    <div class="payment-account-wrapper">
+                                        <p class="payment-account">حوّل على: 01226550201</p>
+                                        <button class="btn-copy" onclick="copyToClipboard('01226550201')"
+                                            title="نسخ الرقم">
+                                            <i class="bi bi-copy"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                                <div class="toggle-icon">
+                                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                        <path d="M6 9L12 15L18 9" stroke="currentColor" stroke-width="2"
+                                            stroke-linecap="round" stroke-linejoin="round" />
+                                    </svg>
+                                </div>
+                            </div>
+
+                            <div class="payment-form">
+                                <div class="form-group">
+                                    <br>
+                                    <label for="instapay-number">اسم المستخدم / اليوزر *</label>
+                                    <input type="text" id="instapay-number" class="form-input" dir="rtl"
+                                        placeholder="مثال: @username " required>
+                                    <small class="error-text" id="error-instapay-number"></small>
+                                </div>
+                                <div class="form-group">
+                                    <label for="instapay-amount">المبلغ المحول (بالجنيه) *</label>
+                                    <input type="number" id="instapay-amount" class="form-input" dir="rtl"
+                                        placeholder="أدخل المبلغ" required>
+                                    <small class="error-text" id="error-instapay-amount"></small>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="instapay-image">صورة رسالة التحويل *</label>
+                                    <div class="image-upload-wrapper">
+                                        <input type="file" id="instapay-image" class="file-input" accept="image/*"
+                                            capture="environment" required>
+                                        <label for="instapay-image" class="file-upload-label">
+                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                                                <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor"
+                                                    stroke-width="2" />
+                                                <circle cx="8.5" cy="8.5" r="1.5" fill="currentColor" />
+                                                <path d="M21 15L16 10L5 21" stroke="currentColor" stroke-width="2"
+                                                    stroke-linecap="round" stroke-linejoin="round" />
+                                            </svg>
+                                            <span>اضغط لرفع صورة أو التقاط صورة</span>
+                                        </label>
+                                        <div class="image-preview" id="instapay-preview"></div>
+                                    </div>
+                                    <small class="error-text" id="error-instapay-image"></small>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="instapay-message">رسالة التحويل / رقم العملية (اختياري)</label>
+                                    <textarea id="instapay-message" class="form-input form-textarea" dir="rtl" rows="3"
+                                        placeholder="مثال: رقم العملية 123456789 - تم التحويل الساعة 3:00 مساءً"></textarea>
+                                </div>
+
+                                <button class="btn-recharge instapay-btn">
+                                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                        <path d="M10 3V17M3 10H17" stroke="currentColor" stroke-width="2"
+                                            stroke-linecap="round" />
+                                    </svg>
+                                    إرسال طلب الشحن
+                                </button>
+                            </div>
+                        </div>
+                    </div> <!-- Close payment-section -->
+
+                    <!-- رسالة النجاح (مخفية افتراضياً) -->
+                    <div id="success-message-container"
+                        style="display: none; text-align: center; padding: 2rem; animation: fadeIn 0.5s ease;">
+                        <div
+                            style="width: 80px; height: 80px; background: #e8f5e9; border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 1.5rem;">
+                            <svg width="40" height="40" viewBox="0 0 24 24" fill="none">
+                                <path d="M20 6L9 17L4 12" stroke="#4CAF50" stroke-width="3" stroke-linecap="round"
+                                    stroke-linejoin="round" />
+                            </svg>
+                        </div>
+                        <h2 style="font-size: 1.8rem; margin-bottom: 0.5rem; color: var(--primary-dark);">تم إرسال
+                            الطلب بنجاح!</h2>
+                        <p
+                            style="color: var(--text-gray); margin-bottom: 2rem; font-size: 1.1rem; max-width: 500px; margin-left: auto; margin-right: auto;">
+                            تم استلام طلب الشحن الخاص بك وسيتم مراجعته من قبل فريق الإدارة. سيتم إضافة الرصيد إلى
+                            محفظتك في أقرب وقت ممكن.
+                        </p>
+
+                        <div style="display: flex; gap: 1rem; justify-content: center; flex-wrap: wrap;">
+                            <a href="profile.html?tab=wallet" class="btn-primary"
+                                style="text-decoration: none; padding: 12px 30px; border-radius: 50px;">
+                                <i class="bi bi-wallet2" style="margin-left: 8px;"></i>
+                                متابعة الطلب
+                            </a>
+                            <a href="courses.html" class="btn-secondary"
+                                style="text-decoration: none; padding: 12px 30px; border-radius: 50px; background: #f1f5f9; color: var(--primary-dark);">
+                                تصفح الكورسات
+                            </a>
+                        </div>
+                    </div>
+
+
+                    <!-- الشروط -->
+                    <div class="terms-links">
+                        <button type="button" class="btn-link" onclick="togglePolicy('terms')">شروط
+                            الاستخدام</button>
+                        <span>•</span>
+                        <button type="button" class="btn-link" onclick="togglePolicy('privacy')">سياسة
+                            الخصوصية</button>
+                    </div>
+
+                    <!-- بطاقة شروط الاستخدام -->
+                    <div id="terms-content" class="policy-card">
+                        <div class="card-header">
+                            <h2>شروط الاستخدام</h2>
+                            <button class="btn-close-card" onclick="togglePolicy('terms')">
+                                <i class="bi bi-x-lg"></i>
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <h3>مرحباً بك في منصة AmrNayl Academy</h3>
+                            <p>يُرجى قراءة شروط الاستخدام التالية بعناية قبل استخدام خدماتنا:</p>
+
+                            <h4>1. قبول الشروط</h4>
+                            <p>باستخدامك لهذه المنصة، فإنك توافق على الالتزام بجميع الشروط والأحكام المذكورة هنا.
+                            </p>
+
+                            <h4>2. استخدام الخدمة</h4>
+                            <p>يجب عليك استخدام المنصة بطريقة قانونية ومسؤولة. يُمنع منعاً باتاً:</p>
+                            <ul>
+                                <li>استخدام المنصة لأغراض غير قانونية</li>
+                                <li>محاولة اختراق أو إلحاق الضرر بالنظام</li>
+                                <li>انتحال شخصية الآخرين أو تقديم معلومات مضللة</li>
+                                <li>إساءة استخدام خدمة الشحن أو المحفظة الإلكترونية</li>
+                            </ul>
+
+                            <h4>3. الحساب والأمان</h4>
+                            <p>أنت مسؤول عن الحفاظ على سرية حسابك وكلمة المرور الخاصة بك. يجب إخطارنا فوراً بأي
+                                استخدام
+                                غير مصرح به
+                                لحسابك.</p>
+
+                            <h4>4. المحفظة الإلكترونية</h4>
+                            <p>عند شحن رصيد المحفظة:</p>
+                            <ul>
+                                <li>يجب تقديم إثبات صحيح للتحويل</li>
+                                <li>يتم مراجعة جميع عمليات الشحن قبل إضافتها للرصيد</li>
+                                <li>قد يستغرق التفعيل من دقائق إلى ساعات حسب الضغط</li>
+                                <li>لا يمكن استرداد المبالغ بعد تفعيل الرصيد الا في حالات استثنائية</li>
+                            </ul>
+
+                            <h4>5. سياسة الجهاز الواحد ومشاهدة المحتوى</h4>
+                            <p>يُمنع منعاً باتاً مشاهدة الكورس بعد الشراء على جهازين مختلفين. نظام الحماية سيتعرف على أي استخدام متعدد الأجهزة وسيقوم بتعليق حسابك فوراً. في هذه الحالة لن تتمكن من استخدام الحساب على المنصة ولا من استرداد أموالك مرة أخرى. أي محاولة تحايل أو خرق لسياسة الخصوصية أو لشروط الاستخدام تعرّض جهازك للحظر النهائي من استخدام المنصة.</p>
+
+                            <h4>6. المدفوعات والاسترداد</h4>
+                            <p>جميع المدفوعات نهائية. في حالات استثنائية، يمكن النظر في طلبات الاسترداد خلال 7 أيام
+                                من
+                                تاريخ الشراء.
+                            </p>
+
+                            <h4>7. تعديل الشروط</h4>
+                            <p>نحتفظ بالحق في تعديل هذه الشروط في أي وقت. سيتم إخطارك بأي تغييرات مهمة.</p>
+
+                            <h4>8. الاتصال بنا</h4>
+                            <p>إذا كان لديك أي أسئلة حول شروط الاستخدام، يُرجى التواصل معنا عبر واتساب.</p>
+                        </div>
+                    </div>
+
+                    <!-- بطاقة سياسة الخصوصية -->
+                    <div id="privacy-content" class="policy-card">
+                        <div class="card-header">
+                            <h2>سياسة الخصوصية</h2>
+                            <button class="btn-close-card" onclick="togglePolicy('privacy')">
+                                <i class="bi bi-x-lg"></i>
+                            </button>
+                        </div>
+                        <div class="card-body">
+                            <h3>حماية خصوصيتك أولويتنا</h3>
+                            <p>نحن في AmrNayl Academy نلتزم بحماية خصوصيتك وبياناتك الشخصية.</p>
+
+                            <h4>1. المعلومات التي نجمعها</h4>
+                            <p>نقوم بجمع المعلومات التالية:</p>
+                            <ul>
+                                <li>معلومات الحساب (الاسم، البريد الإلكتروني، رقم الهاتف)</li>
+                                <li>معلومات الدفع والمحفظة الإلكترونية</li>
+                                <li>سجل الأنشطة والكورسات المسجلة</li>
+                                <li>معلومات الجهاز وعنوان IP</li>
+                            </ul>
+
+                            <h4>2. كيفية استخدام المعلومات</h4>
+                            <p>نستخدم معلوماتك من أجل:</p>
+                            <ul>
+                                <li>تقديم وتحسين خدماتنا</li>
+                                <li>معالجة المعاملات المالية</li>
+                                <li>إرسال تحديثات وإشعارات مهمة</li>
+                                <li>تحسين تجربة المستخدم</li>
+                                <li>الامتثال للمتطلبات القانونية</li>
+                            </ul>
+
+                            <h4>3. حماية البيانات</h4>
+                            <p>نستخدم أحدث تقنيات الأمان لحماية بياناتك:</p>
+                            <ul>
+                                <li>تشفير SSL/TLS لجميع البيانات المنقولة</li>
+                                <li>تشفير قواعد البيانات</li>
+                                <li>مراقبة أمنية على مدار الساعة</li>
+                                <li>نسخ احتياطي منتظم للبيانات</li>
+                            </ul>
+
+                            <h4>4. مشاركة المعلومات</h4>
+                            <p>لا نشارك معلوماتك الشخصية مع أطراف ثالثة إلا في الحالات التالية:</p>
+                            <ul>
+                                <li>بموافقتك الصريحة</li>
+                                <li>لمعالجة المدفوعات (مع بوابات الدفع الموثوقة)</li>
+                                <li>للامتثال للقوانين والأنظمة</li>
+                                <li>لحماية حقوقنا وسلامة مستخدمينا</li>
+                            </ul>
+
+                            <h4>5. ملفات تعريف الارتباط (Cookies)</h4>
+                            <p>نستخدم ملفات تعريف الارتباط لتحسين تجربتك. يمكنك التحكم في إعدادات ملفات تعريف
+                                الارتباط
+                                من متصفحك.
+                            </p>
+
+                            <h4>6. سياسة الجهاز الواحد والالتزام</h4>
+                            <p>مشاهدة المحتوى المُشترى على أكثر من جهاز واحد ممنوعة منعاً باتاً. في حال رصد نظام الحماية استخدامك للمنصة على جهازين مختلفين، سيتم تعليق حسابك ولن تتمكن من متابعة استخدام المنصة أو استرداد أي مبالغ. أي محاولة تحايل أو خرق لسياسة الخصوصية أو لشروط المنصة تعرّض جهازك للحظر النهائي من استخدام المنصة.</p>
+
+                            <h4>7. حقوقك</h4>
+                            <p>لديك الحق في:</p>
+                            <ul>
+                                <li>الوصول إلى بياناتك الشخصية</li>
+                                <li>تصحيح المعلومات غير الدقيقة</li>
+                                <li>طلب حذف بياناتك</li>
+                                <li>الاعتراض على معالجة بياناتك</li>
+                                <li>طلب نسخة من بياناتك</li>
+                            </ul>
+
+                            <h4>8. التحديثات</h4>
+                            <p>قد نقوم بتحديث سياسة الخصوصية من وقت لآخر. سنخطرك بأي تغييرات جوهرية.</p>
+
+                            <h4>9. التواصل</h4>
+                            <p>لأي استفسارات حول سياسة الخصوصية، يُرجى التواصل معنا عبر واتساب.</p>
+                        </div>
+                    </div>
+                </div>
+
+
+
+                <!-- الشريط الجانبي - ملخص الرصيد -->
+                <aside class="recharge-sidebar">
+                    <div class="balance-summary">
+                        <h3 class="summary-title">المبلغ المراد شحنه</h3>
+                        <div class="current-balance">
+                            <span class="balance-value">0</span>
+                            <span class="balance-currency">جنيه</span>
+                        </div>
+
+                        <div class="wallet-info">
+                            <p class="info-label">رقم الموبايل</p>
+                            <p class="info-value">0109XXXXXXXX</p>
+                        </div>
+
+                        <div class="payment-method-summary">
+                            <p class="info-label">طريقة الدفع:</p>
+                            <div class="selected-method">
+                                <img src="pics/vf.png" alt="Vodafone Cash" width="30" height="30">
+                                <span>Vodafone Cash</span>
+                            </div>
+                        </div>
+                    </div>
+                </aside>
+            </div>
+        </div>
+    </section>
+
+    <!-- Support Modal -->
+    <div id="support-modal" class="support-modal">
+        <div class="support-modal-overlay"></div>
+        <div class="support-modal-content">
+            <button class="support-modal-close">
+                <i class="bi bi-x-lg"></i>
+            </button>
+            <div class="support-modal-header">
+                <h2 class="support-modal-title">تواصل مع الدعم الفني</h2>
+                <p class="support-modal-subtitle">نحن هنا لمساعدتك في أي وقت</p>
+            </div>
+            <div class="support-channels">
+                <a href="tel:01060631033" class="support-btn btn-phone">
+                    <div class="support-icon"><i class="bi bi-telephone-fill"></i></div>
+                    <div class="support-info">
+                        <span class="support-label">اتصال هاتفي</span>
+                        <span class="support-value">01060631033</span>
+                    </div>
+                </a>
+                <a href="https://wa.me/201060631033" target="_blank" class="support-btn btn-whatsapp">
+                    <div class="support-icon"><i class="bi bi-whatsapp"></i></div>
+                    <div class="support-info">
+                        <span class="support-label">واتساب</span>
+                        <span class="support-value">01060631033</span>
+                    </div>
+                </a>
+                <a href="https://t.me/+201060631033" target="_blank" class="support-btn btn-telegram">
+                    <div class="support-icon"><i class="bi bi-telegram"></i></div>
+                    <div class="support-info">
+                        <span class="support-label">تليجرام</span>
+                        <span class="support-value">01060631033</span>
+                    </div>
+                </a>
+                <a href="https://www.facebook.com/share/1AWZvuarWP/" target="_blank" class="support-btn btn-facebook">
+                    <div class="support-icon"><i class="bi bi-facebook"></i></div>
+                    <div class="support-info">
+                        <span class="support-label">فيسبوك</span>
+                        <span class="support-value">AmrNayl Academy</span>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+
+
+    <script src="js/auth-check.js"></script>
+    <script>
+        // حماية الصفحة - التحقق من تسجيل الدخول
+        document.addEventListener('DOMContentLoaded', async function () {
+            await protectPage('index.html');
+        });
+    </script>
+    <script src="js/main.js"></script>
+    <script src="js/recharge.js"></script>
+    <script src="js/profile-dropdown.js"></script>
+    <script src="js/support-modal.js"></script>
+</body>
+
+</html>

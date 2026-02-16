@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <title>AmrNayl academy - تسجيل الدخول</title>
+    <link rel="stylesheet" href="css/login-mobile.css">
+    <link rel="shortcut icon" href="fav.ico" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+</head>
+
+<body class="login-mobile-page">
+    <div class="login-mobile-wrap">
+        <header class="login-mobile-header">
+            <span class="subtitle">مرحباً بك</span>
+            <h1>تسجيل الدخول<span class="dot">.</span></h1>
+            <p class="login-prompt">ليس لديك حساب؟ <a href="signup-mobile.html">إنشاء حساب جديد</a></p>
+        </header>
+
+        <main class="login-mobile-main">
+            <form class="login-form" id="loginForm">
+                <div class="form-group" id="emailGroup">
+                    <label for="email">البريد الإلكتروني</label>
+                    <input type="email" id="email" placeholder="أدخل بريدك الإلكتروني" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">كلمة المرور</label>
+                    <div class="password-wrap">
+                        <input type="password" id="password" placeholder="أدخل كلمة المرور" required>
+                        <button type="button" class="toggle-password" id="togglePassword" aria-label="إظهار كلمة المرور">
+                            <i class="bi bi-eye eye-icon" style="font-size: 1.1rem; color: #64748b;"></i>
+                            <i class="bi bi-eye-slash eye-off-icon" style="font-size: 1.1rem; color: #64748b; display: none;"></i>
+                        </button>
+                    </div>
+                </div>
+
+                <div class="form-options">
+                    <label class="remember-wrap">
+                        <input type="checkbox" id="remember">
+                        <span class="checkmark"></span>
+                        <span>تذكرني</span>
+                    </label>
+                    <a href="forgot-password.html" class="forgot-link">نسيت كلمة المرور؟</a>
+                </div>
+
+                <button type="submit" class="btn-submit">
+                    <i class="bi bi-box-arrow-in-left" style="margin-left: 6px;"></i>
+                    تسجيل الدخول
+                </button>
+
+                <button type="button" class="btn-outline" id="fingerprintLoginBtn" style="display: none; align-items: center; justify-content: center; gap: 6px;">
+                    <i class="bi bi-fingerprint" style="font-size: 1.1rem;"></i>
+                    تسجيل الدخول بالبصمة
+                </button>
+
+                <button type="button" class="btn-terms" id="termsBtn">
+                    <i class="bi bi-file-earmark-text"></i>
+                    الشروط والأحكام
+                </button>
+            </form>
+        </main>
+
+        <footer class="login-mobile-footer">
+            <a href="home.html" class="footer-logo">
+                <img src="pics/logo.png" alt="AmrNayl Academy" width="32" height="32">
+                <span>AmrNayl Academy</span>
+            </a>
+        </footer>
+    </div>
+
+    <!-- Terms Modal -->
+    <div id="termsModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal">&times;</span>
+            <div class="modal-header">
+                <h2>الشروط والأحكام</h2>
+            </div>
+            <div class="modal-body">
+                <div class="term-section warning">
+                    <h3>⚠️ تحذير قانوني هام</h3>
+                    <p>جميع الفيديوهات والمحتوى التعليمي الموجود على منصة AmrNayl Academy محمي بموجب حقوق الملكية الفكرية. يُحظر تماماً تسجيل، أو نسخ، أو إعادة توزيع، أو بيع أي جزء من المحتوى بأي شكل من الأشكال.</p>
+                    <p class="highlight">أي شخص يقوم بتسريب الكورسات أو بيعها بطريقة غير رسمية يعرض نفسه للمساءلة القانونية والحظر النهائي من المنصة والملاحقة القضائية.</p>
+                </div>
+                <div class="term-section">
+                    <h3>1. الملكية الفكرية</h3>
+                    <p>جميع الحقوق محفوظة للمهندس عمرو نايل. تتضمن الملكية الفكرية الفيديوهات، الملفات، النصوص، والشروحات. الاشتراك في الكورس يمنحك رخصة مشاهدة شخصية فقط ولا يجوز مشاركة الحساب مع أشخاص آخرين.</p>
+                </div>
+                <div class="term-section">
+                    <h3>2. سياسة الاستخدام</h3>
+                    <p>يجب استخدام المنصة لأغراض تعليمية فقط. يُمنع استخدام أي أدوات آلية لجمع البيانات أو محاولة اختراق الموقع. إدارة المنصة تحتفظ بالحق في إيقاف حساب أي مستخدم يخالف هذه السياسات دون استرداد المبلغ المدفوع.</p>
+                </div>
+                <div class="term-section">
+                    <h3>3. سياسة الاسترداد</h3>
+                    <p>نظراً لطبيعة المحتوى الرقمي، لا يمكن استرداد المبلغ المدفوع بعد تفعيل الكورس وبدء المشاهدة، إلا في حالات استثنائية تقررها إدارة المنصة.</p>
+                </div>
+                <div class="term-section warning">
+                    <h3>4. سياسة الجهاز الواحد ومشاهدة المحتوى</h3>
+                    <p>يُمنع منعاً باتاً مشاهدة الكورس بعد الشراء على جهازين مختلفين. نظام الحماية سيتعرف على أي استخدام متعدد الأجهزة وسيقوم بتعليق حسابك فوراً. في هذه الحالة لن تتمكن من استخدام الحساب على المنصة ولا من استرداد أموالك مرة أخرى.</p>
+                    <p class="highlight">أي محاولة تحايل أو خرق لسياسة الخصوصية أو لشروط الاستخدام تعرّض جهازك للحظر النهائي من استخدام المنصة.</p>
+                </div>
+                <div class="term-section">
+                    <h3>5. التحديثات والتعديلات</h3>
+                    <p>نحتفظ بالحق في تحديث هذه الشروط في أي وقت. استمرارك في استخدام المنصة يعني موافقتك على أحدث نسخة من الشروط والأحكام.</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button id="closeTermsBtn" class="btn btn-primary">إغلاق</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/deviceUUID.js"></script>
+    <script src="js/deviceFingerprint.js"></script>
+    <script src="js/tracking.js"></script>
+    <script src="js/webauthn.js"></script>
+    <script src="js/auth-check.js"></script>
+    <script src="js/login.js"></script>
+</body>
+
+</html>

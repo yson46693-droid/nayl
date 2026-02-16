@@ -1,0 +1,27 @@
+# Environment Variables
+api/.env
+.env
+
+# Logs
+logs/
+*.log
+api/logs/
+
+# Database
+*.sql.bak
+*.db
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# Temporary Files
+tmp/
+temp/
+*.tmp

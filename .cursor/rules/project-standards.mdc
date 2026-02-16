@@ -1,0 +1,455 @@
+---
+description: قواعد المشروع الأساسية - الألوان، الأمان، الأداء، والاستجابة
+alwaysApply: true
+---
+
+# قواعد المشروع الأساسية
+
+يجب على جميع النماذج احترام هذه القواعد عند إجراء أي تعديلات أو إضافات على المشروع.
+
+## ⚠️ قاعدة بيانات مهمة جداً
+
+**ملف Schema الوحيد**: `database-schema.sql`
+- جميع التعديلات على قاعدة البيانات (جداول، indexes، procedures) يجب أن تكون في هذا الملف فقط
+- لا تنشئ ملفات schema متعددة
+- عند إضافة جدول جديد أو تعديل جدول موجود، عدل `database-schema.sql` فقط
+- استخدم migrations عند التطبيق على قاعدة البيانات الفعلية
+
+## 1. المحافظة على الألوان الأساسية للموقع
+
+### الألوان المسموحة فقط:
+- **الأزرق الأساسي**: `#4a90e2` و `#3a7bc8`
+- **البرتقالي الثانوي**: `#ff9f43`
+- **الأخضر**: `#4CAF50`
+- **الداكن الأساسي**: `#1a2332` و `#243447`
+- **النص**: `#ffffff`, `#8b95a5`, `#2c3e50`
+- **الخلفيات**: `#f5f7fa`, `#ffffff`
+
+### ❌ ممنوع تماماً:
+- **لا تستخدم أي تدرج للبنفسجي** (purple gradients)
+- لا تستخدم ألوان خارج لوحة الألوان المحددة
+- لا تضيف ألوان جديدة بدون موافقة
+
+### ✅ أمثلة صحيحة:
+```css
+/* ✅ صحيح - استخدام الألوان الأساسية */
+background: linear-gradient(135deg, #1a2332 0%, #243447 100%);
+background: var(--primary-blue);
+color: var(--secondary-orange);
+
+/* ❌ خطأ - استخدام البنفسجي */
+background: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%);
+```
+
+---
+
+## 2. كود نظيف وقابل للصيانة
+
+### المبادئ الأساسية:
+- **البساطة أولاً**: تجنب التعقيد غير الضروري
+- **قابلية القراءة**: استخدم أسماء متغيرات ووظائف واضحة
+- **التعليقات**: أضف تعليقات توضيحية للكود المعقد
+- **التنظيم**: قسم الكود إلى أقسام منطقية
+
+### ✅ أمثلة على كود نظيف:
+```javascript
+// ✅ صحيح - كود واضح ومنظم
+function validateEmail(email) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    return emailRegex.test(email);
+}
+
+// ❌ خطأ - كود معقد وغير واضح
+const v = (e) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(e);
+```
+
+### قواعد الكود:
+- استخدم `const` و `let` بدلاً من `var`
+- استخدم arrow functions عند الإمكان
+- تجنب الكود المكرر (DRY principle)
+- استخدم async/await بدلاً من callbacks معقدة
+
+---
+
+## 3. تقسيم APIs إلى ملفات منفصلة
+
+### هيكل الملفات المطلوب:
+```
+js/
+  ├── api/
+  │   ├── auth.js          # APIs المصادقة فقط
+  │   ├── courses.js       # APIs الكورسات فقط
+  │   ├── payments.js      # APIs المدفوعات فقط
+  │   ├── profile.js       # APIs الملف الشخصي فقط
+  │   └── utils.js         # وظائف مساعدة مشتركة
+```
+
+### ✅ مثال صحيح:
+```javascript
+// js/api/auth.js
+export const authAPI = {
+    login: async (email, password) => {
+        const response = await fetch('/api/auth/login', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ email, password })
+        });
+        return response.json();
+    },
+    
+    register: async (userData) => {
+        // كود التسجيل فقط
+    }
+};
+
+// js/api/courses.js
+export const coursesAPI = {
+    getAllCourses: async () => {
+        // كود جلب الكورسات فقط
+    },
+    
+    getCourseById: async (id) => {
+        // كود جلب كورس محدد فقط
+    }
+};
+```
+
+### ❌ تجنب:
+- وضع جميع APIs في ملف واحد
+- تكرار الكود بين الملفات
+- خلط وظائف مختلفة في نفس الملف
+
+---
+
+## 4. الحماية من الثغرات الأمنية
+
+### حماية من XSS (Cross-Site Scripting):
+
+```javascript
+// ✅ صحيح - تنظيف المدخلات
+function sanitizeInput(input) {
+    const div = document.createElement('div');
+    div.textContent = input;
+    return div.innerHTML;
+}
+
+// ✅ صحيح - استخدام textContent بدلاً من innerHTML
+element.textContent = userInput; // آمن
+// ❌ خطأ
+element.innerHTML = userInput; // غير آمن
+
+// ✅ صحيح - استخدام DOMPurify إذا لزم الأمر
+import DOMPurify from 'dompurify';
+element.innerHTML = DOMPurify.sanitize(userInput);
+```
+
+### حماية من SQL Injection:
+
+```javascript
+// ✅ صحيح - استخدام Prepared Statements/Parameterized Queries
+// في Backend (مثال Node.js)
+const query = 'SELECT * FROM users WHERE email = ?';
+db.query(query, [email], callback);
+
+// ❌ خطأ - String concatenation
+const query = `SELECT * FROM users WHERE email = '${email}'`;
+```
+
+### حماية من CSRF:
+
+```javascript
+// ✅ صحيح - استخدام CSRF tokens
+const csrfToken = document.querySelector('meta[name="csrf-token"]').content;
+fetch('/api/action', {
+    method: 'POST',
+    headers: {
+        'Content-Type': 'application/json',
+        'X-CSRF-Token': csrfToken
+    },
+    body: JSON.stringify(data)
+});
+```
+
+### التحقق من المدخلات:
+
+```javascript
+// ✅ صحيح - التحقق من جميع المدخلات
+function validateInput(input, type) {
+    if (type === 'email') {
+        return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(input);
+    }
+    if (type === 'phone') {
+        return /^[0-9+\-\s()]+$/.test(input);
+    }
+    // تنظيف HTML
+    return input.replace(/<[^>]*>/g, '');
+}
+```
+
+### قواعد الأمان الإضافية:
+- **لا تثق أبداً في بيانات المستخدم**: تحقق من جميع المدخلات
+- **استخدم HTTPS**: تأكد من استخدام HTTPS لجميع الطلبات
+- **تشفير البيانات الحساسة**: استخدم hashing لكلمات المرور
+- **Rate Limiting**: حدد عدد الطلبات المسموحة
+
+---
+
+## 5. الأداء والسرعة
+
+### تحسين الأداء:
+
+```javascript
+// ✅ صحيح - استخدام Debounce للبحث
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
+const searchInput = document.getElementById('search');
+searchInput.addEventListener('input', debounce(handleSearch, 300));
+```
+
+### Lazy Loading للصور:
+
+```html
+<!-- ✅ صحيح -->
+<img src="image.jpg" loading="lazy" alt="Description">
+
+<!-- ✅ صحيح - استخدام Intersection Observer -->
+<img data-src="image.jpg" class="lazy-load" alt="Description">
+```
+
+```javascript
+// Lazy loading implementation
+const imageObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+        if (entry.isIntersecting) {
+            const img = entry.target;
+            img.src = img.dataset.src;
+            imageObserver.unobserve(img);
+        }
+    });
+});
+
+document.querySelectorAll('.lazy-load').forEach(img => {
+    imageObserver.observe(img);
+});
+```
+
+### تحسين CSS:
+
+```css
+/* ✅ صحيح - استخدام CSS Variables */
+:root {
+    --primary-color: #4a90e2;
+}
+.button {
+    background: var(--primary-color);
+}
+
+/* ✅ صحيح - تجنب animations معقدة */
+/* ❌ خطأ - animations ثقيلة */
+@keyframes heavy-animation {
+    /* 100+ خط من التحويلات */
+}
+```
+
+### قواعد الأداء:
+- **تقليل طلبات HTTP**: دمج الملفات عند الإمكان
+- **Minify CSS/JS**: تصغير الملفات للإنتاج
+- **استخدام Caching**: تخزين البيانات المؤقتة
+- **تجنب Reflows**: قلل من تغييرات DOM
+- **استخدام Event Delegation**: بدلاً من event listeners متعددة
+
+---
+
+## 6. Responsive Design - التوافق مع جميع الشاشات
+
+### استخدام Media Queries:
+
+```css
+/* ✅ صحيح - Mobile First Approach */
+.container {
+    padding: 1rem;
+    font-size: 14px;
+}
+
+/* Tablet */
+@media (min-width: 768px) {
+    .container {
+        padding: 1.5rem;
+        font-size: 16px;
+    }
+}
+
+/* Desktop */
+@media (min-width: 1024px) {
+    .container {
+        padding: 2rem;
+        font-size: 18px;
+    }
+}
+```
+
+### استخدام Flexbox و Grid:
+
+```css
+/* ✅ صحيح - Flexbox responsive */
+.card-container {
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+}
+
+@media (min-width: 768px) {
+    .card-container {
+        flex-direction: row;
+        flex-wrap: wrap;
+    }
+}
+
+/* ✅ صحيح - CSS Grid responsive */
+.grid-container {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+}
+
+@media (min-width: 768px) {
+    .grid-container {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 1024px) {
+    .grid-container {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+```
+
+### استخدام الوحدات النسبية:
+
+```css
+/* ✅ صحيح - استخدام وحدات نسبية */
+.container {
+    width: 100%;
+    max-width: 1200px;
+    padding: 2vw 4vw; /* viewport width */
+    font-size: clamp(14px, 2vw, 18px); /* responsive font */
+}
+
+/* ❌ خطأ - استخدام وحدات ثابتة */
+.container {
+    width: 1200px;
+    padding: 20px;
+    font-size: 16px;
+}
+```
+
+### اختبار Responsive:
+
+```javascript
+// ✅ صحيح - التحقق من حجم الشاشة
+function handleResize() {
+    const width = window.innerWidth;
+    if (width < 768) {
+        // Mobile layout
+    } else if (width < 1024) {
+        // Tablet layout
+    } else {
+        // Desktop layout
+    }
+}
+
+window.addEventListener('resize', debounce(handleResize, 250));
+```
+
+### قواعد Responsive:
+- **Mobile First**: ابدأ بالتصميم للموبايل أولاً
+- **اختبار على أجهزة حقيقية**: اختبر على أجهزة مختلفة
+- **استخدام Viewport Meta**: تأكد من وجود `<meta name="viewport">`
+- **الصور المرنة**: استخدم `max-width: 100%` للصور
+- **النصوص القابلة للقراءة**: استخدم `clamp()` للأحجام
+
+---
+
+## قائمة التحقق قبل أي تعديل
+
+قبل إضافة أو تعديل أي كود، تأكد من:
+
+- [ ] استخدام الألوان الأساسية فقط (لا بنفسجي)
+- [ ] الكود نظيف وواضح وقابل للقراءة
+- [ ] APIs منفصلة في ملفات منفصلة
+- [ ] حماية من XSS (تنظيف المدخلات)
+- [ ] حماية من SQL Injection (prepared statements)
+- [ ] التحقق من جميع المدخلات
+- [ ] تحسين الأداء (debounce, lazy loading)
+- [ ] Responsive على جميع الشاشات
+- [ ] اختبار على Mobile, Tablet, Desktop
+- [ ] لا يوجد كود مكرر
+
+---
+
+## أمثلة سريعة
+
+### ✅ مثال كامل صحيح:
+
+```javascript
+// js/api/auth.js - ملف API منفصل
+export const authAPI = {
+    async login(email, password) {
+        // التحقق من المدخلات
+        if (!validateEmail(email)) {
+            throw new Error('البريد الإلكتروني غير صحيح');
+        }
+        
+        // تنظيف المدخلات
+        const cleanEmail = sanitizeInput(email);
+        
+        // طلب آمن
+        const response = await fetch('/api/auth/login', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-Token': getCSRFToken()
+            },
+            body: JSON.stringify({
+                email: cleanEmail,
+                password: hashPassword(password)
+            })
+        });
+        
+        return response.json();
+    }
+};
+```
+
+```css
+/* CSS responsive مع الألوان الأساسية */
+.button {
+    background: var(--primary-blue);
+    color: var(--text-light);
+    padding: clamp(0.75rem, 2vw, 1rem);
+    border-radius: var(--radius-md);
+    transition: background 0.3s ease;
+}
+
+@media (max-width: 768px) {
+    .button {
+        width: 100%;
+        font-size: 14px;
+    }
+}
+```
+
+---
+
+**ملاحظة مهمة**: هذه القواعد إلزامية ويجب احترامها في جميع التعديلات والإضافات.

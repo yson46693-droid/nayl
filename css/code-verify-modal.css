@@ -1,0 +1,132 @@
+/**
+ * مودال كود المشاهدة - تصميم مستقل
+ */
+.code-verify-modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    width: 100vw;
+    height: 100vh;
+    min-height: 100%;
+    z-index: 10050;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1.5rem;
+}
+
+.code-verify-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    min-height: 100%;
+    background: rgba(26, 35, 50, 0.9);
+    z-index: 0;
+    pointer-events: none;
+}
+
+.code-verify-content {
+    position: relative;
+    z-index: 1;
+    background: #ffffff;
+    border-radius: 16px;
+    max-width: 420px;
+    width: 100%;
+    box-shadow: 0 25px 80px rgba(0, 0, 0, 0.35);
+}
+
+.code-verify-header {
+    padding: 1.5rem;
+    text-align: center;
+    border-bottom: 1px solid #e5e7eb;
+}
+
+.code-verify-header i {
+    font-size: 2.5rem;
+    color: #4a90e2;
+    display: block;
+    margin-bottom: 0.5rem;
+}
+
+.code-verify-header h2 {
+    font-size: 1.35rem;
+    font-weight: 700;
+    color: #1a2332;
+    margin: 0 0 0.5rem 0;
+}
+
+.code-verify-header p {
+    font-size: 0.9rem;
+    color: #6b7280;
+    margin: 0;
+    line-height: 1.5;
+}
+
+.code-verify-body {
+    padding: 1.5rem;
+}
+
+.code-verify-input {
+    width: 100%;
+    padding: 12px 16px;
+    font-size: 1rem;
+    border: 2px solid #e5e7eb;
+    border-radius: 8px;
+    margin-bottom: 1rem;
+    box-sizing: border-box;
+}
+
+.code-verify-input:focus {
+    outline: none;
+    border-color: #4a90e2;
+}
+
+.code-verify-error {
+    color: #dc2626;
+    font-size: 0.9rem;
+    margin-bottom: 1rem;
+}
+
+.code-verify-submit {
+    width: 100%;
+    padding: 14px 20px;
+    background: #4a90e2;
+    color: #ffffff;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    font-weight: 700;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+}
+
+.code-verify-submit:hover {
+    background: #3a7bc8;
+}
+
+.code-verify-submit:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+.code-verify-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    margin-top: 1rem;
+    color: #4a90e2;
+    font-size: 0.95rem;
+    text-decoration: none;
+}
+
+.code-verify-link:hover {
+    color: #3a7bc8;
+}

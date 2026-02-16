@@ -1,0 +1,423 @@
+/* =========================================
+   صفحة إنشاء الحساب - نسخة الهواتف فقط
+   تصميم mobile-first بدون فراغ أو مشاكل
+   ========================================= */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html {
+    font-size: 16px;
+    -webkit-text-size-adjust: 100%;
+}
+
+body.signup-mobile-page {
+    font-family: 'Cairo', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+    background: #f5f7fa;
+    color: #1a2332;
+    direction: rtl;
+    text-align: right;
+    line-height: 1.5;
+    padding: 0;
+    margin: 0;
+    min-height: auto;
+    height: auto;
+    overflow-x: hidden;
+}
+
+/* الحاوية الرئيسية - ارتفاع حسب المحتوى فقط */
+.signup-mobile-wrap {
+    width: 100%;
+    max-width: 100%;
+    padding: 12px 14px 20px;
+    display: block;
+    min-height: auto;
+}
+
+/* الهيدر - توسيط */
+.signup-mobile-header {
+    margin-bottom: 16px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #e2e8f0;
+    text-align: center;
+}
+
+.signup-mobile-header .subtitle {
+    display: block;
+    font-size: 0.7rem;
+    color: #8b95a5;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+}
+
+.signup-mobile-header h1 {
+    font-size: 1.4rem;
+    font-weight: 800;
+    color: #1a2332;
+    margin-bottom: 6px;
+}
+
+.signup-mobile-header h1 .dot {
+    color: #4a90e2;
+}
+
+.signup-mobile-header .login-prompt {
+    font-size: 0.85rem;
+    color: #8b95a5;
+    margin-bottom: 8px;
+}
+
+.signup-mobile-header .login-prompt a {
+    color: #4a90e2;
+    text-decoration: none;
+    font-weight: 600;
+}
+
+/* المحتوى الرئيسي */
+.signup-mobile-main {
+    display: block;
+    min-height: auto;
+}
+
+.registration-container {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.form-group {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.form-group label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #1a2332;
+}
+
+.form-group input,
+.form-group select {
+    width: 100%;
+    padding: 10px 12px;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 16px;
+    font-family: inherit;
+    background: #fff;
+    color: #1a2332;
+    transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.form-group input:focus,
+.form-group select:focus {
+    outline: none;
+    border-color: #4a90e2;
+    box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.15);
+}
+
+.field-hint {
+    font-size: 0.7rem;
+    color: #8b95a5;
+}
+
+/* صف الهاتف مع رمز الدولة */
+.phone-row {
+    display: flex;
+    gap: 8px;
+    align-items: stretch;
+}
+
+.phone-row input[type="tel"] {
+    flex: 1;
+    min-width: 0;
+}
+
+.country-code-select {
+    position: relative;
+    flex-shrink: 0;
+}
+
+.selected-country {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    padding: 10px 12px;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    background: #fff;
+    cursor: pointer;
+    font-size: 0.9rem;
+    min-width: 90px;
+}
+
+.selected-country .flag-icon {
+    font-size: 1.2rem;
+}
+
+.country-dropdown {
+    display: none;
+    position: absolute;
+    top: 100%;
+    right: 0;
+    left: 0;
+    margin-top: 4px;
+    background: #fff;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    z-index: 100;
+    max-height: 220px;
+    overflow: hidden;
+}
+
+.country-code-select.active .country-dropdown {
+    display: block;
+}
+
+.country-dropdown input {
+    width: 100%;
+    padding: 8px 10px;
+    border: none;
+    border-bottom: 1px solid #e2e8f0;
+    font-size: 14px;
+}
+
+.country-list {
+    max-height: 180px;
+    overflow-y: auto;
+}
+
+.country-option {
+    padding: 10px 12px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.country-option:hover {
+    background: #f1f5f9;
+}
+
+.country-option.selected {
+    background: rgba(74, 144, 226, 0.1);
+    color: #4a90e2;
+    font-weight: 600;
+}
+
+/* كلمة المرور مع زر الإظهار */
+.password-wrap {
+    display: flex;
+    align-items: center;
+    border: 2px solid #e2e8f0;
+    border-radius: 8px;
+    background: #fff;
+}
+
+.password-wrap input {
+    flex: 1;
+    border: none !important;
+    padding: 10px 12px;
+}
+
+.password-wrap input:focus {
+    box-shadow: none !important;
+}
+
+.password-wrap .toggle-password {
+    padding: 8px 10px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    color: #8b95a5;
+}
+
+.password-wrap .toggle-password:hover {
+    color: #4a90e2;
+}
+
+/* الشروط */
+.checkbox-wrap {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    color: #1a2332;
+    margin-top: 4px;
+}
+
+.checkbox-wrap input[type="checkbox"] {
+    width: 20px;
+    height: 20px;
+    flex-shrink: 0;
+    margin-top: 2px;
+}
+
+.checkbox-wrap .terms-link {
+    color: #4a90e2;
+    text-decoration: none;
+}
+
+/* زر الإرسال */
+.form-actions {
+    margin-top: 16px;
+}
+
+.btn-submit {
+    width: 100%;
+    padding: 14px 20px;
+    font-size: 1rem;
+    font-weight: 700;
+    font-family: inherit;
+    color: #fff;
+    background: #4a90e2;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.btn-submit:hover:not(:disabled) {
+    background: #3a7bc8;
+}
+
+.btn-submit:disabled {
+    background: #b0bec5;
+    cursor: not-allowed;
+}
+
+/* الفوتر - توسيط اللوجو */
+.signup-mobile-footer {
+    margin-top: 20px;
+    padding-top: 14px;
+    border-top: 1px solid #e2e8f0;
+    text-align: center;
+}
+
+.signup-mobile-footer .footer-logo {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    text-decoration: none;
+    color: #1a2332;
+    font-weight: 700;
+    font-size: 0.9rem;
+}
+
+.signup-mobile-footer .footer-logo img {
+    border-radius: 6px;
+}
+
+/* نافذة الشروط والأحكام */
+.modal {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    z-index: 1000;
+    padding: 16px;
+    overflow-y: auto;
+}
+
+.modal.active {
+    display: flex;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 20px 16px;
+}
+
+.modal-content {
+    background: #fff;
+    border-radius: 12px;
+    max-width: 100%;
+    width: 100%;
+    max-height: 90vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.modal .close-modal {
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #8b95a5;
+    z-index: 2;
+}
+
+.modal .modal-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid #e2e8f0;
+}
+
+.modal .modal-header h2 {
+    font-size: 1.2rem;
+    color: #1a2332;
+}
+
+.modal .modal-body {
+    padding: 16px 20px;
+    overflow-y: auto;
+    flex: 1;
+    font-size: 0.9rem;
+    line-height: 1.6;
+}
+
+.modal .term-section {
+    margin-bottom: 16px;
+}
+
+.modal .term-section h3 {
+    font-size: 1rem;
+    margin-bottom: 8px;
+    color: #1a2332;
+}
+
+.modal .term-section.warning {
+    background: #fff8e1;
+    border: 1px solid #ffc107;
+    border-radius: 8px;
+    padding: 12px;
+}
+
+.modal .term-section.warning h3 {
+    color: #f57c00;
+}
+
+.modal .term-section .highlight {
+    font-weight: 700;
+    color: #c62828;
+}
+
+.modal .modal-footer {
+    padding: 14px 20px;
+    border-top: 1px solid #e2e8f0;
+}
+
+.modal .btn-primary {
+    width: 100%;
+    padding: 12px;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #fff;
+    background: #4a90e2;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: inherit;
+}
+
+.modal .btn-primary:hover {
+    background: #3a7bc8;
+}

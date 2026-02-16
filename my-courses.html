@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AmrNayl academy - كورساتي</title>
+    <meta name="description" content="كورساتي التدريبية في منصة AmrNayl academy">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/support-modal.css">
+    <link rel="shortcut icon" href="fav.ico" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+</head>
+
+<body>
+    <!-- شريط التنقل -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-links">
+                <div class="profile-dropdown">
+                    <div class="profile-avatar">
+                        <i class="bi bi-person-fill"></i>
+                    </div>
+                    <div class="dropdown-menu">
+                        <a href="profile.html" class="dropdown-item">
+                            <i class="bi bi-person-circle"></i>
+                            <span>الملف الشخصي</span>
+                        </a>
+                        <a href="#" class="dropdown-item open-support-modal"
+                            onclick="openSupportModal(); return false;">
+                            <i class="bi bi-headset"></i>
+                            <span>الدعم الفني</span>
+                        </a>
+                        <a href="index.html" class="dropdown-item logout-item">
+                            <i class="bi bi-box-arrow-left"></i>
+                            <span>تسجيل الخروج</span>
+                        </a>
+                    </div>
+                </div>
+                <a href="profile.html?tab=course-codes" class="nav-link"><i class="bi bi-upc-scan"
+                        style="margin-left: 6px;"></i>أكوادي</a>
+                <a href="my-courses.html" class="nav-link active"><i class="bi bi-collection-play-fill"
+                        style="margin-left: 6px;"></i>كورساتي</a>
+                <a href="recharge.html" class="nav-link"><i class="bi bi-wallet2" style="margin-left: 6px;"></i>صفحة
+                    الشحن</a>
+                <a href="courses.html" class="nav-link"><i class="bi bi-grid-fill"
+                        style="margin-left: 6px;"></i>الكورسات</a>
+            </div>
+            <a href="home.html" class="logo" style="text-decoration: none;">
+                <span>AmrNayl academy</span>
+                <img src="pics/logo.png" alt="AMR NAYL ACADEMY" width="50" height="50" style="border-radius: 8px;">
+            </a>
+        </div>
+    </nav>
+
+    <!-- قسم كورساتي -->
+    <section class="my-courses-section">
+        <div class="container">
+            <!-- زر الرجوع -->
+            <a href="courses.html" class="back-button">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M12 16L6 10L12 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                </svg>
+                <span>العودة إلى الكورسات</span>
+            </a>
+
+            <!-- رأس الصفحة -->
+            <div class="page-header">
+                <h1 class="page-title">كورساتي التدريبية</h1>
+                <p class="page-subtitle">تابع تقدمك في الكورسات التي اشتركت بها</p>
+            </div>
+
+            <!-- إحصائيات سريعة -->
+            <div class="quick-stats">
+                <div class="stat-box">
+                    <div class="stat-icon">
+                        <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+                            <circle cx="20" cy="20" r="18" fill="#4CAF50" fill-opacity="0.1" />
+                            <path d="M12 20L17 25L28 14" stroke="#4CAF50" stroke-width="2.5" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </svg>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-value">0</div>
+                        <div class="stat-label">كورسات مكتملة</div>
+                    </div>
+                </div>
+
+                <div class="stat-box">
+                    <div class="stat-icon">
+                        <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+                            <circle cx="20" cy="20" r="18" fill="#4a90e2" fill-opacity="0.1" />
+                            <path
+                                d="M15 20L20 25L25 20M20 15V25M30 20C30 25.5228 25.5228 30 20 30C14.4772 30 10 25.5228 10 20C10 14.4772 14.4772 10 20 10C25.5228 10 30 14.4772 30 20Z"
+                                stroke="#4a90e2" stroke-width="2" stroke-linecap="round" />
+                        </svg>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-value">0</div>
+                        <div class="stat-label">كورسات جارية</div>
+                    </div>
+                </div>
+
+                <div class="stat-box">
+                    <div class="stat-icon">
+                        <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+                            <circle cx="20" cy="20" r="18" fill="#ff9f43" fill-opacity="0.1" />
+                            <path
+                                d="M20 10V20L26 26M30 20C30 25.5228 25.5228 30 20 30C14.4772 30 10 25.5228 10 20C10 14.4772 14.4772 10 20 10C25.5228 10 30 14.4772 30 20Z"
+                                stroke="#ff9f43" stroke-width="2" stroke-linecap="round" />
+                        </svg>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-value">0</div>
+                        <div class="stat-label">ساعة تعلم</div>
+                    </div>
+                </div>
+
+                <div class="stat-box">
+                    <div class="stat-icon">
+                        <svg width="40" height="40" viewBox="0 0 40 40" fill="none">
+                            <circle cx="20" cy="20" r="18" fill="#9C27B0" fill-opacity="0.1" />
+                            <path d="M20 14L22 18L26 19L23 22L24 26L20 24L16 26L17 22L14 19L18 18L20 14Z"
+                                stroke="#9C27B0" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+                        </svg>
+                    </div>
+                    <div class="stat-info">
+                        <div class="stat-value">0%</div>
+                        <div class="stat-label">معدل الإنجاز</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- فلاتر الكورسات -->
+            <div class="courses-filters">
+                <button class="filter-btn active" data-filter="all">الكل</button>
+                <button class="filter-btn" data-filter="in-progress">جارية</button>
+                <button class="filter-btn" data-filter="completed">مكتملة</button>
+            </div>
+
+            <!-- قائمة الكورسات -->
+            <div class="my-courses-grid">
+                <!-- سيتم تحميل الكورسات ديناميكياً هنا -->
+            </div>
+        </div>
+    </section>
+
+    <script src="js/auth-check.js"></script>
+    <script>
+        // حماية الصفحة - التحقق من تسجيل الدخول
+        document.addEventListener('DOMContentLoaded', async function () {
+            await protectPage('index.html');
+        });
+    </script>
+    <script src="js/main.js"></script>
+    <script src="js/my-courses.js"></script>
+    <script src="js/profile-dropdown.js"></script>
+    <script src="js/support-modal.js"></script>
+
+    <!-- Support Modal -->
+    <div id="support-modal" class="support-modal">
+        <div class="support-modal-overlay"></div>
+        <div class="support-modal-content">
+            <button class="support-modal-close">
+                <i class="bi bi-x-lg"></i>
+            </button>
+            <div class="support-modal-header">
+                <h2 class="support-modal-title">تواصل مع الدعم الفني</h2>
+                <p class="support-modal-subtitle">نحن هنا لمساعدتك في أي وقت</p>
+            </div>
+            <div class="support-channels">
+                <a href="tel:01060631033" class="support-btn btn-phone">
+                    <div class="support-icon"><i class="bi bi-telephone-fill"></i></div>
+                    <div class="support-info">
+                        <span class="support-label">اتصال هاتفي</span>
+                        <span class="support-value">01060631033</span>
+                    </div>
+                </a>
+                <a href="https://wa.me/201060631033" target="_blank" class="support-btn btn-whatsapp">
+                    <div class="support-icon"><i class="bi bi-whatsapp"></i></div>
+                    <div class="support-info">
+                        <span class="support-label">واتساب</span>
+                        <span class="support-value">01060631033</span>
+                    </div>
+                </a>
+                <a href="https://t.me/+201060631033" target="_blank" class="support-btn btn-telegram">
+                    <div class="support-icon"><i class="bi bi-telegram"></i></div>
+                    <div class="support-info">
+                        <span class="support-label">تليجرام</span>
+                        <span class="support-value">01060631033</span>
+                    </div>
+                </a>
+                <a href="https://www.facebook.com/share/1AWZvuarWP/" target="_blank" class="support-btn btn-facebook">
+                    <div class="support-icon"><i class="bi bi-facebook"></i></div>
+                    <div class="support-info">
+                        <span class="support-label">فيسبوك</span>
+                        <span class="support-value">AmrNayl Academy</span>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

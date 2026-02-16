@@ -1,0 +1,24 @@
+# Apache Configuration for API
+# حماية ملفات الإعدادات
+<FilesMatch "^(config|\.htaccess|\.env)$">
+    Order allow,deny
+    Deny from all
+</FilesMatch>
+
+# تفعيل CORS إذا لزم الأمر
+<IfModule mod_headers.c>
+    Header set Access-Control-Allow-Origin "*"
+    Header set Access-Control-Allow-Methods "POST, GET, OPTIONS"
+    Header set Access-Control-Allow-Headers "Content-Type, X-CSRF-Token"
+</IfModule>
+
+# تفعيل Error Logging
+php_flag display_errors Off
+php_flag log_errors On
+php_value error_log logs/php_errors.log
+
+# تفعيل UTF-8
+AddDefaultCharset UTF-8
+
+# حماية من Directory Listing
+Options -Indexes

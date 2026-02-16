@@ -1,0 +1,19 @@
+{
+    "name": "AmrNayl Admin Dashboard",
+    "short_name": "Nayl Admin",
+    "description": "لوحة تحكم منصة AmrNayl Academy",
+    "start_url": "./index.html",
+    "display": "standalone",
+    "orientation": "any",
+    "background_color": "#f8f9fa",
+    "theme_color": "#0d6efd",
+    "scope": ".",
+    "icons": [
+        {
+            "src": "../pics/cp.png",
+            "sizes": "192x192 512x512",
+            "type": "image/png",
+            "purpose": "any maskable"
+        }
+    ]
+}

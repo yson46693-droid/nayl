@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AmrNayl academy - الملف الشخصي</title>
+    <meta name="description" content="الملف الشخصي في منصة AmrNayl academy">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/support-modal.css">
+    <link rel="stylesheet" href="css/wallet-digital.css">
+    <link rel="stylesheet" href="css/whatsapp-modal.css">
+    <link rel="stylesheet" href="css/profile.css">
+    <link rel="stylesheet" href="css/avatar-modal.css">
+    <link rel="stylesheet" href="css/user-identity.css">
+    <link rel="stylesheet" href="css/complaints.css">
+    <link rel="stylesheet" href="css/course-codes.css">
+    <link rel="shortcut icon" href="fav.ico" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+</head>
+
+<body class="profile-page">
+    <!-- شريط التنقل -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-links">
+                <div class="profile-dropdown">
+                    <div class="profile-avatar">
+                        <i class="bi bi-person-fill"></i>
+                    </div>
+                    <div class="dropdown-menu">
+                        <a href="profile.html" class="dropdown-item">
+                            <i class="bi bi-person-circle"></i>
+                            <span>الملف الشخصي</span>
+                        </a>
+                        <a href="#" class="dropdown-item open-support-modal"
+                            onclick="openSupportModal(); return false;">
+                            <i class="bi bi-headset"></i>
+                            <span>الدعم الفني</span>
+                        </a>
+                        <a href="index.html" class="dropdown-item logout-item">
+                            <i class="bi bi-box-arrow-left"></i>
+                            <span>تسجيل الخروج</span>
+                        </a>
+                    </div>
+                </div>
+                <a href="profile.html?tab=course-codes" class="nav-link"><i class="bi bi-upc-scan"
+                        style="margin-left: 6px;"></i>أكوادي</a>
+                <a href="my-courses.html" class="nav-link"><i class="bi bi-collection-play-fill"
+                        style="margin-left: 6px;"></i>كورساتي</a>
+                <a href="recharge.html" class="nav-link"><i class="bi bi-wallet2" style="margin-left: 6px;"></i>صفحة
+                    الشحن</a>
+                <a href="courses.html" class="nav-link"><i class="bi bi-grid-fill"
+                        style="margin-left: 6px;"></i>الكورسات</a>
+            </div>
+            <a href="home.html" class="logo" style="text-decoration: none;">
+                <span>AmrNayl academy</span>
+                <img src="pics/logo.png" alt="AMR NAYL ACADEMY" width="50" height="50" style="border-radius: 8px;">
+            </a>
+        </div>
+    </nav>
+
+    <!-- قسم الملف الشخصي -->
+    <section class="profile-section">
+        <div class="container">
+            <!-- زر الرجوع -->
+            <a href="my-courses.html" class="back-button">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M12 16L6 10L12 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                </svg>
+                <span>العودة</span>
+            </a>
+
+            <!-- Hidden File Input for Image Upload -->
+            <input type="file" id="avatar-upload" accept="image/*" style="display: none;">
+
+            <div class="profile-layout">
+                <!-- الشريط الجانبي -->
+                <aside class="profile-sidebar user-card">
+                    <div class="user-avatar-container" style="position: relative; margin: 0 auto 30px; width: 150px;">
+                        <div class="user-avatar" style="margin-bottom: 0;">
+                            <i class="bi bi-person-circle"></i>
+                        </div>
+                    </div>
+                    <div class="user-identity">
+                        <h2 class="user-name styled-name" id="display-name">جاري التحميل...</h2>
+                        <div class="user-id-badge" title="نسخ معرف المستخدم" onclick="copyUserId()">
+                            <div dir="ltr"
+                                style="display: flex; align-items: center; gap: 5px; justify-content: center;">
+                                <span class="id-label">ID</span>
+                                <span class="id-value" id="user-id-value">--</span>
+                                <i class="bi bi-copy copy-icon"></i>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="user-verification">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                            <circle cx="12" cy="12" r="10" fill="#4CAF50" />
+                            <path d="M7 12L10 15L17 8" stroke="white" stroke-width="2.5" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </svg>
+                        <span id="verification-status">...</span>
+                    </div>
+
+                    <!-- قائمة التنقل -->
+                    <nav class="profile-nav">
+                        <button class="profile-nav-item active" data-tab="personal">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                <circle cx="10" cy="7" r="3" stroke="currentColor" stroke-width="1.5" />
+                                <path d="M4 17C4 13.6863 6.68629 11 10 11C13.3137 11 16 13.6863 16 17"
+                                    stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                            </svg>
+                            <span>المعلومات الشخصية</span>
+                        </button>
+                        <button class="profile-nav-item" data-tab="wallet">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                <rect x="2" y="5" width="16" height="11" rx="2" stroke="currentColor"
+                                    stroke-width="1.5" />
+                                <path d="M2 8H18" stroke="currentColor" stroke-width="1.5" />
+                                <circle cx="14" cy="12" r="1.5" fill="currentColor" />
+                                <path d="M2 5L3 3H17L18 5" stroke="currentColor" stroke-width="1.5"
+                                    stroke-linecap="round" stroke-linejoin="round" />
+                            </svg>
+                            <span>المحفظة</span>
+                        </button>
+                        <button class="profile-nav-item" data-tab="security">
+                            <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                <rect x="5" y="9" width="10" height="8" rx="1" stroke="currentColor"
+                                    stroke-width="1.5" />
+                                <path d="M7 9V6C7 4.34315 8.34315 3 10 3C11.6569 3 13 4.34315 13 6V9"
+                                    stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                                <circle cx="10" cy="13" r="1.5" fill="currentColor" />
+                            </svg>
+                            <span>الأمان</span>
+                        </button>
+                        <button class="profile-nav-item" data-tab="complaints">
+                            <i class="bi bi-chat-right-text" style="font-size: 1.25rem;"></i>
+                            <span>الشكاوي</span>
+                        </button>
+                        <button class="profile-nav-item" data-tab="course-codes">
+                            <i class="bi bi-upc-scan" style="font-size: 1.25rem;"></i>
+                            <span>أكواد الكورسات</span>
+                        </button>
+                        <button class="profile-nav-item" data-tab="discount-codes">
+                            <i class="bi bi-tag-fill" style="font-size: 1.25rem;"></i>
+                            <span>أكواد الخصم</span>
+                        </button>
+
+                    </nav>
+                </aside>
+
+                <!-- المحتوى الرئيسي -->
+                <main class="profile-main">
+                    <!-- تبويب المعلومات الشخصية -->
+                    <div class="profile-tab active" id="personal-tab">
+                        <h1 class="profile-title"><i class="bi bi-person-vcard"></i> المعلومات الشخصية</h1>
+
+                        <form class="profile-form">
+                            <div class="form-grid">
+                                <div class="form-group">
+                                    <label for="user-id">معرف المستخدم (ID)</label>
+                                    <input type="text" id="user-id" value="" class="form-input" readonly>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="full-name">الاسم الكامل</label>
+                                    <input type="text" id="full-name" value="" class="form-input" readonly>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="phone">رقم الهاتف</label>
+                                    <input type="tel" id="phone" value="" class="form-input" dir="ltr" readonly>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="email">البريد الإلكتروني</label>
+                                    <input type="email" id="email" value="" class="form-input" readonly>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="city">المدينة</label>
+                                    <input type="text" id="city" value="" class="form-input" readonly>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="country">الدولة</label>
+                                    <input type="text" id="country" value="" class="form-input" readonly>
+                                </div>
+                            </div>
+
+
+
+
+                        </form>
+                    </div>
+
+                    <!-- تبويب المحفظة -->
+                    <div class="profile-tab" id="wallet-tab">
+                        <h1 class="profile-title"><i class="bi bi-wallet2"></i> محفظتي</h1>
+
+                        <!-- بطاقة المحفظة الرقمية الاحترافية -->
+                        <div class="wallet-digital-card">
+                            <div class="wallet-card-gradient"></div>
+                            <div class="wallet-card-shine"></div>
+                            <div class="wallet-card-content-digital">
+                                <div class="wallet-card-top">
+                                    <div class="wallet-card-chip">
+                                        <svg width="40" height="32" viewBox="0 0 40 32" fill="none">
+                                            <rect width="40" height="32" rx="4" fill="rgba(255,255,255,0.25)" />
+                                            <rect x="4" y="4" width="12" height="8" rx="1"
+                                                fill="rgba(255,255,255,0.4)" />
+                                            <rect x="18" y="4" width="12" height="8" rx="1"
+                                                fill="rgba(255,255,255,0.4)" />
+                                            <rect x="4" y="14" width="12" height="8" rx="1"
+                                                fill="rgba(255,255,255,0.4)" />
+                                            <rect x="18" y="14" width="12" height="8" rx="1"
+                                                fill="rgba(255,255,255,0.4)" />
+                                        </svg>
+                                    </div>
+                                </div>
+
+                                <div class="wallet-card-balance">
+                                    <p class="balance-label-digital">الرصيد المتاح</p>
+                                    <div class="balance-amount-digital-wrapper">
+                                        <h2 class="balance-amount-digital" id="wallet-balance">0.00</h2>
+                                        <span class="currency-symbol-digital">ج.م</span>
+                                    </div>
+                                </div>
+
+                                <div class="wallet-card-bottom">
+                                    <div class="wallet-card-holder">
+                                        <p class="holder-label-digital">معرف المحفظة</p>
+                                        <p class="holder-name-digital" id="user-wallet-id">---</p>
+                                    </div>
+                                    <div class="wallet-card-expiry">
+                                        <p class="expiry-label-digital">صالحة حتى</p>
+                                        <p class="expiry-date-digital">∞</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- أزرار العمليات -->
+                        <div class="wallet-actions-digital">
+                            <button class="btn-wallet-digital btn-recharge-digital" id="recharge-btn"
+                                onclick="window.location.href='recharge.html'">
+                                <div class="btn-icon-digital">
+                                    <i class="bi bi-plus-circle-fill"></i>
+                                </div>
+                                <div class="btn-text-digital">
+                                    <span class="btn-title-digital">تعبئة الرصيد</span>
+                                    <span class="btn-subtitle-digital">إضافة أموال للمحفظة</span>
+                                </div>
+                            </button>
+
+                        </div>
+
+                        <!-- جدول طلبات تعبئة الرصيد -->
+                        <div class="recharge-requests-section">
+                            <div class="transactions-header">
+                                <h3 class="section-heading-premium">
+                                    <i class="bi bi-clock-history"></i>
+                                    طلبات تعبئة الرصيد
+                                </h3>
+                                <div class="transactions-filter">
+                                    <select class="filter-select" id="recharge-filter">
+                                        <option value="all">جميع الطلبات</option>
+                                        <option value="pending">قيد المراجعة</option>
+                                        <option value="approved">تم الموافقة</option>
+                                        <option value="rejected">مرفوض</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="transactions-list-premium" id="recharge-requests-container">
+                                <!-- سيتم إضافة طلبات الشحن ديناميكياً عبر JavaScript -->
+                            </div>
+
+                            <!-- Pagination for Recharge Requests -->
+                            <div class="pagination-container" id="recharge-pagination" style="display: none;">
+                                <button class="pagination-btn" id="recharge-prev-page" disabled>
+                                    <i class="bi bi-chevron-right"></i>
+                                    <span>السابق</span>
+                                </button>
+                                <div class="pagination-numbers" id="recharge-pagination-numbers">
+                                    <!-- Page numbers will be generated here -->
+                                </div>
+                                <button class="pagination-btn" id="recharge-next-page" disabled>
+                                    <span>التالي</span>
+                                    <i class="bi bi-chevron-left"></i>
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- سجل المعاملات -->
+                        <div class="transactions-section-premium">
+                            <div class="transactions-header">
+                                <h3 class="section-heading-premium">
+                                    <i class="bi bi-arrow-left-right"></i>
+                                    سجل المعاملات
+                                </h3>
+                                <div class="transactions-filter">
+                                    <select class="filter-select" id="transaction-filter">
+                                        <option value="all">جميع المعاملات</option>
+                                        <option value="credit">الإيداعات فقط</option>
+                                        <option value="debit">المصروفات فقط</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="transactions-list-premium" id="transactions-container">
+                                <!-- سيتم إضافة المعاملات ديناميكياً عبر JavaScript -->
+                            </div>
+
+                            <!-- نظام Pagination -->
+                            <div class="pagination-container" id="pagination-container">
+                                <button class="pagination-btn pagination-prev" id="prev-page" disabled>
+                                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                        <path d="M12 16L6 10L12 4" stroke="currentColor" stroke-width="2"
+                                            stroke-linecap="round" stroke-linejoin="round" />
+                                    </svg>
+                                    <span>السابق</span>
+                                </button>
+
+                                <div class="pagination-numbers" id="pagination-numbers">
+                                    <!-- سيتم إضافة أرقام الصفحات ديناميكياً -->
+                                </div>
+
+                                <button class="pagination-btn pagination-next" id="next-page">
+                                    <span>التالي</span>
+                                    <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                                        <path d="M8 4L14 10L8 16" stroke="currentColor" stroke-width="2"
+                                            stroke-linecap="round" stroke-linejoin="round" />
+                                    </svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- تبويب الأمان -->
+                    <div class="profile-tab" id="security-tab">
+                        <h1 class="profile-title"><i class="bi bi-shield-check"></i> الأمان والخصوصية</h1>
+
+                        <div class="security-section">
+                            <h3 class="security-heading"><i class="bi bi-shield-lock"></i> تغيير كلمة المرور</h3>
+                            <form class="security-form">
+                                <div class="form-group">
+                                    <label for="current-password">كلمة المرور الحالية</label>
+                                    <input type="password" id="current-password" class="form-input"
+                                        placeholder="أدخل كلمة المرور الحالية">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="new-password">كلمة المرور الجديدة</label>
+                                    <input type="password" id="new-password" class="form-input"
+                                        placeholder="أدخل كلمة المرور الجديدة">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="confirm-password">تأكيد كلمة المرور</label>
+                                    <input type="password" id="confirm-password" class="form-input"
+                                        placeholder="أعد إدخال كلمة المرور">
+                                </div>
+
+                                <button type="submit" class="btn btn-primary">تحديث كلمة المرور</button>
+                            </form>
+                        </div>
+
+
+
+                        <div class="security-section webauthn-section">
+                            <h3 class="security-heading"><i class="bi bi-fingerprint"></i> تسجيل الدخول بالبصمة</h3>
+                            <p class="security-desc">فعّل البصمة أو Face ID أو مفتاح المرور لتسجيل الدخول السريع دون كلمة مرور. لكل مستخدم بصمة واحدة فقط على الجهاز.</p>
+                            <div id="webauthn-support-box" class="webauthn-box">
+                                <!-- جدول البصمة المسجلة -->
+                                <div id="webauthn-table-wrap" class="webauthn-table-wrap" style="display: none;">
+                                    <h4 class="webauthn-table-title"><i class="bi bi-table"></i> البصمة المسجلة على الجهاز</h4>
+                                    <div class="webauthn-table-responsive">
+                                        <table class="webauthn-credential-table" id="webauthn-credential-table">
+                                            <thead>
+                                                <tr>
+                                                    <th>نوع الجهاز</th>
+                                                    <th>معرف البصمة</th>
+                                                    <th>تاريخ التسجيل</th>
+                                                    <th>إجراء</th>
+                                                </tr>
+                                            </thead>
+                                            <tbody id="webauthn-credential-tbody">
+                                                <!-- يُملأ ديناميكياً -->
+                                            </tbody>
+                                        </table>
+                                    </div>
+                                    <p id="webauthn-no-credential-msg" class="webauthn-no-credential-msg" style="display: none;">لا توجد بصمة مسجلة. سجّل بصمة واحدة من الزر أدناه.</p>
+                                </div>
+                                <div id="webauthn-register-area" style="display: none;">
+                                    <button type="button" class="btn btn-primary" id="webauthn-register-btn">
+                                        <i class="bi bi-fingerprint" style="margin-left: 8px;"></i>
+                                        تسجيل البصمة / Face ID / مفتاح المرور
+                                    </button>
+                                    <p class="webauthn-hint">سيُطلب منك استخدام البصمة أو الوجه أو مفتاح المرور في المرة القادمة عند تسجيل الدخول. إذا فشل التحقق، اضغط «حذف البصمة» ثم سجّلها من جديد.</p>
+                                </div>
+                                <div id="webauthn-unsupported" class="webauthn-unsupported" style="display: none;">
+                                    <p><i class="bi bi-info-circle"></i> المتصفح أو الجهاز الحالي لا يدعم تسجيل الدخول بالبصمة. يمكنك استخدام كلمة المرور أو تجربة متصفح حديث (Chrome، Edge، Safari، Firefox).</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="security-section">
+                            <h3 class="security-heading"><i class="bi bi-laptop"></i> الجلسات الاخيره</h3>
+                            <div class="devices-list" id="devices-container">
+                                <div class="empty-state">
+                                    <p>جاري تحميل قائمة الجلسات...</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="security-section"
+                            style="margin-top: 40px; border-top: 1px solid #eee; padding-top: 30px;">
+                            <h3 class="security-heading" style="color: #dc3545;"><i
+                                    class="bi bi-exclamation-triangle-fill" style="color: #dc3545;"></i> حذف الحساب
+                            </h3>
+                            <div class="danger-zone-content">
+                                <p style="color: #666; margin-bottom: 20px; font-size: 0.95rem; line-height: 1.6;">
+                                    عند قيامك بحذف الحساب، سيتم تعطيل حسابك بشكل نهائي ولن تتمكن من تسجيل الدخول مرة
+                                    أخرى.
+                                    سيتم تسجيل خروجك من جميع الأجهزة فوراً.
+                                </p>
+                                <button id="delete-account-btn" class="btn"
+                                    style="background-color: #dc3545; color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; transition: background 0.3s;"
+                                    onmouseover="this.style.backgroundColor='#c82333'"
+                                    onmouseout="this.style.backgroundColor='#dc3545'">
+                                    حذف حسابي
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- تبويب الشكاوي -->
+                    <div class="profile-tab" id="complaints-tab">
+                        <h1 class="profile-title"><i class="bi bi-chat-right-text"></i> الشكاوي والمقترحات</h1>
+
+                        <div class="wallet-digital-card"
+                            style="margin-bottom: 30px; background: linear-gradient(135deg, #4f46e5 0%, #3b82f6 100%);">
+                            <div class="wallet-card-content-digital"
+                                style="display: block; text-align: center; padding: 30px;">
+                                <i class="bi bi-headset"
+                                    style="font-size: 3rem; color: rgba(255,255,255,0.9); margin-bottom: 15px; display: block;"></i>
+                                <h3 style="color: white; margin-bottom: 10px; font-weight: 700;">هل واجهتك مشكلة؟</h3>
+                                <p style="color: rgba(255,255,255,0.8); margin-bottom: 20px;">نحن هنا لمساعدتك. يمكنك
+                                    إرسال شكوى أو مقترح وسيتم الرد عليك في أقرب وقت.</p>
+                                <button class="btn-wallet-digital"
+                                    style="background: white; color: #4f46e5; margin: 0 auto; display: inline-flex; width: auto; padding: 10px 30px;"
+                                    onclick="toggleComplaintForm()">
+                                    <i class="bi bi-pencil-square" style="color: #4f46e5;"></i>
+                                    <span class="btn-title-digital" style="color: #4f46e5;">إرسال شكوى جديدة</span>
+                                </button>
+                            </div>
+                        </div>
+
+
+                        <!-- قسم نموذج الشكوى (مخفي افتراضياً) -->
+                        <div id="new-complaint-section"
+                            style="display: none; margin-bottom: 30px; animation: fadeIn 0.3s ease;">
+                            <div class="complaint-modal-content"
+                                style="transform: none; width: 100%; max-width: 100%; box-shadow: 0 4px 20px rgba(0,0,0,0.05); border: 1px solid rgba(0,0,0,0.05);">
+                                <div class="complaint-modal-header"
+                                    style="text-align: right; margin-bottom: 1.5rem; display: flex; justify-content: space-between; align-items: start;">
+                                    <div>
+                                        <h3 class="complaint-modal-title" style="font-size: 1.5rem;">تفاصيل الشكوى</h3>
+                                        <p class="complaint-modal-subtitle">سيتم مراجعة طلبك من قبل فريق الدعم والرد
+                                            عليك.</p>
+                                    </div>
+                                    <button onclick="toggleComplaintForm()"
+                                        style="background: none; border: none; color: #94a3b8; cursor: pointer;">
+                                        <i class="bi bi-x-lg" style="font-size: 1.25rem;"></i>
+                                    </button>
+                                </div>
+
+                                <form id="complaint-form">
+                                    <div class="complaint-form-group">
+                                        <label for="complaint-subject" class="complaint-label">عنوان الشكوى</label>
+                                        <div class="complaint-input-wrapper">
+                                            <input type="text" id="complaint-subject" class="complaint-input"
+                                                placeholder="اكتب عنوان مختصر للمشكلة" required>
+                                            <i class="bi bi-type-h1 complaint-input-icon"></i>
+                                        </div>
+                                    </div>
+                                    <div class="complaint-form-group">
+                                        <label for="complaint-message" class="complaint-label">تفاصيل الشكوى</label>
+                                        <textarea id="complaint-message" class="complaint-textarea"
+                                            placeholder="اشرح مشكلتك بالتفصيل..." required></textarea>
+                                    </div>
+                                    <button type="submit" class="complaint-submit-btn">
+                                        <i class="bi bi-send-fill"></i>
+                                        إرسال الشكوى
+                                    </button>
+                                </form>
+                            </div>
+                        </div>
+
+                        <div class="transactions-section-premium">
+                            <div class="transactions-header">
+                                <h3 class="section-heading-premium">
+                                    <i class="bi bi-clock-history"></i>
+                                    سجل الشكاوي
+                                </h3>
+                            </div>
+
+                            <div class="transactions-list-premium" id="complaints-container">
+                                <!-- سيتم تحميل الشكاوي هنا -->
+                                <div class="empty-state">
+                                    <p>جاري تحميل الشكاوي...</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- تبويب أكواد الكورسات -->
+                    <div class="profile-tab" id="course-codes-tab">
+                        <h1 class="profile-title"><i class="bi bi-upc-scan"></i> أكواد الكورسات</h1>
+
+                        <div class="course-codes-intro">
+                            <div class="course-codes-intro-icon">
+                                <i class="bi bi-key-fill"></i>
+                            </div>
+                            <p class="course-codes-intro-text">هنا تظهر الأكواد الخاصة بمشاهدة الكورسات التي اشتريتها. اضغط على أي كود لنسخه واستخدامه في منصة المشاهدة.</p>
+                        </div>
+
+                        <div class="course-codes-container" id="course-codes-container">
+                            <div class="course-codes-loading" id="course-codes-loading">
+                                <div class="loading-spinner"></div>
+                                <p>جاري تحميل الأكواد...</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="profile-tab" id="discount-codes-tab">
+                        <h1 class="profile-title"><i class="bi bi-tag-fill"></i> أكواد الخصم المستخدمة</h1>
+                        <p class="profile-subtitle">أكواد الخصم التي استخدمتها عند شراء الكورسات.</p>
+                        <div class="discount-codes-container" id="discount-codes-container">
+                            <div class="discount-codes-loading" id="discount-codes-loading" style="display: none;">
+                                <div class="loading-spinner"></div>
+                                <p>جاري التحميل...</p>
+                            </div>
+                            <div class="discount-codes-list" id="discount-codes-list">
+                                <!-- تُملأ عبر JS -->
+                            </div>
+                            <p class="discount-codes-empty" id="discount-codes-empty" style="display: none; text-align: center; color: var(--text-gray); padding: 2rem;">لم تستخدم أي كود خصم بعد.</p>
+                        </div>
+                    </div>
+
+                </main>
+            </div>
+        </div>
+    </section>
+
+    <!-- مودال التواصل عبر واتساب -->
+    <div id="whatsapp-modal" class="modal">
+        <div class="modal-overlay" id="modal-overlay"></div>
+        <div class="modal-content whatsapp-modal-content">
+            <button class="modal-close" id="modal-close">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
+                    <path d="M18 6L6 18M6 6L18 18" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                </svg>
+            </button>
+
+            <div class="modal-header">
+                <div class="modal-icon">
+                    <svg width="60" height="60" viewBox="0 0 60 60" fill="none">
+                        <circle cx="30" cy="30" r="28" fill="#25D366" />
+                        <path
+                            d="M30 15C21.7 15 15 21.7 15 30c0 2.7.7 5.2 2 7.4L15.5 45l7.8-2.5c2.1 1.2 4.5 1.9 7.2 1.9 8.3 0 15-6.7 15-15s-6.7-15-15-15zm8.8 21.3c-.4 1.1-2 2-2.8 2.1-.7.1-1.4.3-4.7-.9-4.2-1.6-6.9-5.9-7.1-6.2-.2-.3-1.7-2.2-1.7-4.2s1.1-3 1.5-3.4c.4-.4.8-.5 1.1-.5.3 0 .5 0 .7.0.2 0 .6-.1.9.7.3.8 1.1 2.7 1.2 2.9.1.2.2.4.0.7-.1.3-.2.4-.4.6-.2.2-.4.5-.6.6-.2.2-.4.4-.2.8.2.4 1 1.6 2.1 2.6 1.5 1.3 2.7 1.7 3.1 1.9.4.2.6.1.8-.1.2-.2.9-1.1 1.2-1.4.3-.4.5-.3.9-.2.4.1 2.3 1.1 2.7 1.3.4.2.7.3.8.5.1.2.1 1.1-.3 2.2z"
+                            fill="white" />
+                    </svg>
+                </div>
+                <p class="modal-subtitle">اختر رقم للتواصل معنا</p>
+            </div>
+
+            <div class="whatsapp-contacts">
+                <a href="https://wa.me/+201060631033" target="_blank" class="whatsapp-contact-btn">
+                    <div class="contact-icon">
+                        <svg width="30" height="30" viewBox="0 0 30 30" fill="none">
+                            <circle cx="15" cy="15" r="14" fill="#25D366" />
+                            <path
+                                d="M15 8C11.1 8 8 11.1 8 15c0 1.4.4 2.6 1 3.7L8.3 22.5l3.9-1.3c1.1.6 2.3.9 3.6.9 4.2 0 7.5-3.4 7.5-7.5S19.2 8 15 8zm4.4 10.7c-.2.6-1 1-1.4 1.1-.4.1-.7.2-2.4-.5-2.1-.8-3.5-3-3.6-3.1-.1-.2-.9-1.1-.9-2.1s.6-1.5.8-1.7c.2-.2.4-.3.6-.3.1 0 .3 0 .4.0.1 0 .3-.1.5.4.2.4.6 1.4.6 1.5.1.1.1.2 0 .4-.1.2-.1.2-.2.3-.1.1-.2.3-.3.3-.1.1-.2.2-.1.4.1.2.5.8 1.1 1.3.8.7 1.4.9 1.6 1 .2.1.3.1.4-.1.1-.1.5-.6.6-.7.2-.2.3-.2.5-.1.2.1 1.2.6 1.4.7.2.1.4.2.4.3.1.1.1.6-.2 1.1z"
+                                fill="white" />
+                        </svg>
+                    </div>
+                    <div class="contact-info">
+                        <span class="contact-label">رقم واتساب - 1</span>
+                        <span class="contact-number" dir="ltr">01060631033</span>
+                    </div>
+                    <div class="contact-arrow">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <path d="M8 4L14 10L8 16" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </svg>
+                    </div>
+                </a>
+
+                <a href="https://wa.me/+201226550201" target="_blank" class="whatsapp-contact-btn">
+                    <div class="contact-icon">
+                        <svg width="30" height="30" viewBox="0 0 30 30" fill="none">
+                            <circle cx="15" cy="15" r="14" fill="#25D366" />
+                            <path
+                                d="M15 8C11.1 8 8 11.1 8 15c0 1.4.4 2.6 1 3.7L8.3 22.5l3.9-1.3c1.1.6 2.3.9 3.6.9 4.2 0 7.5-3.4 7.5-7.5S19.2 8 15 8zm4.4 10.7c-.2.6-1 1-1.4 1.1-.4.1-.7.2-2.4-.5-2.1-.8-3.5-3-3.6-3.1-.1-.2-.9-1.1-.9-2.1s.6-1.5.8-1.7c.2-.2.4-.3.6-.3.1 0 .3 0 .4.0.1 0 .3-.1.5.4.2.4.6 1.4.6 1.5.1.1.1.2 0 .4-.1.2-.1.2-.2.3-.1.1-.2.3-.3.3-.1.1-.2.2-.1.4.1.2.5.8 1.1 1.3.8.7 1.4.9 1.6 1 .2.1.3.1.4-.1.1-.1.5-.6.6-.7.2-.2.3-.2.5-.1.2.1 1.2.6 1.4.7.2.1.4.2.4.3.1.1.1.6-.2 1.1z"
+                                fill="white" />
+                        </svg>
+                    </div>
+                    <div class="contact-info">
+                        <span class="contact-label">رقم واتساب - 2</span>
+                        <span class="contact-number" dir="ltr">01226550201</span>
+                    </div>
+                    <div class="contact-arrow">
+                        <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                            <path d="M8 4L14 10L8 16" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round" />
+                        </svg>
+                    </div>
+                </a>
+            </div>
+
+            <div class="modal-footer">
+                <p class="modal-note">
+                    <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                        <circle cx="8" cy="8" r="7" stroke="currentColor" stroke-width="1.5" />
+                        <path d="M8 6V11M8 4.5V5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" />
+                    </svg>
+                    سيتم فتح واتساب في نافذة جديدة
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/auth-check.js"></script>
+    <script>
+        // حماية الصفحة - التحقق من تسجيل الدخول
+        document.addEventListener('DOMContentLoaded', async function () {
+            await protectPage('index.html');
+        });
+    </script>
+    <script src="js/main.js"></script>
+    <script src="js/webauthn.js"></script>
+    <script src="js/profile.js"></script>
+    <script src="js/wallet-premium.js"></script>
+    <script src="js/whatsapp-modal.js"></script>
+    <script src="js/profile-dropdown.js"></script>
+    <script src="js/support-modal.js"></script>
+    <script src="js/complaints-profile.js"></script>
+
+    <!-- Support Modal -->
+    <div id="support-modal" class="support-modal">
+        <div class="support-modal-overlay"></div>
+        <div class="support-modal-content">
+            <button class="support-modal-close">
+                <i class="bi bi-x-lg"></i>
+            </button>
+            <div class="support-modal-header">
+                <h2 class="support-modal-title">تواصل مع الدعم الفني</h2>
+                <p class="support-modal-subtitle">نحن هنا لمساعدتك في أي وقت</p>
+            </div>
+            <div class="support-channels">
+                <a href="tel:01060631033" class="support-btn btn-phone">
+                    <div class="support-icon"><i class="bi bi-telephone-fill"></i></div>
+                    <div class="support-info">
+                        <span class="support-label">اتصال هاتفي</span>
+                        <span class="support-value">01060631033</span>
+                    </div>
+                </a>
+                <a href="https://wa.me/201060631033" target="_blank" class="support-btn btn-whatsapp">
+                    <div class="support-icon"><i class="bi bi-whatsapp"></i></div>
+                    <div class="support-info">
+                        <span class="support-label">واتساب</span>
+                        <span class="support-value">01060631033</span>
+                    </div>
+                </a>
+                <a href="https://t.me/+201060631033" target="_blank" class="support-btn btn-telegram">
+                    <div class="support-icon"><i class="bi bi-telegram"></i></div>
+                    <div class="support-info">
+                        <span class="support-label">تليجرام</span>
+                        <span class="support-value">01060631033</span>
+                    </div>
+                </a>
+                <a href="https://www.facebook.com/share/1AWZvuarWP/" target="_blank" class="support-btn btn-facebook">
+                    <div class="support-icon"><i class="bi bi-facebook"></i></div>
+                    <div class="support-info">
+                        <span class="support-label">فيسبوك</span>
+                        <span class="support-value">AmrNayl Academy</span>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+    <!-- Avatar Selection Modal -->
+    <div id="avatar-modal" class="modal">
+        <div class="modal-overlay" id="avatar-modal-overlay"></div>
+        <div class="modal-content avatar-modal-content">
+            <button class="modal-close" id="avatar-modal-close">
+                <i class="bi bi-x-lg"></i>
+            </button>
+            <div class="modal-header">
+                <h3>اختر صورة شخصية</h3>
+                <p>اختر أيقونة تعبر عنك</p>
+            </div>
+            <div class="avatar-grid">
+                <!-- Person Icons -->
+                <div class="avatar-option" data-icon="bi-person-circle"><i class="bi bi-person-circle"></i></div>
+                <div class="avatar-option" data-icon="bi-person-fill"><i class="bi bi-person-fill"></i></div>
+                <div class="avatar-option" data-icon="bi-person-square"><i class="bi bi-person-square"></i></div>
+                <div class="avatar-option" data-icon="bi-person-badge"><i class="bi bi-person-badge"></i></div>
+                <div class="avatar-option" data-icon="bi-person-standing"><i class="bi bi-person-standing"></i></div>
+                <div class="avatar-option" data-icon="bi-person-raised-hand"><i class="bi bi-person-raised-hand"></i>
+                </div>
+
+                <!-- Emoji/Fun Icons -->
+                <div class="avatar-option" data-icon="bi-emoji-smile-fill"><i class="bi bi-emoji-smile-fill"></i></div>
+                <div class="avatar-option" data-icon="bi-emoji-sunglasses-fill"><i
+                        class="bi bi-emoji-sunglasses-fill"></i></div>
+                <div class="avatar-option" data-icon="bi-emoji-laughing-fill"><i class="bi bi-emoji-laughing-fill"></i>
+                </div>
+                <div class="avatar-option" data-icon="bi-star-fill"><i class="bi bi-star-fill"></i></div>
+                <div class="avatar-option" data-icon="bi-heart-fill"><i class="bi bi-heart-fill"></i></div>
+                <div class="avatar-option" data-icon="bi-lightning-fill"><i class="bi bi-lightning-fill"></i></div>
+
+                <!-- Tech/Other Icons -->
+                <div class="avatar-option" data-icon="bi-robot"><i class="bi bi-robot"></i></div>
+                <div class="avatar-option" data-icon="bi-controller"><i class="bi bi-controller"></i></div>
+                <div class="avatar-option" data-icon="bi-headset"><i class="bi bi-headset"></i></div>
+                <div class="avatar-option" data-icon="bi-mortarboard-fill"><i class="bi bi-mortarboard-fill"></i></div>
+                <div class="avatar-option" data-icon="bi-book-half"><i class="bi bi-book-half"></i></div>
+                <div class="avatar-option" data-icon="bi-laptop"><i class="bi bi-laptop"></i></div>
+            </div>
+        </div>
+    </div>
+
+
+</body>
+
+</html>

@@ -1,0 +1,360 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AmrNayl academy - شراء الكورس</title>
+    <meta name="description" content="شراء الكورس التدريبي في منصة AmrNayl academy">
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/purchase-course.css">
+    <link rel="stylesheet" href="css/support-modal.css">
+    <link rel="shortcut icon" href="fav.ico" type="image/x-icon">
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+</head>
+
+<body>
+    <!-- شريط التنقل -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <div class="nav-links">
+                <div class="profile-dropdown">
+                    <div class="profile-avatar">
+                        <i class="bi bi-person-fill"></i>
+                    </div>
+                    <div class="dropdown-menu">
+                        <a href="profile.html" class="dropdown-item">
+                            <i class="bi bi-person-circle"></i>
+                            <span>الملف الشخصي</span>
+                        </a>
+                        <a href="#" class="dropdown-item open-support-modal"
+                            onclick="openSupportModal(); return false;">
+                            <i class="bi bi-headset"></i>
+                            <span>الدعم الفني</span>
+                        </a>
+                        <a href="index.html" class="dropdown-item logout-item">
+                            <i class="bi bi-box-arrow-left"></i>
+                            <span>تسجيل الخروج</span>
+                        </a>
+                    </div>
+                </div>
+                <a href="profile.html?tab=course-codes" class="nav-link"><i class="bi bi-upc-scan"
+                        style="margin-left: 6px;"></i>أكوادي</a>
+                <a href="recharge.html" class="nav-link"><i class="bi bi-wallet2" style="margin-left: 6px;"></i>شحن
+                    الرصيد</a>
+                <a href="my-courses.html" class="nav-link"><i class="bi bi-collection-play-fill"
+                        style="margin-left: 6px;"></i>كورساتي</a>
+                <a href="courses.html" class="nav-link"><i class="bi bi-grid-fill"
+                        style="margin-left: 6px;"></i>الكورسات</a>
+            </div>
+            <a href="home.html" class="logo" style="text-decoration: none;">
+                <span>AmrNayl academy</span>
+                <img src="pics/logo.png" alt="AMR NAYL ACADEMY" width="50" height="50" style="border-radius: 8px;">
+            </a>
+        </div>
+    </nav>
+
+    <!-- قسم شراء الكورس -->
+    <section class="purchase-section">
+        <div class="container">
+            <!-- زر الرجوع -->
+            <a href="courses.html" class="back-button">
+                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                    <path d="M12 16L6 10L12 4" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                        stroke-linejoin="round" />
+                </svg>
+                <span>العودة إلى الكورسات</span>
+            </a>
+
+            <div class="purchase-layout">
+                <!-- القسم الرئيسي -->
+                <div class="purchase-main">
+
+                    <!-- تفاصيل الكورس -->
+                    <div class="course-details-card">
+                        <div class="course-image-container">
+                            <img src="pics/1.jpg" alt="أساسيات صيانة الآيفون" class="course-image">
+                            <div class="course-badge">الأكثر مبيعاً</div>
+                        </div>
+
+                        <div class="course-info-section">
+                            <h1 class="course-title">أساسيات صيانة الآيفون</h1>
+                            <p class="course-description">تعلم أساسيات إصلاح أجهزة الآيفون من الصفر مع خبراء متخصصين.
+                                هذا الكورس يغطي جميع الجوانب الأساسية لصيانة الآيفون بطريقة احترافية.</p>
+
+                            <div class="course-features">
+                                <div class="feature-item">
+                                    <i class="bi bi-clock"></i>
+                                    <span id="feature-duration">12 ساعة تدريبية</span>
+                                </div>
+                                <div class="feature-item">
+                                    <i class="bi bi-play-circle"></i>
+                                    <span id="feature-lessons">25 درس فيديو</span>
+                                </div>
+                                <div class="feature-item">
+                                    <i class="bi bi-infinity"></i>
+                                    <span>وصول مدى الحياة</span>
+                                </div>
+                            </div>
+
+                            <div class="course-price-section">
+                                <div class="price-label">سعر الكورس</div>
+                                <div class="price-amount">
+                                    <span class="price-value" id="course-price">500.00</span>
+                                    <span class="price-currency">ج.م</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- رسالة التنبيه -->
+                    <div class="alert-message" id="insufficient-alert">
+                        <div class="alert-icon">
+                            <i class="bi bi-exclamation-triangle"></i>
+                        </div>
+                        <div class="alert-content">
+                            <h4>رصيدك غير كافٍ لشراء هذا الكورس</h4>
+                            <p>يمكنك شحن رصيد المحفظة لتتمكن من شراء الكورس أو التواصل مع الدعم للمساعدة</p>
+                        </div>
+                    </div>
+
+                    <!-- أزرار الإجراءات -->
+                    <div class="action-buttons">
+                        <!-- علامة تم شراء الكورس (تظهر عند الاشتراك المسبق) -->
+                        <div class="purchased-badge" id="purchased-badge" style="display: none;">
+                            <i class="bi bi-patch-check-fill"></i>
+                            <span>تم شراء الكورس</span>
+                            <a href="#" class="btn-watch-course" id="btn-watch-course">
+                                <i class="bi bi-play-circle-fill"></i>
+                                <span>المشاهدة الآن</span>
+                            </a>
+                        </div>
+                        <button class="btn-purchase" id="purchase-btn" disabled>
+                            <i class="bi bi-cart-check"></i>
+                            <span>شراء الكورس الآن</span>
+                        </button>
+                        <button type="button" class="btn-have-code" id="btn-have-code">
+                            <i class="bi bi-upc-scan"></i>
+                            <span>هل لديك كود للمشاهدة؟</span>
+                        </button>
+
+                        <div class="secondary-actions" id="secondary-actions">
+                            <a href="recharge.html" class="btn-secondary">
+                                <i class="bi bi-wallet2"></i>
+                                <span>شحن رصيد المحفظة</span>
+                            </a>
+                            <button class="btn-whatsapp" onclick="openWhatsAppSupport()">
+                                <i class="bi bi-whatsapp"></i>
+                                <span>التواصل مع الدعم</span>
+                            </button>
+                        </div>
+
+                        <!-- بطاقة نجاح الشراء - تظهر بعد إتمام الشراء -->
+                        <div id="purchase-success-card" class="purchase-success-card" style="display: none;">
+                            <div class="purchase-success-header">
+                                <div class="purchase-success-icon">
+                                    <i class="bi bi-check-lg"></i>
+                                </div>
+                                <h2>تم الشراء بنجاح</h2>
+                                <p>كود الوصول إلى الكورس (مرتبط بحسابك فقط)</p>
+                                <p class="purchase-code-saved-msg">تم حفظ الكود في صفحة <strong>أكوادي</strong></p>
+                            </div>
+                            <div class="purchase-success-body">
+                                <div class="purchase-details-card">
+                                    <div class="detail-row-card">
+                                        <span>الكورس</span>
+                                        <strong id="purchase-card-course-title">—</strong>
+                                    </div>
+                                    <div class="detail-row-card">
+                                        <span>كود الوصول</span>
+                                        <strong id="purchase-card-code-value" class="course-code-value">—</strong>
+                                    </div>
+                                </div>
+                                <button type="button" class="btn-copy-code-card" id="btn-copy-purchase-code">
+                                    <i class="bi bi-clipboard"></i> نسخ الكود
+                                </button>
+                            </div>
+                            <div class="purchase-success-footer">
+                                <a href="my-courses.html" class="btn-primary-card">
+                                    <i class="bi bi-collection-play-fill"></i>
+                                    <span>كورساتي</span>
+                                </a>
+                                <a href="profile.html?tab=course-codes" class="btn-secondary-card">
+                                    <i class="bi bi-upc-scan"></i>
+                                    <span>أكوادي</span>
+                                </a>
+                                <button type="button" class="btn-close-card" id="btn-close-purchase-card">
+                                    <i class="bi bi-x-lg"></i>
+                                    <span>إغلاق</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- الشريط الجانبي - ملخص الشراء -->
+                <aside class="purchase-sidebar">
+                    <div class="summary-card">
+                        <h3 class="summary-title">ملخص الشراء</h3>
+
+                        <div class="summary-item">
+                            <span class="summary-label">اسم الكورس</span>
+                            <span class="summary-value" id="summary-course-name">أساسيات صيانة الآيفون</span>
+                        </div>
+
+                        <div class="summary-item">
+                            <span class="summary-label">السعر</span>
+                            <span class="summary-value" id="summary-price">500.00 ج.م</span>
+                        </div>
+
+                        <div class="discount-code-block" style="margin-top: 12px;">
+                            <label class="summary-label" style="display: block; margin-bottom: 6px;">كود الخصم</label>
+                            <div class="discount-code-row">
+                                <input type="text" id="discount-code-input" class="discount-code-input" placeholder="أدخل الكود" dir="ltr" autocomplete="off">
+                                <button type="button" id="discount-apply-btn" class="discount-apply-btn">
+                                    <i class="bi bi-tag-fill"></i>
+                                    <span>تطبيق</span>
+                                </button>
+                            </div>
+                            <p id="discount-code-message" class="discount-code-message" style="display: none;"></p>
+                            <div id="discount-summary-row" class="summary-item" style="display: none;">
+                                <span class="summary-label">الخصم</span>
+                                <span class="summary-value discount-value" id="summary-discount">0.00 ج.م</span>
+                            </div>
+                        </div>
+
+                        <div class="summary-divider"></div>
+
+                        <div class="summary-item total">
+                            <span class="summary-label">المجموع</span>
+                            <span class="summary-value" id="summary-total">500.00 ج.م</span>
+                        </div>
+
+                        <div class="summary-balance">
+                            <div class="balance-row">
+                                <span class="balance-label">رصيدك الحالي</span>
+                                <span class="balance-value" id="sidebar-balance">—</span>
+                            </div>
+                            <div class="balance-row remaining">
+                                <span class="balance-label">الرصيد بعد الشراء</span>
+                                <span class="balance-value" id="remaining-balance">—</span>
+                            </div>
+                        </div>
+
+                        <div class="summary-features">
+                            <h4>ما ستحصل عليه:</h4>
+                            <ul>
+                                <li>
+                                    <i class="bi bi-check-circle-fill"></i>
+                                    <span>وصول فوري للكورس</span>
+                                </li>
+                                <li>
+                                    <i class="bi bi-check-circle-fill"></i>
+                                    <span>جميع التحديثات الجديدة</span>
+                                </li>
+                                
+                                <li>
+                                    <i class="bi bi-check-circle-fill"></i>
+                                    <span>دعم فني مستمر</span>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
+                </aside>
+            </div>
+        </div>
+    </section>
+
+    <script src="js/auth-check.js"></script>
+    <script>
+        // حماية الصفحة - التحقق من تسجيل الدخول
+        document.addEventListener('DOMContentLoaded', async function() {
+            await protectPage('index.html');
+        });
+    </script>
+    <script src="js/main.js"></script>
+    <script src="js/profile-dropdown.js"></script>
+    <script src="js/purchase-course.js"></script>
+    <script src="js/support-modal.js"></script>
+
+    <!-- مؤقت التحميل عند شراء الكورس -->
+    <div id="purchase-loading-overlay" class="purchase-loading-overlay" style="display: none;">
+        <div class="purchase-loading-content">
+            <div class="purchase-loading-spinner"></div>
+            <p>جاري المعالجة...</p>
+        </div>
+    </div>
+
+    <!-- نافذة إدخال كود التفعيل -->
+    <div id="code-redeem-modal" class="code-redeem-modal" style="display: none;">
+        <div class="code-redeem-overlay"></div>
+        <div class="code-redeem-content">
+            <button type="button" class="code-redeem-close" id="code-redeem-close">
+                <i class="bi bi-x-lg"></i>
+            </button>
+            <div class="code-redeem-header">
+                <div class="code-redeem-icon">
+                    <i class="bi bi-upc-scan"></i>
+                </div>
+                <h2>إدخال كود التفعيل</h2>
+                <p>أدخل كود الكورس للوصول إلى صفحة المشاهدة</p>
+            </div>
+            <div class="code-redeem-body">
+                <input type="text" id="code-redeem-input" class="code-redeem-input" placeholder="أدخل كود الكورس" dir="ltr" autocomplete="off">
+                <p class="code-redeem-error" id="code-redeem-error" style="display: none;"></p>
+                <button type="button" class="btn-redeem-code" id="btn-redeem-code">
+                    <i class="bi bi-check-lg"></i>
+                    <span>تفعيل والمشاهدة</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Support Modal -->
+    <div id="support-modal" class="support-modal">
+        <div class="support-modal-overlay"></div>
+        <div class="support-modal-content">
+            <button class="support-modal-close">
+                <i class="bi bi-x-lg"></i>
+            </button>
+            <div class="support-modal-header">
+                <h2 class="support-modal-title">تواصل مع الدعم الفني</h2>
+                <p class="support-modal-subtitle">نحن هنا لمساعدتك في أي وقت</p>
+            </div>
+            <div class="support-channels">
+                <a href="tel:01060631033" class="support-btn btn-phone">
+                    <div class="support-icon"><i class="bi bi-telephone-fill"></i></div>
+                    <div class="support-info">
+                        <span class="support-label">اتصال هاتفي</span>
+                        <span class="support-value">01060631033</span>
+                    </div>
+                </a>
+                <a href="https://wa.me/201060631033" target="_blank" class="support-btn btn-whatsapp">
+                    <div class="support-icon"><i class="bi bi-whatsapp"></i></div>
+                    <div class="support-info">
+                        <span class="support-label">واتساب</span>
+                        <span class="support-value">01060631033</span>
+                    </div>
+                </a>
+                <a href="https://t.me/+201060631033" target="_blank" class="support-btn btn-telegram">
+                    <div class="support-icon"><i class="bi bi-telegram"></i></div>
+                    <div class="support-info">
+                        <span class="support-label">تليجرام</span>
+                        <span class="support-value">01060631033</span>
+                    </div>
+                </a>
+                <a href="https://www.facebook.com/share/1AWZvuarWP/" target="_blank" class="support-btn btn-facebook">
+                    <div class="support-icon"><i class="bi bi-facebook"></i></div>
+                    <div class="support-info">
+                        <span class="support-label">فيسبوك</span>
+                        <span class="support-value">AmrNayl Academy</span>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>
