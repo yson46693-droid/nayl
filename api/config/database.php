@@ -12,7 +12,7 @@ loadEnv(__DIR__ . '/../.env');
 
 // إعدادات قاعدة البيانات من ملف .env مع قيم افتراضية
 define('DB_HOST', env('DB_HOST', 'localhost'));
-define('DB_NAME', env('DB_NAME', 'amrnayl_academy'));
+define('DB_NAME', env('DB_NAME', 'nayl'));
 define('DB_USER', env('DB_USER', 'root'));
 define('DB_PASS', env('DB_PASS', ''));
 define('DB_CHARSET', env('DB_CHARSET', 'utf8mb4'));

@@ -540,6 +540,16 @@ tr:hover td {
     color: #fff;
 }
 
+.btn-unbind {
+    background: rgba(230, 126, 34, 0.15);
+    color: #e67e22;
+}
+
+.btn-unbind:hover {
+    background: #e67e22;
+    color: #fff;
+}
+
 .btn-view {
     background: rgba(162, 155, 254, 0.1);
     color: #a29bfe;

@@ -122,7 +122,10 @@ try {
     sendJsonResponse(true, ['message' => 'Visit tracked']);
 
 } catch (PDOException $e) {
-    // Don't expose SQL errors in production strictly, but here we log
     error_log("Tracking Error: " . $e->getMessage());
-    sendJsonResponse(false, null, 'Tracking failed', 500);
+    $message = 'Tracking failed';
+    if (function_exists('env') && (env('APP_DEBUG', false) === true || env('APP_DEBUG') === 'true')) {
+        $message = $e->getMessage();
+    }
+    sendJsonResponse(false, null, $message, 500);
 }

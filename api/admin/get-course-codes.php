@@ -51,7 +51,23 @@ try {
         exit;
     }
 
-    $stmt = $pdo->query("
+    $sqlWithBound = "
+        SELECT
+            cc.id,
+            cc.course_id,
+            cc.code,
+            cc.used_by,
+            cc.used_at,
+            cc.expires_at,
+            cc.is_active,
+            cc.bound_device_hash,
+            cc.created_at,
+            c.title AS course_title
+        FROM course_codes cc
+        INNER JOIN courses c ON c.id = cc.course_id
+        ORDER BY cc.created_at DESC
+    ";
+    $sqlWithoutBound = "
         SELECT
             cc.id,
             cc.course_id,
@@ -65,8 +81,22 @@ try {
         FROM course_codes cc
         INNER JOIN courses c ON c.id = cc.course_id
         ORDER BY cc.created_at DESC
-    ");
-    $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    ";
+
+    $rows = [];
+    $hasBoundColumn = true;
+    try {
+        $stmt = $pdo->query($sqlWithBound);
+        $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+    } catch (PDOException $e) {
+        if (strpos($e->getMessage(), 'bound_device_hash') !== false) {
+            $hasBoundColumn = false;
+            $stmt = $pdo->query($sqlWithoutBound);
+            $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        } else {
+            throw $e;
+        }
+    }
 
     $codes = [];
     foreach ($rows as $row) {
@@ -79,7 +109,10 @@ try {
         }
         $createdAt = $row['created_at'];
         $createdAtFormatted = $createdAt ? date('d/m/Y', strtotime($createdAt)) : '—';
-        $status = ($row['used_by'] !== null) ? 'مفعل' : 'غير مفعل';
+        $status = isset($row['used_by']) && $row['used_by'] !== null && $row['used_by'] !== ''
+            ? 'مفعل'
+            : 'غير مفعل';
+        $boundDevice = $hasBoundColumn && isset($row['bound_device_hash']) && $row['bound_device_hash'] !== '';
         $codes[] = [
             'id' => (int) $row['id'],
             'code' => $row['code'],
@@ -89,6 +122,7 @@ try {
             'status' => $status,
             'used_by' => $usedByName,
             'used_at' => $row['used_at'] ? date('d/m/Y H:i', strtotime($row['used_at'])) : null,
+            'bound_device' => $boundDevice,
         ];
     }
 

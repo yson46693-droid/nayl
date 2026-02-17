@@ -252,6 +252,10 @@ function renderCodes(page = 1) {
         const dataCodeAttr = codeRaw.replace(/&/g, '&amp;').replace(/"/g, '&quot;').replace(/</g, '&lt;');
         const nameSafe = escapeHtml(c[courseNameKey] || c.courseName || '—');
         const usedSafe = escapeHtml(c.usedBy || '—');
+        const hasBoundDevice = !!c.bound_device;
+        const unbindBtn = hasBoundDevice
+            ? `<button class="action-btn btn-unbind" title="إلغاء ربط الجهاز - لتمكين صاحب الكود من الربط بجهاز جديد" onclick="unbindCodeDevice(${c.id})"><i class="bi bi-device-hdd"></i></button>`
+            : '';
         row.innerHTML = `
             <td class="copyable-code-cell" data-code="${dataCodeAttr}" title="انقر للنسخ" style="font-family: monospace; font-weight: bold; letter-spacing: 1px; cursor: pointer; user-select: all;">
                 <span>${codeSafe}</span>
@@ -263,6 +267,7 @@ function renderCodes(page = 1) {
             <td>${usedSafe}</td>
             <td>
                 <div class="actions-cell">
+                    ${unbindBtn}
                     <button class="action-btn btn-delete" title="حذف" onclick="deleteCode(${c.id})"><i class="bi bi-trash-fill"></i></button>
                 </div>
             </td>
@@ -729,6 +734,31 @@ async function viewUserDetails(userId) {
 
 function closeViewUserDetailsModal() {
     closeModal('viewUserDetailsModal');
+}
+
+async function unbindCodeDevice(codeId) {
+    if (!confirm('إلغاء ربط هذا الكود بالجهاز؟ بعد ذلك يمكن لصاحب الكود تفعيل الكود على جهاز جديد فقط.')) return;
+    try {
+        const token = localStorage.getItem('admin_session_token') || getCookie('admin_session_token');
+        const response = await fetch('../api/admin/unbind-code-device.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + token
+            },
+            body: JSON.stringify({ code_id: codeId })
+        });
+        const result = await response.json();
+        if (result.success) {
+            await loadCodes();
+            alert(result.data && result.data.message ? result.data.message : 'تم إلغاء ربط الكود بالجهاز.');
+        } else {
+            alert('فشل إلغاء الربط: ' + (result.error || 'خطأ غير معروف'));
+        }
+    } catch (err) {
+        console.error('Error unbinding code device:', err);
+        alert('حدث خطأ أثناء الاتصال بالخادم');
+    }
 }
 
 async function deleteCode(codeId) {

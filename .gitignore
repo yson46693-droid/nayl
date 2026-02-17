@@ -1,6 +1,8 @@
-# Environment Variables
+# Environment - لا ترفع أبداً
 api/.env
 .env
+.env.local
+.env.*.local
 
 # Logs
 logs/
@@ -11,6 +13,12 @@ api/logs/
 *.sql.bak
 *.db
 
+# Uploads & temp
+uploads/
+tmp/
+temp/
+*.tmp
+
 # OS Files
 .DS_Store
 Thumbs.db
@@ -20,8 +28,3 @@ Thumbs.db
 .idea/
 *.swp
 *.swo
-
-# Temporary Files
-tmp/
-temp/
-*.tmp
