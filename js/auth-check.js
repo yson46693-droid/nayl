@@ -32,7 +32,14 @@ async function checkAuth() {
     
     // التحقق من صحة الجلسة مع الخادم
     try {
-        const response = await fetch('/api/auth/verify.php', {
+        // مسار API نسبي ليعمل من الجذر أو من مجلد فرعي (مثل yoursite.com/nayl/)
+        const verifyUrl = (function () {
+            if (typeof window.API_BASE !== 'undefined' && window.API_BASE) return window.API_BASE + '/api/auth/verify.php';
+            const path = window.location.pathname || '';
+            const dir = path.substring(0, path.lastIndexOf('/') + 1);
+            return dir + 'api/auth/verify.php';
+        })();
+        const response = await fetch(verifyUrl, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -44,15 +51,26 @@ async function checkAuth() {
         // التحقق من حالة الاستجابة
         if (!response.ok) {
             console.error('Verify response not OK:', response.status, response.statusText);
-            if (response.status === 401) {
+            if (response.status === 401 || response.status === 404) {
                 clearAuthData();
                 return false;
             }
         }
         
-        const result = await response.json();
+        const responseText = await response.text();
+        let result = null;
+        try {
+            result = responseText ? JSON.parse(responseText) : {};
+        } catch (e) {
+            // استجابة غير JSON (مثل صفحة 404 HTML)
+            console.error('Verify response not JSON:', response.status, responseText.substring(0, 100));
+            if (!response.ok) {
+                clearAuthData();
+                return false;
+            }
+        }
         
-        if (response.ok && result.success) {
+        if (result && response.ok && result.success) {
             // تحديث بيانات المستخدم إذا لزم الأمر
             // verify.php يعيد البيانات مباشرة في result.data (وليس result.data.user)
             if (result.data) {
@@ -66,8 +84,10 @@ async function checkAuth() {
             }
             return true;
         } else {
-            // الجلسة غير صالحة
-            console.error('Session verification failed:', result.error || 'Unknown error');
+            // الجلسة غير صالحة أو استجابة غير متوقعة
+            if (result) {
+                console.error('Session verification failed:', result.error || 'Unknown error');
+            }
             clearAuthData();
             return false;
         }

@@ -164,13 +164,21 @@ async function checkVerificationStatus() {
     const sessionToken = localStorage.getItem('sessionToken') || sessionStorage.getItem('sessionToken');
     if (sessionToken) {
         try {
-            const response = await fetch('/api/auth/verify.php', {
+            const verifyUrl = (function () {
+                if (typeof window.API_BASE !== 'undefined' && window.API_BASE) return window.API_BASE + '/api/auth/verify.php';
+                const path = window.location.pathname || '';
+                const dir = path.substring(0, path.lastIndexOf('/') + 1);
+                return dir + 'api/auth/verify.php';
+            })();
+            const response = await fetch(verifyUrl, {
                 method: 'GET',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${sessionToken}` },
                 credentials: 'include'
             });
             if (response.ok) {
-                const result = await response.json();
+                const text = await response.text();
+                let result = null;
+                try { result = text ? JSON.parse(text) : {}; } catch (e) { return; }
                 if (result.success && result.data && result.data.email) {
                     const storage = localStorage.getItem('sessionToken') ? localStorage : sessionStorage;
                     storage.setItem('userData', JSON.stringify(result.data));

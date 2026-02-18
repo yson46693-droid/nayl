@@ -36,8 +36,14 @@ async function checkAuth() {
             return null;
         }
         
-        // التحقق من صحة الجلسة عبر API
-        const response = await fetch('/api/auth/verify.php', {
+        // مسار API نسبي ليعمل من الجذر أو من مجلد فرعي (مثل yoursite.com/nayl/)
+        const verifyUrl = (function () {
+            if (typeof window.API_BASE !== 'undefined' && window.API_BASE) return window.API_BASE + '/api/auth/verify.php';
+            const path = window.location.pathname || '';
+            const dir = path.substring(0, path.lastIndexOf('/') + 1);
+            return dir + 'api/auth/verify.php';
+        })();
+        const response = await fetch(verifyUrl, {
             method: 'GET',
             headers: {
                 'Authorization': `Bearer ${sessionToken}`,
@@ -52,7 +58,15 @@ async function checkAuth() {
             return null;
         }
         
-        const result = await response.json();
+        const responseText = await response.text();
+        let result = null;
+        try {
+            result = responseText ? JSON.parse(responseText) : {};
+        } catch (e) {
+            console.error('Verify response not JSON:', response.status);
+            clearAuth();
+            return null;
+        }
         
         if (result.success && result.data) {
             return result.data;
