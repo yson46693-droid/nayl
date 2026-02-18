@@ -68,9 +68,13 @@ document.addEventListener('DOMContentLoaded', async function () {
 
             try {
                 // الحصول على معرف الجهاز (UUID من localStorage) - مطلوب للحظر حسب الجهاز
+                // التأكد من وجود معرف الجهاز (يُنشأ في deviceUUID.js عند تحميل الصفحة)
+                if (typeof window.getDeviceUUID === 'function') {
+                    window.getDeviceUUID();
+                }
                 const deviceUuid = (typeof window.getDeviceUUID === 'function' ? window.getDeviceUUID() : null) || localStorage.getItem('device_uuid_v1') || '';
                 if (!deviceUuid) {
-                    showError('يرجى إعادة تحميل الصفحة ثم المحاولة مجدداً.');
+                    showError('معرف الجهاز غير متوفر. تأكد من تفعيل التخزين المحلي (Cookies/Storage) للموقع وأعد تحميل الصفحة ثم جرّب مرة أخرى.');
                     submitButton.disabled = false;
                     submitButton.innerHTML = originalButtonText;
                     return;
@@ -85,6 +89,7 @@ document.addEventListener('DOMContentLoaded', async function () {
                 })();
                 const response = await fetch(apiUrl, {
                     method: 'POST',
+                    credentials: 'include',
                     headers: {
                         'Content-Type': 'application/json',
                     },
@@ -111,8 +116,17 @@ document.addEventListener('DOMContentLoaded', async function () {
                 }
 
                 if (!response.ok || !result.success) {
-                    const errorMessage = result.error || 'حدث خطأ أثناء تسجيل الدخول';
+                    const errorMessage = result.error || result.message || 'حدث خطأ أثناء تسجيل الدخول';
                     showError(errorMessage);
+                    submitButton.disabled = false;
+                    submitButton.innerHTML = originalButtonText;
+                    return;
+                }
+
+                // التحقق من شكل الاستجابة الناجحة
+                if (!result.data || !result.data.user || !result.data.session) {
+                    console.error('Login API success but invalid response shape:', result);
+                    showError('استجابة غير متوقعة من الخادم. يرجى المحاولة مرة أخرى.');
                     submitButton.disabled = false;
                     submitButton.innerHTML = originalButtonText;
                     return;
