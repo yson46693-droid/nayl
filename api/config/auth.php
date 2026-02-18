@@ -539,6 +539,18 @@ function getAllowedOrigin() {
             }
         }
     }
+
+    // السماح بنفس نطاق الخادم (مهم على الاستضافة مثل Hostinger عند عدم وجود APP_URL)
+    $serverProtocol = 'http';
+    if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') {
+        $serverProtocol = 'https';
+    } elseif (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') {
+        $serverProtocol = 'https';
+    }
+    $serverHost = $_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? '';
+    if ($serverHost !== '') {
+        $allowedOrigins[] = $serverProtocol . '://' . $serverHost;
+    }
     
     $requestOrigin = $_SERVER['HTTP_ORIGIN'] ?? null;
     
@@ -555,9 +567,7 @@ function getAllowedOrigin() {
         }
     }
     
-    $serverProtocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 'https' : 'http';
-    $serverHost = $_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? 'localhost';
-    $serverOrigin = $serverProtocol . '://' . $serverHost;
+    $serverOrigin = $serverProtocol . '://' . ($serverHost !== '' ? $serverHost : 'localhost');
     
     if (!$requestOrigin) {
         return $serverOrigin;

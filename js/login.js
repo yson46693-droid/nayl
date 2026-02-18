@@ -76,8 +76,9 @@ document.addEventListener('DOMContentLoaded', async function () {
                     return;
                 }
 
-                // إرسال طلب تسجيل الدخول إلى API
-                const response = await fetch('/api/auth/login.php', {
+                // إرسال طلب تسجيل الدخول إلى API (استخدام مسار نسبي ليعمل مع الاستضافة في مجلد فرعي)
+                const apiBase = (typeof window.API_BASE !== 'undefined' ? window.API_BASE : '') || '';
+                const response = await fetch(apiBase + '/api/auth/login.php', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -91,10 +92,19 @@ document.addEventListener('DOMContentLoaded', async function () {
                     })
                 });
 
-                const result = await response.json();
+                const responseText = await response.text();
+                let result = null;
+                try {
+                    result = responseText ? JSON.parse(responseText) : {};
+                } catch (e) {
+                    console.error('Login API response not JSON:', responseText.substring(0, 200));
+                    showError(response.ok ? 'حدث خطأ في الاتصال. يرجى المحاولة مرة أخرى' : 'خطأ من الخادم (رمز ' + response.status + '). تحقق من إعدادات الاستضافة وملف .env');
+                    submitButton.disabled = false;
+                    submitButton.innerHTML = originalButtonText;
+                    return;
+                }
 
                 if (!response.ok || !result.success) {
-                    // عرض رسالة الخطأ
                     const errorMessage = result.error || 'حدث خطأ أثناء تسجيل الدخول';
                     showError(errorMessage);
                     submitButton.disabled = false;
@@ -136,7 +146,9 @@ document.addEventListener('DOMContentLoaded', async function () {
 
             } catch (error) {
                 console.error('Login error:', error);
-                showError('حدث خطأ في الاتصال. يرجى المحاولة مرة أخرى');
+                const msg = (error && error.message) ? error.message : '';
+                const isNetwork = typeof msg === 'string' && (msg.indexOf('Failed to fetch') !== -1 || msg.indexOf('NetworkError') !== -1);
+                showError(isNetwork ? 'تعذر الاتصال بالخادم. تحقق من الاتصال بالإنترنت أو أن الموقع يعمل على الاستضافة.' : 'حدث خطأ في الاتصال. يرجى المحاولة مرة أخرى');
                 submitButton.disabled = false;
                 submitButton.innerHTML = originalButtonText;
             }
