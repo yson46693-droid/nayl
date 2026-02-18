@@ -363,7 +363,14 @@ document.addEventListener('DOMContentLoaded', function () {
                 return;
             }
 
-            const response = await fetch('/api/wallet/submit-recharge-request.php', {
+            const apiBase = (function () {
+                if (typeof window.API_BASE !== 'undefined' && window.API_BASE) return window.API_BASE;
+                const path = window.location.pathname || '';
+                return path.substring(0, path.lastIndexOf('/') + 1);
+            })();
+            const submitUrl = apiBase + 'api/wallet/submit-recharge-request.php';
+
+            const response = await fetch(submitUrl, {
                 method: 'POST',
                 headers: {
                     'Authorization': `Bearer ${sessionToken}`
@@ -372,9 +379,17 @@ document.addEventListener('DOMContentLoaded', function () {
                 body: formData
             });
 
-            const result = await response.json();
+            const responseText = await response.text();
+            let result = null;
+            try {
+                result = responseText ? JSON.parse(responseText) : {};
+            } catch (e) {
+                console.error('Recharge API response not JSON:', response.status, responseText.substring(0, 100));
+                showNotification('خطأ', response.ok ? 'حدث خطأ في الاتصال' : 'خطأ من الخادم (رمز ' + response.status + ')', 'error');
+                return;
+            }
 
-            if (result.success) {
+            if (result && result.success) {
                 // showNotification('نجح', 'تم إرسال طلب الشحن بنجاح! سيتم مراجعته وتفعيل الرصيد خلال دقائق.', 'success');
                 openModal('success');
 
