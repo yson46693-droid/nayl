@@ -123,7 +123,7 @@ try {
 
     $videoUrl = $row['video_url'];
 
-    $allowedHosts = ['b-cdn.net', 'bunnycdn.com', 'bunny.net'];
+    $allowedHosts = ['b-cdn.net', 'bunnycdn.com', 'bunny.net', 'almoustafa.site'];
     $parsed = parse_url($videoUrl);
     $host = isset($parsed['host']) ? strtolower($parsed['host']) : '';
     $isAllowed = false;

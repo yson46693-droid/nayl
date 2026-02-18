@@ -23,7 +23,11 @@ function getAdminAllowedOrigin() {
         'http://localhost',
         'https://localhost',
         'http://127.0.0.1',
-        'https://127.0.0.1'
+        'https://127.0.0.1',
+        'https://almoustafa.site',
+        'http://almoustafa.site',
+        'https://www.almoustafa.site',
+        'http://www.almoustafa.site'
     ];
     
     if (function_exists('env')) {
@@ -36,9 +40,20 @@ function getAdminAllowedOrigin() {
             }
         }
     }
-    
+    // السماح بنفس نطاق الخادم (استضافة مثل Hostinger)
+    $serverProtocol = 'http';
+    if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') {
+        $serverProtocol = 'https';
+    } elseif (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') {
+        $serverProtocol = 'https';
+    }
+    $serverHost = $_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? '';
+    if ($serverHost !== '') {
+        $allowedOrigins[] = $serverProtocol . '://' . $serverHost;
+    }
+    $serverOrigin = $serverProtocol . '://' . ($serverHost !== '' ? $serverHost : 'localhost');
+
     $requestOrigin = $_SERVER['HTTP_ORIGIN'] ?? null;
-    
     if ($requestOrigin) {
         $parsedOrigin = parse_url($requestOrigin);
         if ($parsedOrigin && isset($parsedOrigin['host'])) {
@@ -50,15 +65,9 @@ function getAdminAllowedOrigin() {
             }
         }
     }
-    
-    $serverProtocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 'https' : 'http';
-    $serverHost = $_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? 'localhost';
-    $serverOrigin = $serverProtocol . '://' . $serverHost;
-    
     if (!$requestOrigin) {
         return $serverOrigin;
     }
-    
     return null;
 }
 

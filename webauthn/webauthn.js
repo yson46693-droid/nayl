@@ -40,13 +40,14 @@ class SimpleWebAuthn {
                                   typeof navigator.credentials.create === 'function' && 
                                   typeof navigator.credentials.get === 'function';
             
-            // التحقق من دعم HTTPS (مطلوب لـ WebAuthn إلا في localhost أو IP محلي)
+            // التحقق من دعم HTTPS (مطلوب لـ WebAuthn إلا في localhost أو IP محلي أو الدومين المسموح)
             const hostname = window.location.hostname ? window.location.hostname.toLowerCase() : '';
             const protocol = window.location.protocol ? window.location.protocol.toLowerCase() : '';
-            
+            const allowedHosts = ['almoustafa.site', 'www.almoustafa.site'];
             const isLocalhost = hostname === 'localhost' || 
                                hostname === '127.0.0.1' || 
                                hostname === '[::1]' ||
+                               allowedHosts.includes(hostname) ||
                                hostname.startsWith('192.168.') ||
                                hostname.startsWith('10.') ||
                                hostname.startsWith('172.16.') ||
@@ -119,10 +120,11 @@ class SimpleWebAuthn {
             
             const hostname = window.location.hostname ? window.location.hostname.toLowerCase() : 'unknown';
             const protocol = window.location.protocol ? window.location.protocol : 'unknown';
-            
+            const allowedHosts = ['almoustafa.site', 'www.almoustafa.site'];
             const isLocalhost = hostname === 'localhost' || 
                                hostname === '127.0.0.1' || 
                                hostname === '[::1]' ||
+                               allowedHosts.includes(hostname) ||
                                hostname.startsWith('192.168.') ||
                                hostname.startsWith('10.') ||
                                hostname.startsWith('172.16.') ||
@@ -256,11 +258,13 @@ class SimpleWebAuthn {
                 throw new Error('WebAuthn غير مدعوم في هذا المتصفح. يرجى استخدام متصفح حديث.');
             }
 
-            // التحقق من HTTPS (مطلوب لـ WebAuthn إلا في localhost)
+            // التحقق من HTTPS (مطلوب لـ WebAuthn إلا في localhost أو الدومين المسموح)
             const hostname = window.location.hostname.toLowerCase();
+            const allowedHosts = ['almoustafa.site', 'www.almoustafa.site'];
             const isLocalhost = hostname === 'localhost' || 
                                hostname === '127.0.0.1' || 
                                hostname === '[::1]' ||
+                               allowedHosts.includes(hostname) ||
                                hostname.startsWith('192.168.') ||
                                hostname.startsWith('10.');
             
@@ -549,11 +553,13 @@ class SimpleWebAuthn {
                 throw new Error('WebAuthn غير مدعوم في هذا المتصفح. يرجى استخدام متصفح حديث.');
             }
 
-            // التحقق من HTTPS (مطلوب لـ WebAuthn إلا في localhost)
+            // التحقق من HTTPS (مطلوب لـ WebAuthn إلا في localhost أو الدومين المسموح)
             const hostname = window.location.hostname.toLowerCase();
+            const allowedHosts = ['almoustafa.site', 'www.almoustafa.site'];
             const isLocalhost = hostname === 'localhost' || 
                                hostname === '127.0.0.1' || 
                                hostname === '[::1]' ||
+                               allowedHosts.includes(hostname) ||
                                hostname.startsWith('192.168.') ||
                                hostname.startsWith('10.');
             
@@ -843,11 +849,13 @@ class SimpleWebAuthn {
                 throw new Error('WebAuthn غير مدعوم في هذا المتصفح.\n\n' + supportInfo);
             }
 
-            // التحقق من HTTPS (مطلوب لـ WebAuthn إلا في localhost)
+            // التحقق من HTTPS (مطلوب لـ WebAuthn إلا في localhost أو الدومين المسموح)
             const hostname = window.location.hostname.toLowerCase();
+            const allowedHosts = ['almoustafa.site', 'www.almoustafa.site'];
             const isLocalhost = hostname === 'localhost' || 
                                hostname === '127.0.0.1' || 
                                hostname === '[::1]' ||
+                               allowedHosts.includes(hostname) ||
                                hostname.startsWith('192.168.') ||
                                hostname.startsWith('10.');
             

@@ -24,7 +24,9 @@ require_once __DIR__ . '/../config/email.php';
 // CORS - نفس إعدادات login.php
 $allowedOrigins = [
     'http://localhost', 'https://localhost',
-    'http://127.0.0.1', 'https://127.0.0.1'
+    'http://127.0.0.1', 'https://127.0.0.1',
+    'https://almoustafa.site', 'http://almoustafa.site',
+    'https://www.almoustafa.site', 'http://www.almoustafa.site'
 ];
 if (function_exists('env')) {
     $appUrl = env('APP_URL', '');
@@ -35,6 +37,16 @@ if (function_exists('env')) {
             $allowedOrigins[] = ($parsed['scheme'] ?? 'http') . '://' . $parsed['host'];
         }
     }
+}
+$serverProtocol = 'http';
+if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') {
+    $serverProtocol = 'https';
+} elseif (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') {
+    $serverProtocol = 'https';
+}
+$serverHost = $_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? '';
+if ($serverHost !== '') {
+    $allowedOrigins[] = $serverProtocol . '://' . $serverHost;
 }
 $requestOrigin = $_SERVER['HTTP_ORIGIN'] ?? null;
 $allowedOrigin = null;
@@ -51,7 +63,12 @@ if ($requestOrigin) {
     }
 }
 if (!$allowedOrigin) {
-    $serverProtocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 'https' : 'http';
+    $serverProtocol = 'http';
+    if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') {
+        $serverProtocol = 'https';
+    } elseif (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') {
+        $serverProtocol = 'https';
+    }
     $serverHost = $_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? 'localhost';
     $allowedOrigin = $serverProtocol . '://' . $serverHost;
 }

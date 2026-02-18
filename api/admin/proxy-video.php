@@ -59,8 +59,8 @@ try {
 
     $videoUrl = $row['video_url'];
 
-    // السماح فقط بروابط Bunny CDN أو نفس الدومين (أمان)
-    $allowedHosts = ['b-cdn.net', 'bunnycdn.com', 'bunny.net'];
+    // السماح فقط بروابط Bunny CDN أو الدومين المسموح (أمان)
+    $allowedHosts = ['b-cdn.net', 'bunnycdn.com', 'bunny.net', 'almoustafa.site'];
     $parsed = parse_url($videoUrl);
     $host = isset($parsed['host']) ? strtolower($parsed['host']) : '';
     $isAllowed = false;
