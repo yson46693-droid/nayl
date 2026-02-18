@@ -20,7 +20,7 @@ jobs:
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
           server: ftp.almoustafa.site
-          username: an
+          username: u486977009.an
           password: +LX2RQ7#$8~87Zd|
           protocol: ftp
           port: 21
