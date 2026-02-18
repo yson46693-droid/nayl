@@ -76,9 +76,14 @@ document.addEventListener('DOMContentLoaded', async function () {
                     return;
                 }
 
-                // إرسال طلب تسجيل الدخول إلى API (استخدام مسار نسبي ليعمل مع الاستضافة في مجلد فرعي)
-                const apiBase = (typeof window.API_BASE !== 'undefined' ? window.API_BASE : '') || '';
-                const response = await fetch(apiBase + '/api/auth/login.php', {
+                // مسار API نسبي ليعمل من الجذر أو من مجلد فرعي (مثل Hostinger: yoursite.com/nayl/)
+                const apiUrl = (function () {
+                    if (typeof window.API_BASE !== 'undefined' && window.API_BASE) return window.API_BASE + '/api/auth/login.php';
+                    const path = window.location.pathname || '';
+                    const dir = path.substring(0, path.lastIndexOf('/') + 1);
+                    return dir + 'api/auth/login.php';
+                })();
+                const response = await fetch(apiUrl, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',
@@ -97,8 +102,9 @@ document.addEventListener('DOMContentLoaded', async function () {
                 try {
                     result = responseText ? JSON.parse(responseText) : {};
                 } catch (e) {
-                    console.error('Login API response not JSON:', responseText.substring(0, 200));
-                    showError(response.ok ? 'حدث خطأ في الاتصال. يرجى المحاولة مرة أخرى' : 'خطأ من الخادم (رمز ' + response.status + '). تحقق من إعدادات الاستضافة وملف .env');
+                    console.error('Login API response not JSON. URL:', apiUrl, 'Status:', response.status, 'Body:', responseText.substring(0, 200));
+                    const errMsg = response.ok ? 'حدث خطأ في الاتصال. يرجى المحاولة مرة أخرى' : 'خطأ من الخادم (رمز ' + response.status + '). تحقق من إعدادات الاستضافة وملف .env. للتشخيص: افتح في المتصفح نفس الموقع ثم أضف /api/auth/login.php?ping=1';
+                    showError(errMsg);
                     submitButton.disabled = false;
                     submitButton.innerHTML = originalButtonText;
                     return;

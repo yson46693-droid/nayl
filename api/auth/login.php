@@ -6,7 +6,15 @@
  * API لتسجيل الدخول
  * 
  * Endpoint: POST /api/auth/login.php
+ * فحص وصول: GET /api/auth/login.php?ping=1
  */
+
+// فحص وصول (للتأكد من أن الرابط يعمل على الاستضافة)
+if (($_SERVER['REQUEST_METHOD'] ?? '') === 'GET' && isset($_GET['ping'])) {
+    header('Content-Type: application/json; charset=utf-8');
+    echo json_encode(['success' => true, 'message' => 'Login API is reachable', 'ping' => 'ok'], JSON_UNESCAPED_UNICODE);
+    exit;
+}
 
 // بدء الجلسة للـ CSRF Token
 if (session_status() === PHP_SESSION_NONE) {
@@ -58,14 +66,18 @@ function getAllowedOrigin() {
     $requestOrigin = $_SERVER['HTTP_ORIGIN'] ?? null;
     
     if ($requestOrigin) {
-        // استخراج النطاق من Origin
         $parsedOrigin = parse_url($requestOrigin);
         if ($parsedOrigin && isset($parsedOrigin['host'])) {
             $originDomain = ($parsedOrigin['scheme'] ?? 'http') . '://' . $parsedOrigin['host'];
-            
-            // التحقق من أن النطاق مسموح
+            $originNorm = rtrim($originDomain, '/');
+            $originNormNoPort = preg_replace('#^(https?)://([^:/]+):(80|443)$#', '$1://$2', $originNorm);
             foreach ($allowedOrigins as $allowed) {
-                if ($originDomain === $allowed) {
+                $allowedNorm = rtrim($allowed, '/');
+                if ($originNorm === $allowedNorm) {
+                    return $requestOrigin;
+                }
+                $allowedNormNoPort = preg_replace('#^(https?)://([^:/]+):(80|443)$#', '$1://$2', $allowedNorm);
+                if ($originNormNoPort === $allowedNormNoPort) {
                     return $requestOrigin;
                 }
             }
