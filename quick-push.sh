@@ -35,6 +35,9 @@ fi
 
 git commit -m "$MSG"
 echo ""
+echo "جاري سحب التعديلات من المستودع أولاً..."
+git pull --rebase origin "$BRANCH"
+echo ""
 echo "جاري الرفع..."
 git push -u origin "$BRANCH"
 echo ""
