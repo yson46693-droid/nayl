@@ -86,48 +86,76 @@ document.addEventListener('DOMContentLoaded', async function () {
                     const path = window.location.pathname || '';
                     const dir = path.substring(0, path.lastIndexOf('/') + 1);
                     const relative = dir + 'api/auth/login.php';
-                    // Safari: استخدام عنوان كامل من نفس المنشأ لتفادي مشاكل الطلبات النسبية
                     if (window.location.origin) {
                         return window.location.origin + (relative.startsWith('/') ? relative : '/' + relative);
                     }
                     return relative;
                 })();
-                const response = await fetch(apiUrl, {
-                    method: 'POST',
-                    credentials: 'include',
-                    mode: 'cors',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Accept': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        identifier: email,
-                        identifier_type: 'email',
-                        password: password,
-                        remember: remember,
-                        device_uuid: deviceUuid
-                    })
-                });
 
-                const responseText = await response.text();
-                let result = null;
+                // Safari / iOS: fetch مع credentials قد يفشل (Load failed). XHR يعمل بشكل موثوق.
+                var isSafari = /Safari\/|iPhone|iPad|iPod/.test(navigator.userAgent) && !/Chrome\/|CriOS\/|FxiOS\/|EdgiOS\//.test(navigator.userAgent);
+                var responseText = '';
+                var responseStatus = 0;
+
+                if (isSafari) {
+                    await new Promise(function (resolve) {
+                        var xhr = new XMLHttpRequest();
+                        xhr.open('POST', apiUrl, true);
+                        xhr.setRequestHeader('Content-Type', 'application/json');
+                        xhr.setRequestHeader('Accept', 'application/json');
+                        xhr.withCredentials = true;
+                        xhr.onreadystatechange = function () {
+                            if (xhr.readyState === 4) {
+                                responseText = xhr.responseText || '';
+                                responseStatus = xhr.status;
+                                resolve();
+                            }
+                        };
+                        xhr.onerror = function () { responseStatus = 0; responseText = ''; resolve(); };
+                        xhr.ontimeout = function () { responseStatus = 0; responseText = ''; resolve(); };
+                        xhr.timeout = 30000;
+                        try {
+                            xhr.send(JSON.stringify({
+                                identifier: email,
+                                identifier_type: 'email',
+                                password: password,
+                                remember: remember,
+                                device_uuid: deviceUuid
+                            }));
+                        } catch (xhrEx) {
+                            console.error('Login XHR send error:', xhrEx);
+                            responseStatus = 0;
+                            resolve();
+                        }
+                    });
+                } else {
+                    const response = await fetch(apiUrl, {
+                        method: 'POST',
+                        credentials: 'include',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Accept': 'application/json',
+                        },
+                        body: JSON.stringify({
+                            identifier: email,
+                            identifier_type: 'email',
+                            password: password,
+                            remember: remember,
+                            device_uuid: deviceUuid
+                        })
+                    });
+                    responseText = await response.text();
+                    responseStatus = response.status;
+                }
+                var result = null;
                 try {
                     result = responseText ? JSON.parse(responseText) : {};
                 } catch (e) {
-                    console.error('Login API response not JSON. URL:', apiUrl, 'Status:', response.status, 'Body:', responseText.substring(0, 200));
-                    const isHtml = (responseText && (responseText.trim().startsWith('<') || responseText.includes('<!DOCTYPE') || responseText.includes('<html')));
-                    const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent) || /iPhone|iPad|Macintosh.*Safari/i.test(navigator.userAgent);
-                    let errMsg;
-                    if (response.ok) {
-                        errMsg = 'حدث خطأ في الاتصال. يرجى المحاولة مرة أخرى';
-                        if (isHtml && isSafari) {
-                            errMsg = 'الخادم أعاد صفحة ويب بدلاً من البيانات (غالباً في Safari). جرّب: فتح الموقع بنفس الرابط في شريط العنوان، أو تعطيل "منع التتبع عبر المواقع" لهذا الموقع من إعدادات Safari، أو استخدام متصفح آخر.';
-                        }
-                    } else {
-                        errMsg = 'خطأ من الخادم (رمز ' + response.status + '). تحقق من إعدادات الاستضافة وملف .env. للتشخيص: افتح في المتصفح نفس الموقع ثم أضف /api/auth/login.php?ping=1';
-                        if (isHtml && isSafari) {
-                            errMsg = 'الخادم أعاد صفحة خطأ (رمز ' + response.status + '). في Safari جرّب: تعطيل منع التتبع لهذا الموقع، أو استخدم Chrome/Firefox.';
-                        }
+                    console.error('Login API response not JSON. URL:', apiUrl, 'Status:', responseStatus, 'Body:', responseText.substring(0, 200));
+                    var isHtml = responseText && (responseText.trim().startsWith('<') || responseText.includes('<!DOCTYPE') || responseText.includes('<html'));
+                    var errMsg = (responseStatus >= 200 && responseStatus < 300) ? 'حدث خطأ في الاتصال. يرجى المحاولة مرة أخرى' : 'خطأ من الخادم (رمز ' + responseStatus + ').';
+                    if (isHtml && isSafari) {
+                        errMsg = 'الخادم أعاد صفحة ويب بدلاً من JSON. جرّب تعطيل "منع التتبع" لهذا الموقع في Safari أو استخدم Chrome.';
                     }
                     showError(errMsg);
                     submitButton.disabled = false;
@@ -135,15 +163,14 @@ document.addEventListener('DOMContentLoaded', async function () {
                     return;
                 }
 
-                if (!response.ok || !result.success) {
-                    const errorMessage = result.error || result.message || 'حدث خطأ أثناء تسجيل الدخول';
+                if (responseStatus < 200 || responseStatus >= 300 || !result.success) {
+                    var errorMessage = result.error || result.message || 'حدث خطأ أثناء تسجيل الدخول';
                     showError(errorMessage);
                     submitButton.disabled = false;
                     submitButton.innerHTML = originalButtonText;
                     return;
                 }
 
-                // التحقق من شكل الاستجابة الناجحة
                 if (!result.data || !result.data.user || !result.data.session) {
                     console.error('Login API success but invalid response shape:', result);
                     showError('استجابة غير متوقعة من الخادم. يرجى المحاولة مرة أخرى.');
@@ -152,9 +179,8 @@ document.addEventListener('DOMContentLoaded', async function () {
                     return;
                 }
 
-                // حفظ بيانات المستخدم والجلسة
-                const userData = result.data.user;
-                const sessionData = result.data.session;
+                var userData = result.data.user;
+                var sessionData = result.data.session;
 
                 if (remember) {
                     localStorage.setItem('userIdentifier', email);

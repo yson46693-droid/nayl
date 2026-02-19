@@ -636,6 +636,28 @@ function initCourseCodesLoading() {
 }
 
 /**
+ * عرض واجهة خطأ في تبويب الأكواد مع زر إعادة المحاولة
+ */
+function showCourseCodesError(title, message, isConnectionError) {
+    const container = document.getElementById('course-codes-container');
+    const loadingEl = document.getElementById('course-codes-loading');
+    if (!container) return;
+    if (loadingEl) loadingEl.classList.add('hidden');
+    const safeTitle = (title || 'خطأ').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    const safeMessage = (message || 'حدث خطأ. حاول مرة أخرى.').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+    container.innerHTML = `
+        <div class="course-codes-empty">
+            <div class="course-codes-empty-icon"><i class="bi bi-wifi-off"></i></div>
+            <h4>${safeTitle}</h4>
+            <p>${safeMessage}</p>
+            ${isConnectionError ? '<button type="button" class="btn-retry-codes" id="btn-retry-course-codes"><i class="bi bi-arrow-clockwise"></i> إعادة المحاولة</button>' : ''}
+        </div>
+    `;
+    const retryBtn = document.getElementById('btn-retry-course-codes');
+    if (retryBtn) retryBtn.addEventListener('click', function () { loadCourseCodes(); });
+}
+
+/**
  * تحميل أكواد الكورسات من API
  */
 async function loadCourseCodes() {
@@ -644,13 +666,17 @@ async function loadCourseCodes() {
 
     if (!container) return;
 
-    if (loadingEl) loadingEl.classList.remove('hidden');
+    if (loadingEl) {
+        loadingEl.classList.remove('hidden');
+        loadingEl.style.display = '';
+    }
     container.innerHTML = '';
     if (loadingEl) container.appendChild(loadingEl);
 
     const sessionToken = localStorage.getItem('sessionToken') || sessionStorage.getItem('sessionToken');
 
     if (!sessionToken) {
+        if (loadingEl) loadingEl.classList.add('hidden');
         container.innerHTML = `
             <div class="course-codes-empty">
                 <div class="course-codes-empty-icon"><i class="bi bi-lock-fill"></i></div>
@@ -661,8 +687,10 @@ async function loadCourseCodes() {
         return;
     }
 
+    const apiUrl = getProfileApiUrl('api/courses/get-my-course-codes.php');
+
     try {
-        const response = await fetch(getProfileApiUrl('api/courses/get-my-course-codes.php'), {
+        const response = await fetch(apiUrl, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -671,7 +699,20 @@ async function loadCourseCodes() {
             credentials: 'include'
         });
 
-        const result = await response.json();
+        const text = await response.text();
+        let result = null;
+        try {
+            result = text ? JSON.parse(text) : {};
+        } catch (parseErr) {
+            console.error('Course codes API returned non-JSON:', parseErr);
+            if (loadingEl) loadingEl.classList.add('hidden');
+            showCourseCodesError(
+                'رد غير متوقع من الخادم',
+                response.ok ? 'تعذر قراءة البيانات. تأكد أن الموقع يعمل بشكل صحيح.' : 'الخادم أعاد خطأ (رمز ' + response.status + '). حاول لاحقاً أو تواصل مع الدعم.',
+                true
+            );
+            return;
+        }
 
         if (loadingEl) loadingEl.classList.add('hidden');
 
@@ -686,24 +727,13 @@ async function loadCourseCodes() {
                 </div>
             `;
         } else {
-            container.innerHTML = `
-                <div class="course-codes-empty">
-                    <div class="course-codes-empty-icon"><i class="bi bi-exclamation-circle"></i></div>
-                    <h4>حدث خطأ</h4>
-                    <p>${result.error || 'تعذر تحميل الأكواد. حاول مرة أخرى.'}</p>
-                </div>
-            `;
+            const errMsg = (result && result.error) ? result.error : 'تعذر تحميل الأكواد. حاول مرة أخرى.';
+            const isAuth = result && result.code === 'UNAUTHORIZED';
+            showCourseCodesError(isAuth ? 'يجب تسجيل الدخول' : 'حدث خطأ', errMsg, !response.ok);
         }
     } catch (error) {
         console.error('Error loading course codes:', error);
-        if (loadingEl) loadingEl.classList.add('hidden');
-        container.innerHTML = `
-            <div class="course-codes-empty">
-                <div class="course-codes-empty-icon"><i class="bi bi-wifi-off"></i></div>
-                <h4>خطأ في الاتصال</h4>
-                <p>حدث خطأ في الاتصال. حاول مرة أخرى.</p>
-            </div>
-        `;
+        showCourseCodesError('خطأ في الاتصال', 'حدث خطأ في الاتصال. تحقق من الإنترنت أو حاول مرة أخرى.', true);
     }
 }
 

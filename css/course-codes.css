@@ -207,6 +207,26 @@
     font-size: 0.95rem;
 }
 
+.btn-retry-codes {
+    margin-top: 1rem;
+    padding: 0.6rem 1.25rem;
+    background: #4a90e2;
+    color: #fff;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    transition: background 0.2s ease;
+}
+
+.btn-retry-codes:hover {
+    background: #3a7bc8;
+}
+
 @media (max-width: 768px) {
     .course-codes-grid {
         grid-template-columns: 1fr;
