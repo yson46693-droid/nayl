@@ -66,7 +66,7 @@ function getAllowedOrigin() {
         $allowedOrigins[] = $serverProtocol . '://' . $serverHost;
     }
     
-    // الحصول على Origin من الطلب
+    // الحصول على Origin من الطلب (Safari أحياناً لا يرسل Origin للطلبات من نفس النطاق)
     $requestOrigin = $_SERVER['HTTP_ORIGIN'] ?? null;
     
     if ($requestOrigin) {
@@ -88,14 +88,31 @@ function getAllowedOrigin() {
         }
     }
     
-    // إذا لم يكن هناك Origin في الطلب (مثل طلبات من نفس النطاق)، نسمح
-    // لكن فقط إذا كان الطلب من نفس النطاق
+    // إذا لم يكن هناك Origin (شائع في Safari للطلبات same-origin): استخدام Referer كبديل
     $serverProtocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 'https' : 'http';
+    if (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') {
+        $serverProtocol = 'https';
+    }
     $serverHost = $_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? 'localhost';
     $serverOrigin = $serverProtocol . '://' . $serverHost;
     
-    // إذا لم يكن هناك Origin في الطلب، نعتبره من نفس النطاق
     if (!$requestOrigin) {
+        $referer = $_SERVER['HTTP_REFERER'] ?? null;
+        if ($referer) {
+            $parsedRef = parse_url($referer);
+            if ($parsedRef && isset($parsedRef['host'])) {
+                $refOrigin = ($parsedRef['scheme'] ?? 'http') . '://' . $parsedRef['host'];
+                $refNorm = rtrim($refOrigin, '/');
+                $refNormNoPort = preg_replace('#^(https?)://([^:/]+):(80|443)$#', '$1://$2', $refNorm);
+                foreach ($allowedOrigins as $allowed) {
+                    $allowedNorm = rtrim($allowed, '/');
+                    $allowedNormNoPort = preg_replace('#^(https?)://([^:/]+):(80|443)$#', '$1://$2', $allowedNorm);
+                    if ($refNorm === $allowedNorm || $refNormNoPort === $allowedNormNoPort) {
+                        return $refOrigin;
+                    }
+                }
+            }
+        }
         return $serverOrigin;
     }
     
@@ -123,7 +140,7 @@ if ($allowedOrigin) {
 
 // Security Headers
 header('Access-Control-Allow-Methods: POST, OPTIONS');
-header('Access-Control-Allow-Headers: Content-Type, X-CSRF-Token, Authorization');
+header('Access-Control-Allow-Headers: Content-Type, Accept, X-CSRF-Token, Authorization');
 header('Access-Control-Max-Age: 86400'); // 24 ساعة
 header('X-Content-Type-Options: nosniff');
 header('X-Frame-Options: DENY');

@@ -43,6 +43,25 @@ document.addEventListener('DOMContentLoaded', async function () {
 });
 
 /**
+ * بناء رابط API يعمل من الجذر أو من مجلد فرعي (مثل yoursite.com/nayl/)
+ * يمنع ظهور "خطأ في الاتصال" في صفحة أكوادي وباقي تبويبات الملف الشخصي
+ */
+function getProfileApiUrl(relativePath) {
+    const path = (relativePath || '').replace(/^\//, '');
+    if (typeof window.API_BASE !== 'undefined' && window.API_BASE) {
+        const base = window.API_BASE.endsWith('/') ? window.API_BASE : window.API_BASE + '/';
+        return base + path;
+    }
+    const pathname = window.location.pathname || '';
+    const dir = pathname.substring(0, pathname.lastIndexOf('/') + 1);
+    const fullRelative = dir + path;
+    if (window.location.origin) {
+        return window.location.origin + (fullRelative.startsWith('/') ? fullRelative : '/' + fullRelative);
+    }
+    return fullRelative;
+}
+
+/**
  * تحميل بيانات المستخدم من التخزين المحلي وتعبئتها في النموذج
  */
 function loadUserData() {
@@ -131,7 +150,7 @@ async function initWallet() {
     }
 
     try {
-        const response = await fetch('/api/wallet/get-balance.php', {
+        const response = await fetch(getProfileApiUrl('api/wallet/get-balance.php'), {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -164,12 +183,7 @@ async function checkVerificationStatus() {
     const sessionToken = localStorage.getItem('sessionToken') || sessionStorage.getItem('sessionToken');
     if (sessionToken) {
         try {
-            const verifyUrl = (function () {
-                if (typeof window.API_BASE !== 'undefined' && window.API_BASE) return window.API_BASE + '/api/auth/verify.php';
-                const path = window.location.pathname || '';
-                const dir = path.substring(0, path.lastIndexOf('/') + 1);
-                return dir + 'api/auth/verify.php';
-            })();
+            const verifyUrl = getProfileApiUrl('api/auth/verify.php');
             const response = await fetch(verifyUrl, {
                 method: 'GET',
                 headers: { 'Content-Type': 'application/json', 'Authorization': `Bearer ${sessionToken}` },
@@ -648,7 +662,7 @@ async function loadCourseCodes() {
     }
 
     try {
-        const response = await fetch('/api/courses/get-my-course-codes.php', {
+        const response = await fetch(getProfileApiUrl('api/courses/get-my-course-codes.php'), {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -868,7 +882,7 @@ async function loadMyDiscountCodes() {
     }
 
     try {
-        const response = await fetch('/api/discount-codes/get-my-used.php', {
+        const response = await fetch(getProfileApiUrl('api/discount-codes/get-my-used.php'), {
             method: 'GET',
             headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + sessionToken },
             credentials: 'include'
@@ -936,7 +950,7 @@ async function loadDevices() {
     }
 
     try {
-        const response = await fetch('/api/auth/get-devices.php', {
+        const response = await fetch(getProfileApiUrl('api/auth/get-devices.php'), {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -1091,7 +1105,7 @@ async function removeDevice(sessionId) {
     }
 
     try {
-        const response = await fetch('/api/auth/remove-device.php', {
+        const response = await fetch(getProfileApiUrl('api/auth/remove-device.php'), {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -1915,7 +1929,7 @@ function handleImageUpload(file) {
                 }
 
                 try {
-                    const response = await fetch('/api/auth/upload-avatar.php', {
+                    const response = await fetch(getProfileApiUrl('api/auth/upload-avatar.php'), {
                         method: 'POST',
                         headers: {
                             'Authorization': `Bearer ${sessionToken}`

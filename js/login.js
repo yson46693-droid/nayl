@@ -80,18 +80,25 @@ document.addEventListener('DOMContentLoaded', async function () {
                     return;
                 }
 
-                // مسار API نسبي ليعمل من الجذر أو من مجلد فرعي (مثل Hostinger: yoursite.com/nayl/)
+                // مسار API: استخدام نفس المنشأ (origin) لتجنب مشاكل Safari مع إعادة التوجيه والـ CORS
                 const apiUrl = (function () {
                     if (typeof window.API_BASE !== 'undefined' && window.API_BASE) return window.API_BASE + '/api/auth/login.php';
                     const path = window.location.pathname || '';
                     const dir = path.substring(0, path.lastIndexOf('/') + 1);
-                    return dir + 'api/auth/login.php';
+                    const relative = dir + 'api/auth/login.php';
+                    // Safari: استخدام عنوان كامل من نفس المنشأ لتفادي مشاكل الطلبات النسبية
+                    if (window.location.origin) {
+                        return window.location.origin + (relative.startsWith('/') ? relative : '/' + relative);
+                    }
+                    return relative;
                 })();
                 const response = await fetch(apiUrl, {
                     method: 'POST',
                     credentials: 'include',
+                    mode: 'cors',
                     headers: {
                         'Content-Type': 'application/json',
+                        'Accept': 'application/json',
                     },
                     body: JSON.stringify({
                         identifier: email,
@@ -108,7 +115,20 @@ document.addEventListener('DOMContentLoaded', async function () {
                     result = responseText ? JSON.parse(responseText) : {};
                 } catch (e) {
                     console.error('Login API response not JSON. URL:', apiUrl, 'Status:', response.status, 'Body:', responseText.substring(0, 200));
-                    const errMsg = response.ok ? 'حدث خطأ في الاتصال. يرجى المحاولة مرة أخرى' : 'خطأ من الخادم (رمز ' + response.status + '). تحقق من إعدادات الاستضافة وملف .env. للتشخيص: افتح في المتصفح نفس الموقع ثم أضف /api/auth/login.php?ping=1';
+                    const isHtml = (responseText && (responseText.trim().startsWith('<') || responseText.includes('<!DOCTYPE') || responseText.includes('<html')));
+                    const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent) || /iPhone|iPad|Macintosh.*Safari/i.test(navigator.userAgent);
+                    let errMsg;
+                    if (response.ok) {
+                        errMsg = 'حدث خطأ في الاتصال. يرجى المحاولة مرة أخرى';
+                        if (isHtml && isSafari) {
+                            errMsg = 'الخادم أعاد صفحة ويب بدلاً من البيانات (غالباً في Safari). جرّب: فتح الموقع بنفس الرابط في شريط العنوان، أو تعطيل "منع التتبع عبر المواقع" لهذا الموقع من إعدادات Safari، أو استخدام متصفح آخر.';
+                        }
+                    } else {
+                        errMsg = 'خطأ من الخادم (رمز ' + response.status + '). تحقق من إعدادات الاستضافة وملف .env. للتشخيص: افتح في المتصفح نفس الموقع ثم أضف /api/auth/login.php?ping=1';
+                        if (isHtml && isSafari) {
+                            errMsg = 'الخادم أعاد صفحة خطأ (رمز ' + response.status + '). في Safari جرّب: تعطيل منع التتبع لهذا الموقع، أو استخدم Chrome/Firefox.';
+                        }
+                    }
                     showError(errMsg);
                     submitButton.disabled = false;
                     submitButton.innerHTML = originalButtonText;
@@ -167,8 +187,13 @@ document.addEventListener('DOMContentLoaded', async function () {
             } catch (error) {
                 console.error('Login error:', error);
                 const msg = (error && error.message) ? error.message : '';
-                const isNetwork = typeof msg === 'string' && (msg.indexOf('Failed to fetch') !== -1 || msg.indexOf('NetworkError') !== -1);
-                showError(isNetwork ? 'تعذر الاتصال بالخادم. تحقق من الاتصال بالإنترنت أو أن الموقع يعمل على الاستضافة.' : 'حدث خطأ في الاتصال. يرجى المحاولة مرة أخرى');
+                const isNetwork = typeof msg === 'string' && (msg.indexOf('Failed to fetch') !== -1 || msg.indexOf('NetworkError') !== -1 || msg.indexOf('Load failed') !== -1 || msg.indexOf('fetch') !== -1);
+                const isSafari = /^((?!chrome|android).)*safari/i.test(navigator.userAgent) || /iPhone|iPad|Macintosh.*Safari/i.test(navigator.userAgent);
+                let errMsg = isNetwork ? 'تعذر الاتصال بالخادم. تحقق من الاتصال بالإنترنت أو أن الموقع يعمل على الاستضافة.' : 'حدث خطأ في الاتصال. يرجى المحاولة مرة أخرى.';
+                if (isSafari && (isNetwork || msg.indexOf('insecure') !== -1 || msg.indexOf('security') !== -1)) {
+                    errMsg = 'تعذر الاتصال في Safari. جرّب: 1) تعطيل "منع التتبع عبر المواقع" لهذا الموقع (الإعدادات > Safari)، 2) التأكد من فتح الموقع عبر https:// ونفس الرابط، 3) أو استخدم Chrome أو Firefox.';
+                }
+                showError(errMsg);
                 submitButton.disabled = false;
                 submitButton.innerHTML = originalButtonText;
             }
