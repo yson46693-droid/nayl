@@ -442,7 +442,7 @@ class WebAuthn {
         
         // التأكد من أن rpId ليس فارغاً
         if (empty($rpId)) {
-            $rpId = $_SERVER['HTTP_HOST'] ?? 'localhost';
+            $rpId = getRpId();
             if (strpos($rpId, 'www.') === 0) {
                 $rpId = substr($rpId, 4);
             }

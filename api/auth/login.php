@@ -31,12 +31,16 @@ loadEnv(__DIR__ . '/../.env');
  */
 function getAllowedOrigin() {
     // قائمة النطاقات المسموحة
-    $allowedOrigins = [
-        'http://localhost',
-        'https://localhost',
-        'http://127.0.0.1',
-        'https://127.0.0.1'
-    ];
+        $allowedOrigins = [
+            'http://localhost',
+            'https://localhost',
+            'http://127.0.0.1',
+            'https://127.0.0.1',
+            'https://almoustafa.site',
+            'http://almoustafa.site',
+            'https://www.almoustafa.site',
+            'http://www.almoustafa.site'
+        ];
     
     // إضافة النطاق من .env إذا كان موجوداً
     if (function_exists('env')) {

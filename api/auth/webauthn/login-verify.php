@@ -43,7 +43,7 @@ if (!$challengeStored || $challengeReceived !== $challengeStored) {
 }
 
 $origin = $clientData['origin'] ?? '';
-$expectedOrigin = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http') . '://' . ($_SERVER['HTTP_HOST'] ?? 'localhost');
+$expectedOrigin = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http') . '://' . (getRpId());
 if (strpos($origin, $expectedOrigin) !== 0 && $origin !== $expectedOrigin) {
     sendJsonResponse(false, null, 'المصدر غير مسموح', 400);
 }
