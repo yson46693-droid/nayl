@@ -35,6 +35,11 @@ header('Access-Control-Allow-Origin: ' . ($origin ?: '*'));
 header('Access-Control-Allow-Credentials: true');
 header('Access-Control-Allow-Methods: GET, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization');
+// منع تخزين الاستجابة في كاش المتصفح (حل مشكلة عدم ظهور الأكواد على Chrome)
+header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+header('Cache-Control: post-check=0, pre-check=0', false);
+header('Pragma: no-cache');
+header('Expires: 0');
 
 try {
     $pdo = getDatabaseConnection();

@@ -687,16 +687,19 @@ async function loadCourseCodes() {
         return;
     }
 
+    // منع كاش المتصفح (Chrome خاصة) لضمان ظهور الأكواد في كل الطلبات
     const apiUrl = getProfileApiUrl('api/courses/get-my-course-codes.php');
+    const urlWithCacheBust = apiUrl + (apiUrl.indexOf('?') >= 0 ? '&' : '?') + '_t=' + Date.now();
 
     try {
-        const response = await fetch(apiUrl, {
+        const response = await fetch(urlWithCacheBust, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${sessionToken}`
             },
-            credentials: 'include'
+            credentials: 'include',
+            cache: 'no-store'
         });
 
         const text = await response.text();
