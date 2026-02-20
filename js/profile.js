@@ -1293,7 +1293,8 @@ async function loadRechargeRequests() {
 
     try {
         const filterStatus = document.getElementById('recharge-filter')?.value || 'all';
-        const url = `/api/wallet/get-recharge-requests.php?page=${rechargePage}&limit=${rechargeLimit}&status=${filterStatus}`;
+        const baseUrl = getProfileApiUrl('api/wallet/get-recharge-requests.php');
+        const url = `${baseUrl}${baseUrl.indexOf('?') >= 0 ? '&' : '?'}page=${rechargePage}&limit=${rechargeLimit}&status=${encodeURIComponent(filterStatus)}`;
 
         const response = await fetch(url, {
             method: 'GET',
