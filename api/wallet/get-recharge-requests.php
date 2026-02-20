@@ -15,36 +15,32 @@ session_start();
 require_once __DIR__ . '/../config/env.php';
 loadEnv(__DIR__ . '/../.env');
 
-// إعدادات CORS
+// إعدادات CORS (مطابقة لـ get-my-course-codes لتفادي خطأ الاتصال)
 require_once __DIR__ . '/../config/auth.php';
 
-$allowedOrigin = getAllowedOrigin();
-if ($allowedOrigin) {
-    header('Access-Control-Allow-Origin: ' . $allowedOrigin);
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    $origin = getAllowedOrigin();
+    header('Access-Control-Allow-Origin: ' . ($origin ?: '*'));
     header('Access-Control-Allow-Credentials: true');
-} else {
-    http_response_code(403);
-    header('Content-Type: application/json; charset=utf-8');
-    echo json_encode([
-        'success' => false,
-        'error' => 'Origin not allowed'
-    ], JSON_UNESCAPED_UNICODE);
+    header('Access-Control-Allow-Methods: GET, OPTIONS');
+    header('Access-Control-Allow-Headers: Content-Type, Authorization');
+    http_response_code(200);
     exit;
 }
 
-// Security Headers
+$origin = getAllowedOrigin();
+header('Access-Control-Allow-Origin: ' . ($origin ?: '*'));
+header('Access-Control-Allow-Credentials: true');
 header('Access-Control-Allow-Methods: GET, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization');
 header('Access-Control-Max-Age: 86400');
 header('X-Content-Type-Options: nosniff');
 header('X-Frame-Options: DENY');
 header('X-XSS-Protection: 1; mode=block');
-
-// معالجة OPTIONS request
-if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
-    http_response_code(200);
-    exit;
-}
+// منع كاش المتصفح لضمان ظهور الطلبات
+header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+header('Pragma: no-cache');
+header('Expires: 0');
 
 // السماح فقط بـ GET requests
 if ($_SERVER['REQUEST_METHOD'] !== 'GET') {

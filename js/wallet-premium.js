@@ -24,7 +24,8 @@ async function fetchWalletBalance() {
     }
     
     try {
-        const response = await fetch('/api/wallet/get-balance.php', {
+        // معامل زمني لتفادي كاش المتصفح (مهم لسفاري)
+        const response = await fetch('/api/wallet/get-balance.php?_=' + Date.now(), {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',

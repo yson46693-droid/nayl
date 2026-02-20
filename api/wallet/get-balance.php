@@ -85,6 +85,12 @@ try {
         $balance = (float)$wallet['balance'];
     }
     
+    // منع التخزين المؤقت (مهم: رصيد المحفظة يجب أن يكون محدثاً في كل متصفح)
+    header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
+    header('Cache-Control: post-check=0, pre-check=0', false);
+    header('Pragma: no-cache');
+    header('Expires: 0');
+
     // إرجاع النتيجة
     header('Content-Type: application/json; charset=utf-8');
     http_response_code(200);

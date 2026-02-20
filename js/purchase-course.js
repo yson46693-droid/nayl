@@ -181,7 +181,7 @@ document.addEventListener('DOMContentLoaded', async function () {
     async function fetchUserBalance() {
         if (!sessionToken) return 0;
         try {
-            const response = await fetch('/api/wallet/get-balance.php', {
+            const response = await fetch('/api/wallet/get-balance.php?_=' + Date.now(), {
                 method: 'GET',
                 headers: {
                     'Content-Type': 'application/json',

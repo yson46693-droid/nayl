@@ -150,7 +150,9 @@ async function initWallet() {
     }
 
     try {
-        const response = await fetch(getProfileApiUrl('api/wallet/get-balance.php'), {
+        // إضافة معامل زمني لتفادي كاش المتصفح (مهم لسفاري)
+        const balanceUrl = getProfileApiUrl('api/wallet/get-balance.php') + '?_=' + Date.now();
+        const response = await fetch(balanceUrl, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -1294,7 +1296,8 @@ async function loadRechargeRequests() {
     try {
         const filterStatus = document.getElementById('recharge-filter')?.value || 'all';
         const baseUrl = getProfileApiUrl('api/wallet/get-recharge-requests.php');
-        const url = `${baseUrl}${baseUrl.indexOf('?') >= 0 ? '&' : '?'}page=${rechargePage}&limit=${rechargeLimit}&status=${encodeURIComponent(filterStatus)}`;
+        const sep = baseUrl.indexOf('?') >= 0 ? '&' : '?';
+        const url = `${baseUrl}${sep}page=${rechargePage}&limit=${rechargeLimit}&status=${encodeURIComponent(filterStatus)}&_t=${Date.now()}`;
 
         const response = await fetch(url, {
             method: 'GET',
@@ -1302,16 +1305,31 @@ async function loadRechargeRequests() {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${sessionToken}`
             },
-            credentials: 'include'
+            credentials: 'include',
+            cache: 'no-store'
         });
 
-        const result = await response.json();
+        const text = await response.text();
+        let result = null;
+        try {
+            result = text ? JSON.parse(text) : {};
+        } catch (e) {
+            console.error('Recharge API non-JSON response:', text ? text.substring(0, 200) : '(empty)');
+            container.innerHTML = `
+                <div class="transactions-empty">
+                    <i class="bi bi-wifi-off" style="font-size: 2rem; margin-bottom: 1rem;"></i>
+                    <p>استجابة غير صحيحة من الخادم. تحقق من الرابط أو حاول لاحقاً.</p>
+                </div>
+            `;
+            return;
+        }
 
         if (response.ok && result.success && result.data && result.data.requests) {
             rechargeTotalPages = result.data.pagination.total_pages;
             renderRechargeRequests(result.data.requests);
             renderRechargePagination();
         } else {
+            const errMsg = (result && result.error) ? result.error : 'لم تقم بأي طلبات تعبئة رصيد بعد';
             container.innerHTML = `
                 <div class="transactions-empty">
                     <svg width="80" height="80" viewBox="0 0 80 80" fill="none">
@@ -1319,10 +1337,9 @@ async function loadRechargeRequests() {
                         <path d="M40 25V45M40 55V55.1" stroke="currentColor" stroke-width="3" stroke-linecap="round" />
                     </svg>
                     <h4>لا توجد طلبات تعبئة</h4>
-                    <p>${result.error || 'لم تقم بأي طلبات تعبئة رصيد بعد'}</p>
+                    <p>${typeof errMsg === 'string' ? errMsg : 'لم تقم بأي طلبات تعبئة رصيد بعد'}</p>
                 </div>
             `;
-            // إخفاء التصفح عند الفراغ
             const pagContainer = document.getElementById('recharge-pagination');
             if (pagContainer) pagContainer.style.display = 'none';
         }
