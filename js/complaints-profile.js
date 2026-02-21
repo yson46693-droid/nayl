@@ -113,14 +113,25 @@ async function loadComplaints() {
         });
 
         const contentType = response.headers.get('content-type') || '';
-        if (!response.ok || !contentType.includes('application/json')) {
-            throw new Error('استجابة غير صالحة من الخادم');
+        let result;
+
+        try {
+            result = await response.json();
+        } catch (parseError) {
+            console.error('Invalid JSON from complaints API:', parseError);
+            container.innerHTML = '<p class="text-center text-danger">استجابة غير صالحة من الخادم. تحقق من الاتصال أو أعد المحاولة لاحقاً.</p>';
+            return;
         }
 
-        const result = await response.json();
+        if (!result.success) {
+            const errorMsg = result.error || (response.status === 401 ? 'يجب تسجيل الدخول لرؤية الشكاوي.' : 'حدث خطأ أثناء تحميل الشكاوي.');
+            container.innerHTML = '<p class="text-center text-danger">' + escapeHtml(errorMsg) + '</p>';
+            return;
+        }
 
-        if (result.success && result.data.complaints.length > 0) {
-            renderComplaints(result.data.complaints);
+        const complaints = result.data && Array.isArray(result.data.complaints) ? result.data.complaints : [];
+        if (complaints.length > 0) {
+            renderComplaints(complaints);
         } else {
             container.innerHTML = `
                 <div class="empty-state">
@@ -132,8 +143,16 @@ async function loadComplaints() {
 
     } catch (error) {
         console.error('Error loading complaints:', error);
-        container.innerHTML = '<p class="text-center text-danger">حدث خطأ أثناء تحميل الشكاوي.</p>';
+        const msg = (error && error.message) ? escapeHtml(error.message) : 'حدث خطأ أثناء تحميل الشكاوي. تحقق من الاتصال بالإنترنت وأعد المحاولة.';
+        container.innerHTML = '<p class="text-center text-danger">' + msg + '</p>';
     }
+}
+
+function escapeHtml(text) {
+    if (typeof text !== 'string') return '';
+    const div = document.createElement('div');
+    div.textContent = text;
+    return div.innerHTML;
 }
 
 function renderComplaints(complaints) {
