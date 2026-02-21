@@ -32,7 +32,6 @@ async function fetchWalletBalance() {
     }
     
     try {
-        // معامل زمني لتفادي كاش المتصفح (مهم لسفاري)
         const response = await fetch(getWalletApiUrl('get-balance.php') + '?_=' + Date.now(), {
             method: 'GET',
             headers: {
@@ -41,15 +40,17 @@ async function fetchWalletBalance() {
             },
             credentials: 'include'
         });
-        
-        const result = await response.json();
-        
-        if (response.ok && result.success) {
-            return result.data.balance;
-        } else {
-            console.error('Error fetching balance:', result.error);
+        const contentType = response.headers.get('content-type') || '';
+        if (!contentType.includes('application/json')) {
+            console.error('Error fetching balance: server returned non-JSON (e.g. 404). Check API path / app-base-path.');
             return '0.00';
         }
+        const result = await response.json();
+        if (response.ok && result.success && result.data != null) {
+            return result.data.balance != null ? result.data.balance : '0.00';
+        }
+        console.error('Error fetching balance:', result.error || response.status);
+        return '0.00';
     } catch (error) {
         console.error('Error fetching wallet balance:', error);
         return '0.00';
@@ -77,16 +78,18 @@ async function fetchWalletTransactions(page = 1, type = 'all') {
             },
             credentials: 'include'
         });
-        
-        const result = await response.json();
-        
-        if (response.ok && result.success) {
-            totalPages = result.data.pagination.total_pages;
-            return result.data.transactions;
-        } else {
-            console.error('Error fetching transactions:', result.error);
+        const contentType = response.headers.get('content-type') || '';
+        if (!contentType.includes('application/json')) {
+            console.error('Error fetching transactions: server returned non-JSON (e.g. 404). Check API path / app-base-path.');
             return [];
         }
+        const result = await response.json();
+        if (response.ok && result.success && result.data) {
+            totalPages = (result.data.pagination && result.data.pagination.total_pages) ? result.data.pagination.total_pages : 0;
+            return Array.isArray(result.data.transactions) ? result.data.transactions : [];
+        }
+        console.error('Error fetching transactions:', result.error || response.status);
+        return [];
     } catch (error) {
         console.error('Error fetching wallet transactions:', error);
         return [];

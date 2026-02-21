@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AmrNayl academy - الملف الشخصي</title>
     <meta name="description" content="الملف الشخصي في منصة AmrNayl academy">
+    <meta name="app-base-path" content="/nayl/">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/support-modal.css">
     <link rel="stylesheet" href="css/wallet-digital.css">
@@ -636,11 +637,19 @@
     </div>
 
     <script>
-        // تحديد مسار الـ API لصفحة الملف الشخصي (يمنع خطأ الاتصال في أكوادي وباقي التبويبات)
+        // تحديد مسار الـ API (يمنع 404 عند النشر تحت مسار فرعي مثل /nayl/)
         (function () {
             var pathname = window.location.pathname || '';
             var lastSlash = pathname.lastIndexOf('/');
             var basePath = lastSlash >= 0 ? pathname.substring(0, lastSlash + 1) : '/';
+            var metaBase = document.querySelector('meta[name="app-base-path"]');
+            if (metaBase && metaBase.getAttribute('content')) {
+                var appBase = metaBase.getAttribute('content').replace(/^\s+|\s+$/g, '');
+                if (appBase && (basePath === '/' || !pathname.slice(1).includes('/'))) {
+                    basePath = appBase.charAt(0) === '/' ? appBase : '/' + appBase;
+                    if (basePath.charAt(basePath.length - 1) !== '/') basePath += '/';
+                }
+            }
             window.API_BASE = window.location.origin + basePath;
         })();
     </script>
