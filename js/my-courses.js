@@ -1,5 +1,24 @@
 // My Courses Page JavaScript
 
+/**
+ * بناء رابط API ليعمل من الجذر أو من مجلد فرعي (مثل yoursite.com/nayl/)
+ * يمنع 404 عند فتح صفحة كورساتي من مسار فرعي
+ */
+function getMyCoursesApiUrl(relativePath) {
+    const path = (relativePath || '').replace(/^\//, '');
+    if (typeof window.API_BASE !== 'undefined' && window.API_BASE) {
+        const base = window.API_BASE.endsWith('/') ? window.API_BASE : window.API_BASE + '/';
+        return base + path;
+    }
+    const pathname = window.location.pathname || '';
+    const dir = pathname.substring(0, pathname.lastIndexOf('/') + 1);
+    const fullRelative = dir + path;
+    if (window.location.origin) {
+        return window.location.origin + (fullRelative.startsWith('/') ? fullRelative : '/' + fullRelative);
+    }
+    return fullRelative;
+}
+
 document.addEventListener('DOMContentLoaded', async function () {
     const grid = document.querySelector('.my-courses-grid');
     const filtersWrapper = document.querySelector('.courses-filters');
@@ -14,7 +33,8 @@ document.addEventListener('DOMContentLoaded', async function () {
     }
 
     try {
-        const response = await fetch('/api/courses/get-my-course-codes.php', {
+        const apiUrl = getMyCoursesApiUrl('api/courses/get-my-course-codes.php');
+        const response = await fetch(apiUrl, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -22,6 +42,16 @@ document.addEventListener('DOMContentLoaded', async function () {
             },
             credentials: 'include'
         });
+
+        const contentType = response.headers.get('Content-Type') || '';
+        const isJson = contentType.indexOf('application/json') !== -1;
+        if (!response.ok || !isJson) {
+            if (!response.ok && !isJson) {
+                console.warn('My courses API returned non-JSON (e.g. 404 page). URL:', apiUrl, 'Status:', response.status);
+            }
+            showEmptyState(grid, filtersWrapper, false);
+            return;
+        }
 
         const result = await response.json();
         const codes = (result.success && result.data && result.data.codes) ? result.data.codes : [];

@@ -148,6 +148,15 @@
         </div>
     </section>
 
+    <script>
+        // تحديد مسار الـ API (يمنع 404 عند فتح الصفحة من مسار فرعي مثل /nayl/)
+        (function () {
+            var pathname = window.location.pathname || '';
+            var lastSlash = pathname.lastIndexOf('/');
+            var basePath = lastSlash >= 0 ? pathname.substring(0, lastSlash + 1) : '/';
+            window.API_BASE = window.location.origin + basePath;
+        })();
+    </script>
     <script src="js/auth-check.js"></script>
     <script>
         // حماية الصفحة - التحقق من تسجيل الدخول

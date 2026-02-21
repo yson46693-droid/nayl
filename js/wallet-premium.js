@@ -6,6 +6,14 @@ let filteredTransactions = [];
 let totalPages = 0;
 
 /**
+ * الحصول على الرابط الأساسي لـ API (يدعم التشغيل من مسار فرعي)
+ */
+function getWalletApiUrl(path) {
+    const base = (typeof window.API_BASE !== 'undefined' && window.API_BASE) ? window.API_BASE : '';
+    return base + '/api/wallet/' + path;
+}
+
+/**
  * الحصول على session token
  */
 function getSessionToken() {
@@ -25,7 +33,7 @@ async function fetchWalletBalance() {
     
     try {
         // معامل زمني لتفادي كاش المتصفح (مهم لسفاري)
-        const response = await fetch('/api/wallet/get-balance.php?_=' + Date.now(), {
+        const response = await fetch(getWalletApiUrl('get-balance.php') + '?_=' + Date.now(), {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -60,7 +68,7 @@ async function fetchWalletTransactions(page = 1, type = 'all') {
     }
     
     try {
-        const url = `/api/wallet/get-transactions.php?page=${page}&limit=${itemsPerPage}&type=${type}`;
+        const url = getWalletApiUrl('get-transactions.php') + `?page=${page}&limit=${itemsPerPage}&type=${type}`;
         const response = await fetch(url, {
             method: 'GET',
             headers: {

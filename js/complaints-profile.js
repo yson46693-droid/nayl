@@ -1,3 +1,11 @@
+/**
+ * الحصول على الرابط الأساسي لـ API (يدعم التشغيل من مسار فرعي)
+ */
+function getComplaintsApiUrl(path) {
+    const base = (typeof window.API_BASE !== 'undefined' && window.API_BASE) ? window.API_BASE : '';
+    return base + '/api/complaints/' + path;
+}
+
 document.addEventListener('DOMContentLoaded', function () {
     // Initialize complaints functionality
     initComplaints();
@@ -51,7 +59,7 @@ async function handleComplaintSubmit(e) {
     const sessionToken = localStorage.getItem('sessionToken') || sessionStorage.getItem('sessionToken');
 
     try {
-        const response = await fetch('/api/complaints/create.php', {
+        const response = await fetch(getComplaintsApiUrl('create.php'), {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
@@ -96,13 +104,18 @@ async function loadComplaints() {
     container.innerHTML = '<div class="empty-state"><p>جاري تحميل الشكاوي...</p></div>';
 
     try {
-        const response = await fetch('/api/complaints/get-my-complaints.php', {
+        const response = await fetch(getComplaintsApiUrl('get-my-complaints.php'), {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${sessionToken}`
             }
         });
+
+        const contentType = response.headers.get('content-type') || '';
+        if (!response.ok || !contentType.includes('application/json')) {
+            throw new Error('استجابة غير صالحة من الخادم');
+        }
 
         const result = await response.json();
 
