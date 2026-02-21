@@ -6,6 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AmrNayl academy - كورساتي</title>
     <meta name="description" content="كورساتي التدريبية في منصة AmrNayl academy">
+    <!-- مسار النشر: يستخدم عند فتح الصفحة من رابط خاطئ (بدون /nayl/) -->
+    <meta name="app-base-path" content="/nayl/">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/support-modal.css">
     <link rel="shortcut icon" href="fav.ico" type="image/x-icon">
@@ -154,6 +156,15 @@
             var pathname = window.location.pathname || '';
             var lastSlash = pathname.lastIndexOf('/');
             var basePath = lastSlash >= 0 ? pathname.substring(0, lastSlash + 1) : '/';
+            // إذا فُتحت الصفحة من الجذر (مثل almoustafa.site/my-courses.html) والنشر تحت /nayl/
+            var metaBase = document.querySelector('meta[name="app-base-path"]');
+            if (metaBase && metaBase.getAttribute('content')) {
+                var appBase = metaBase.getAttribute('content').replace(/^\s+|\s+$/g, '');
+                if (appBase && (basePath === '/' || !pathname.slice(1).includes('/'))) {
+                    basePath = appBase.charAt(0) === '/' ? appBase : '/' + appBase;
+                    if (basePath.charAt(basePath.length - 1) !== '/') basePath += '/';
+                }
+            }
             window.API_BASE = window.location.origin + basePath;
         })();
     </script>
