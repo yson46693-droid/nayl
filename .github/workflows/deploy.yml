@@ -28,7 +28,7 @@ jobs:
           timeout: 120000
           log-level: standard
 
-          server-dir: /public_html/
+          server-dir: 
 
           # مهم: لا يحذف ملفات السيرفر 
           dangerous-clean-slate: false
