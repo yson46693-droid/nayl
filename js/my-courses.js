@@ -6,8 +6,24 @@
  */
 function getMyCoursesApiUrl(relativePath) {
     const path = (relativePath || '').replace(/^\//, '');
+    let base = '';
+
     if (typeof window.API_BASE !== 'undefined' && window.API_BASE) {
-        const base = window.API_BASE.endsWith('/') ? window.API_BASE : window.API_BASE + '/';
+        base = window.API_BASE.endsWith('/') ? window.API_BASE : window.API_BASE + '/';
+    }
+    // احتياط: إذا كان الطلب سيذهب للجذر (بدون /nayl/) استخدم meta app-base-path
+    if (!base || base === window.location.origin + '/') {
+        const meta = document.querySelector('meta[name="app-base-path"]');
+        if (meta && meta.getAttribute('content')) {
+            let appBase = meta.getAttribute('content').trim();
+            if (appBase) {
+                if (appBase.charAt(0) !== '/') appBase = '/' + appBase;
+                if (appBase.charAt(appBase.length - 1) !== '/') appBase += '/';
+                base = window.location.origin + appBase;
+            }
+        }
+    }
+    if (base) {
         return base + path;
     }
     const pathname = window.location.pathname || '';
