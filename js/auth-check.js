@@ -18,85 +18,97 @@ async function checkAuth() {
         return false;
     }
     
-    // التحقق من انتهاء الجلسة
+    // التحقق من انتهاء الجلسة (على العميل فقط - المعيار الفعلي هو الخادم)
+    // نعتبر الجلسة منتهية فقط إذا كان التاريخ صالحاً ومستقبلاً بوضوح (تجنب مشاكل التوقيت أو صيغة خاطئة)
     const expiresAt = localStorage.getItem('sessionExpiresAt') || sessionStorage.getItem('sessionExpiresAt');
     if (expiresAt) {
         const expiryDate = new Date(expiresAt);
         const now = new Date();
-        if (now > expiryDate) {
-            // الجلسة منتهية
+        if (!isNaN(expiryDate.getTime()) && now > expiryDate) {
             clearAuthData();
             return false;
         }
+        // إذا كان التاريخ غير صالح (NaN) نتجاهل الفحص ونعتمد على verify الخادم
     }
-    
+
+    // بناء مسار verify (يدعم الجذر والمجلد الفرعي)
+    function getVerifyUrl() {
+        if (typeof window.API_BASE !== 'undefined' && window.API_BASE) return window.API_BASE + '/api/auth/verify.php';
+        var path = window.location.pathname || '';
+        var dir = path.substring(0, path.lastIndexOf('/') + 1);
+        return dir + 'api/auth/verify.php';
+    }
+
     // التحقق من صحة الجلسة مع الخادم
     try {
-        // مسار API من الجذر
-        const verifyUrl = (function () {
-            if (typeof window.API_BASE !== 'undefined' && window.API_BASE) return window.API_BASE + '/api/auth/verify.php';
-            const path = window.location.pathname || '';
-            const dir = path.substring(0, path.lastIndexOf('/') + 1);
-            return dir + 'api/auth/verify.php';
-        })();
-        const response = await fetch(verifyUrl, {
+        var verifyUrl = getVerifyUrl();
+        var response = await fetch(verifyUrl, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${sessionToken}`
+                'Authorization': 'Bearer ' + sessionToken
             },
             credentials: 'include'
         });
-        
-        // التحقق من حالة الاستجابة
+
+        // إعادة محاولة بمسار نسبي إذا حصل 404 (مثلاً API_BASE خاطئ)
+        if (response.status === 404 && (typeof window.API_BASE !== 'undefined' && window.API_BASE)) {
+            var pathFallback = window.location.pathname || '';
+            var dirFallback = pathFallback.substring(0, pathFallback.lastIndexOf('/') + 1);
+            var fallbackUrl = dirFallback + 'api/auth/verify.php';
+            if (fallbackUrl !== verifyUrl) {
+                response = await fetch(fallbackUrl, {
+                    method: 'GET',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + sessionToken
+                    },
+                    credentials: 'include'
+                });
+            }
+        }
+
+        // مسح الجلسة محلياً فقط عند 401 (غير مصرح) - لا نمسح عند 404/500 أو خطأ شبكة
         if (!response.ok) {
-            console.error('Verify response not OK:', response.status, response.statusText);
-            if (response.status === 401 || response.status === 404) {
+            if (response.status === 401) {
                 clearAuthData();
                 return false;
             }
+            console.error('Verify response not OK:', response.status, response.statusText);
+            return false;
         }
-        
-        const responseText = await response.text();
-        let result = null;
+
+        var responseText = await response.text();
+        var result = null;
         try {
             result = responseText ? JSON.parse(responseText) : {};
         } catch (e) {
-            // استجابة غير JSON (مثل صفحة 404 HTML)
             console.error('Verify response not JSON:', response.status, responseText.substring(0, 100));
-            if (!response.ok) {
-                clearAuthData();
-                return false;
-            }
+            return false;
         }
-        
-        if (result && response.ok && result.success) {
-            // تحديث بيانات المستخدم إذا لزم الأمر
-            // verify.php يعيد البيانات مباشرة في result.data (وليس result.data.user)
+
+        if (result && result.success) {
             if (result.data) {
-                const storage = localStorage.getItem('sessionToken') ? localStorage : sessionStorage;
-                // إذا كانت البيانات في result.data.user (من login/signup) أو result.data مباشرة (من verify)
-                const userData = result.data.user || result.data;
+                var storage = localStorage.getItem('sessionToken') ? localStorage : sessionStorage;
+                var userData = result.data.user || result.data;
                 if (userData && userData.email) {
                     storage.setItem('userData', JSON.stringify(userData));
-                    return true;
                 }
             }
             return true;
-        } else {
-            // الجلسة غير صالحة أو استجابة غير متوقعة
-            if (result) {
-                console.error('Session verification failed:', result.error || 'Unknown error');
-            }
-            clearAuthData();
-            return false;
         }
+
+        // استجابة success: false من الخادم = جلسة غير صالحة
+        if (result && result.error) {
+            console.error('Session verification failed:', result.error);
+        }
+        clearAuthData();
+        return false;
     } catch (error) {
         console.error('Auth check error:', error);
-        // في حالة خطأ في الاتصال، نتحقق من البيانات المحلية فقط
-        // لكن نتحقق من أن البيانات موجودة وصحيحة
+        // عند خطأ شبكة أو CORS: الاعتماد على البيانات المحلية إن وُجدت (لا ننهي الجلسة)
         if (isLoggedIn && sessionToken) {
-            const userData = getCurrentUser();
+            var userData = getCurrentUser();
             if (userData && userData.email) {
                 return true;
             }
