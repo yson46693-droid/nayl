@@ -217,8 +217,10 @@ if (empty($deviceUuid)) {
 // Rate Limit: التحقق قبل السماح بالمحاولة (حسب الجهاز - UUID من localStorage/cookies)
 $clientIP = getClientIP();
 $rateCheck = checkLoginRateLimit($deviceUuid);
-if (!$rateCheck['allowed']) {
-    sendJsonResponse(false, null, $rateCheck['message'] ?? 'تم تجاوز الحد المسموح', 429);
+$rateLimitMsg = trim($rateCheck['message'] ?? '');
+// إذا كانت الرسالة "خطأ في الاتصال" فهي من فشل اتصال Rate Limiter بالـ DB — نسمح بالمحاولة ولا نرسل 429
+if (!$rateCheck['allowed'] && $rateLimitMsg !== 'خطأ في الاتصال') {
+    sendJsonResponse(false, null, $rateLimitMsg ?: 'تم تجاوز الحد المسموح', 429);
 }
 
 // الاتصال بقاعدة البيانات
