@@ -26,6 +26,11 @@ define('SIGNUP_RATE_LIMIT_WINDOW', (int)env('SIGNUP_RATE_LIMIT_WINDOW', 60 * 60)
  * @param string $deviceUuid - معرف الجهاز من localStorage/cookies (device_uuid_v1 أو v_id)
  */
 function checkLoginRateLimit($deviceUuid) {
+    // تعطيل حد المعدل من .env إذا كان السيرفر يعيد 429 بسبب فشل اتصال جدول login_attempts
+    $loginLimitEnabled = filter_var(env('RATE_LIMIT_LOGIN_ENABLED', 'true'), FILTER_VALIDATE_BOOLEAN);
+    if (!$loginLimitEnabled) {
+        return ['allowed' => true];
+    }
     if (empty($deviceUuid) || !is_string($deviceUuid)) {
         return ['allowed' => false, 'message' => 'معرف الجهاز مطلوب. يرجى إعادة تحميل الصفحة.'];
     }
