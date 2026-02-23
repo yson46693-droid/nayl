@@ -149,8 +149,12 @@
     </section>
 
     <script>
-        // مسار الـ API من الجذر فقط
-        window.API_BASE = window.location.origin;
+        // مسار الـ API: يشمل المجلد الفرعي إن وُجد (مثلاً /nayl) ليعمل verify وحماية الصفحة بشكل صحيح
+        (function () {
+            var path = window.location.pathname || '';
+            var basePath = path.substring(0, path.lastIndexOf('/')) || '';
+            window.API_BASE = window.location.origin + basePath;
+        })();
     </script>
     <script src="js/auth-check.js"></script>
     <script>
