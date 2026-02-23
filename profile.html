@@ -637,18 +637,18 @@
     </div>
 
     <script>
-        // تحديد مسار الـ API (يمنع 404 عند النشر تحت مسار فرعي مثل /nayl/)
+        // تحديد مسار الـ API: استخدم app-base-path فقط عندما الصفحة فعلاً تحت ذلك المسار (مثل /nayl/)؛ وإلا استخدم الجذر لتفادي 404 وتوجيه خاطئ لتسجيل الدخول
         (function () {
             var pathname = window.location.pathname || '';
             var lastSlash = pathname.lastIndexOf('/');
             var basePath = lastSlash >= 0 ? pathname.substring(0, lastSlash + 1) : '/';
             var metaBase = document.querySelector('meta[name="app-base-path"]');
-            if (metaBase && metaBase.getAttribute('content')) {
-                var appBase = metaBase.getAttribute('content').replace(/^\s+|\s+$/g, '');
-                if (appBase && (basePath === '/' || !pathname.slice(1).includes('/'))) {
-                    basePath = appBase.charAt(0) === '/' ? appBase : '/' + appBase;
-                    if (basePath.charAt(basePath.length - 1) !== '/') basePath += '/';
-                }
+            var appBase = (metaBase && metaBase.getAttribute('content')) ? metaBase.getAttribute('content').replace(/^\s+|\s+$/g, '') : '';
+            if (appBase && appBase.charAt(0) !== '/') appBase = '/' + appBase;
+            if (appBase && appBase.charAt(appBase.length - 1) !== '/') appBase += '/';
+            var appBasePath = appBase.replace(/\/$/, '');
+            if (appBase && (pathname === appBasePath || pathname.indexOf(appBasePath + '/') === 0)) {
+                basePath = appBase;
             }
             window.API_BASE = window.location.origin + basePath;
         })();
