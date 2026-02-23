@@ -26,7 +26,7 @@ import {
 
 /**
  * إعدادات API
- * استخدام مسار نسبي ليعمل عند تشغيل المشروع من مجلد فرعي (مثل localhost/nayl/)
+ * استخدام مسار نسبي من الجذر
  */
 const API_CONFIG = {
     baseUrl: 'api/auth', // مسار نسبي لـ PHP APIs

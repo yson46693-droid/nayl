@@ -42,7 +42,7 @@ async function fetchWalletBalance() {
         });
         const contentType = response.headers.get('content-type') || '';
         if (!contentType.includes('application/json')) {
-            console.error('Error fetching balance: server returned non-JSON (e.g. 404). Check API path / app-base-path.');
+            console.error('Error fetching balance: server returned non-JSON (e.g. 404). Check API path.');
             return '0.00';
         }
         const result = await response.json();
@@ -80,7 +80,7 @@ async function fetchWalletTransactions(page = 1, type = 'all') {
         });
         const contentType = response.headers.get('content-type') || '';
         if (!contentType.includes('application/json')) {
-            console.error('Error fetching transactions: server returned non-JSON (e.g. 404). Check API path / app-base-path.');
+            console.error('Error fetching transactions: server returned non-JSON (e.g. 404). Check API path.');
             return [];
         }
         const result = await response.json();

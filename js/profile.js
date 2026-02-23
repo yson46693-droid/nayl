@@ -43,7 +43,7 @@ document.addEventListener('DOMContentLoaded', async function () {
 });
 
 /**
- * بناء رابط API يعمل من الجذر أو من مجلد فرعي (مثل yoursite.com/nayl/)
+ * بناء رابط API من الجذر
  * يمنع ظهور "خطأ في الاتصال" في صفحة أكوادي وباقي تبويبات الملف الشخصي
  */
 function getProfileApiUrl(relativePath) {

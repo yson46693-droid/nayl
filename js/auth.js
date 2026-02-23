@@ -36,7 +36,7 @@ async function checkAuth() {
             return null;
         }
         
-        // مسار API نسبي ليعمل من الجذر أو من مجلد فرعي (مثل yoursite.com/nayl/)
+        // مسار API من الجذر
         const verifyUrl = (function () {
             if (typeof window.API_BASE !== 'undefined' && window.API_BASE) return window.API_BASE + '/api/auth/verify.php';
             const path = window.location.pathname || '';

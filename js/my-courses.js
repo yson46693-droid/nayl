@@ -1,38 +1,14 @@
 // My Courses Page JavaScript
 
 /**
- * بناء رابط API ليعمل من الجذر أو من مجلد فرعي (مثل yoursite.com/nayl/)
- * يمنع 404 عند فتح صفحة كورساتي من مسار فرعي
+ * بناء رابط API من الجذر فقط
  */
 function getMyCoursesApiUrl(relativePath) {
     const path = (relativePath || '').replace(/^\//, '');
-    let base = '';
-
-    if (typeof window.API_BASE !== 'undefined' && window.API_BASE) {
-        base = window.API_BASE.endsWith('/') ? window.API_BASE : window.API_BASE + '/';
-    }
-    // احتياط: إذا كان الطلب سيذهب للجذر (بدون /nayl/) استخدم meta app-base-path
-    if (!base || base === window.location.origin + '/') {
-        const meta = document.querySelector('meta[name="app-base-path"]');
-        if (meta && meta.getAttribute('content')) {
-            let appBase = meta.getAttribute('content').trim();
-            if (appBase) {
-                if (appBase.charAt(0) !== '/') appBase = '/' + appBase;
-                if (appBase.charAt(appBase.length - 1) !== '/') appBase += '/';
-                base = window.location.origin + appBase;
-            }
-        }
-    }
-    if (base) {
-        return base + path;
-    }
-    const pathname = window.location.pathname || '';
-    const dir = pathname.substring(0, pathname.lastIndexOf('/') + 1);
-    const fullRelative = dir + path;
-    if (window.location.origin) {
-        return window.location.origin + (fullRelative.startsWith('/') ? fullRelative : '/' + fullRelative);
-    }
-    return fullRelative;
+    const base = (typeof window.API_BASE !== 'undefined' && window.API_BASE)
+        ? window.API_BASE.replace(/\/$/, '')
+        : window.location.origin;
+    return base + '/' + path;
 }
 
 document.addEventListener('DOMContentLoaded', async function () {

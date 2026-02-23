@@ -6,7 +6,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AmrNayl academy - الملف الشخصي</title>
     <meta name="description" content="الملف الشخصي في منصة AmrNayl academy">
-    <meta name="app-base-path" content="/nayl/">
     <link rel="stylesheet" href="css/style.css">
     <link rel="stylesheet" href="css/support-modal.css">
     <link rel="stylesheet" href="css/wallet-digital.css">
@@ -637,21 +636,8 @@
     </div>
 
     <script>
-        // تحديد مسار الـ API: استخدم app-base-path فقط عندما الصفحة فعلاً تحت ذلك المسار (مثل /nayl/)؛ وإلا استخدم الجذر لتفادي 404 وتوجيه خاطئ لتسجيل الدخول
-        (function () {
-            var pathname = window.location.pathname || '';
-            var lastSlash = pathname.lastIndexOf('/');
-            var basePath = lastSlash >= 0 ? pathname.substring(0, lastSlash + 1) : '/';
-            var metaBase = document.querySelector('meta[name="app-base-path"]');
-            var appBase = (metaBase && metaBase.getAttribute('content')) ? metaBase.getAttribute('content').replace(/^\s+|\s+$/g, '') : '';
-            if (appBase && appBase.charAt(0) !== '/') appBase = '/' + appBase;
-            if (appBase && appBase.charAt(appBase.length - 1) !== '/') appBase += '/';
-            var appBasePath = appBase.replace(/\/$/, '');
-            if (appBase && (pathname === appBasePath || pathname.indexOf(appBasePath + '/') === 0)) {
-                basePath = appBase;
-            }
-            window.API_BASE = window.location.origin + basePath;
-        })();
+        // مسار الـ API من الجذر فقط
+        window.API_BASE = window.location.origin;
     </script>
     <script src="js/auth-check.js"></script>
     <script>
