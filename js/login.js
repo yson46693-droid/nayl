@@ -165,6 +165,10 @@ document.addEventListener('DOMContentLoaded', async function () {
 
                 if (responseStatus < 200 || responseStatus >= 300 || !result.success) {
                     var errorMessage = result.error || result.message || 'حدث خطأ أثناء تسجيل الدخول';
+                    // 429 = تجاوز عدد المحاولات: عرض رسالة واضحة بدل "خطأ في الاتصال"
+                    if (responseStatus === 429 && (errorMessage === 'خطأ في الاتصال' || !errorMessage)) {
+                        errorMessage = 'تم تجاوز عدد المحاولات المسموح بها. يرجى المحاولة بعد عدة دقائق.';
+                    }
                     showError(errorMessage);
                     submitButton.disabled = false;
                     submitButton.innerHTML = originalButtonText;

@@ -32,7 +32,8 @@ function checkLoginRateLimit($deviceUuid) {
     $deviceUuid = substr(trim($deviceUuid), 0, 36);
 
     $pdo = getDatabaseConnection();
-    if (!$pdo) return ['allowed' => false, 'message' => 'خطأ في الاتصال'];
+    // عند فشل اتصال قاعدة البيانات: السماح بالطلب (fail open) لئلا نحجب تسجيل الدخول برسالة "خطأ في الاتصال" مع 429
+    if (!$pdo) return ['allowed' => true];
 
     try {
         $stmt = $pdo->prepare("
@@ -142,7 +143,7 @@ function clearLoginAttempts($deviceUuid) {
  */
 function checkSignupRateLimit($ip) {
     $pdo = getDatabaseConnection();
-    if (!$pdo) return ['allowed' => false, 'message' => 'خطأ في الاتصال'];
+    if (!$pdo) return ['allowed' => true];
 
     try {
         $windowStart = date('Y-m-d H:i:s', time() - SIGNUP_RATE_LIMIT_WINDOW);
