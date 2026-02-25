@@ -1,0 +1,123 @@
+<?php
+/**
+ * ============================================
+ * Update Course API (Admin)
+ * ============================================
+ * API لتعديل بيانات كورس (العنوان، الوصف، الحالة، السعر)
+ *
+ * Endpoint: POST /api/admin/update-course.php
+ * Body: { course_id, title?, description?, status?, price? }
+ */
+
+session_start();
+
+require_once __DIR__ . '/../config/env.php';
+require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../config/auth.php';
+require_once __DIR__ . '/../config/security.php';
+
+loadEnv(__DIR__ . '/../.env');
+
+$allowedOrigin = getAllowedOrigin();
+if ($allowedOrigin) {
+    header('Access-Control-Allow-Origin: ' . $allowedOrigin);
+    header('Access-Control-Allow-Credentials: true');
+}
+header('Content-Type: application/json; charset=utf-8');
+header('Access-Control-Allow-Methods: POST, OPTIONS');
+header('Access-Control-Allow-Headers: Content-Type, Authorization');
+
+if ($_SERVER['REQUEST_METHOD'] === 'OPTIONS') {
+    http_response_code(200);
+    exit;
+}
+
+$admin = requireAdminAuth(true);
+if (!$admin) {
+    sendJsonResponse(false, null, 'غير مصرح لك بالوصول. يرجى تسجيل الدخول كأدمن.', 401);
+}
+
+if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
+    sendJsonResponse(false, null, 'Method not allowed', 405);
+}
+
+$raw = file_get_contents('php://input');
+$data = json_decode($raw, true);
+if (!is_array($data) || empty($data['course_id'])) {
+    sendJsonResponse(false, null, 'معرف الكورس مطلوب', 400);
+}
+
+$courseId = (int) $data['course_id'];
+if ($courseId < 1) {
+    sendJsonResponse(false, null, 'معرف الكورس غير صالح', 400);
+}
+
+$title = isset($data['title']) ? sanitizeInput(trim($data['title'])) : null;
+$description = isset($data['description']) ? sanitizeInput($data['description']) : null;
+$statusAr = isset($data['status']) ? trim($data['status']) : null;
+$price = isset($data['price']) ? (float) $data['price'] : null;
+
+if ($price !== null && ($price < 0 || $price > 999999.99)) {
+    sendJsonResponse(false, null, 'السعر يجب أن يكون بين 0 و 999999.99', 400);
+}
+
+// تحويل الحالة من العربية إلى القيمة في قاعدة البيانات
+$statusDb = null;
+if ($statusAr !== null) {
+    if ($statusAr === 'منشور') {
+        $statusDb = 'published';
+    } elseif ($statusAr === 'مسودة') {
+        $statusDb = 'draft';
+    } elseif ($statusAr === 'مؤرشف') {
+        $statusDb = 'archived';
+    } else {
+        sendJsonResponse(false, null, 'حالة النشر غير صالحة', 400);
+    }
+}
+
+try {
+    $pdo = getDatabaseConnection();
+    if (!$pdo) {
+        sendJsonResponse(false, null, 'خطأ في الاتصال بقاعدة البيانات', 500);
+    }
+
+    $check = $pdo->prepare("SELECT id FROM courses WHERE id = ?");
+    $check->execute([$courseId]);
+    if (!$check->fetch()) {
+        sendJsonResponse(false, null, 'الكورس غير موجود', 404);
+    }
+
+    $updates = [];
+    $params = [];
+
+    if ($title !== null) {
+        $updates[] = "title = :title";
+        $params['title'] = $title;
+    }
+    if ($description !== null) {
+        $updates[] = "description = :description";
+        $params['description'] = $description;
+    }
+    if ($statusDb !== null) {
+        $updates[] = "status = :status";
+        $params['status'] = $statusDb;
+    }
+    if ($price !== null) {
+        $updates[] = "price = :price";
+        $params['price'] = $price;
+    }
+
+    if (empty($updates)) {
+        sendJsonResponse(true, ['message' => 'لم يتم تغيير أي حقل'], null, 200);
+    }
+
+    $params['id'] = $courseId;
+    $sql = "UPDATE courses SET " . implode(", ", $updates) . " WHERE id = :id";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute($params);
+
+    sendJsonResponse(true, ['message' => 'تم تحديث الكورس بنجاح'], null, 200);
+} catch (PDOException $e) {
+    error_log('Update course error: ' . $e->getMessage());
+    sendJsonResponse(false, null, 'حدث خطأ أثناء تحديث الكورس', 500);
+}

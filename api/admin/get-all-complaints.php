@@ -74,8 +74,8 @@ try {
     $totalRecords = $countStmt->fetchColumn();
     $totalPages = ceil($totalRecords / $limit);
 
-    // عدد الشكاوي الجديدة (لم يرد عليها بعد: غير replied و closed)
-    $newCountStmt = $pdo->prepare("SELECT COUNT(*) FROM complaints WHERE status NOT IN ('replied', 'closed')");
+    // عدد الرسائل الجديدة فقط: الحالة open = لم يتم الرد عليها بعد (مخزنة في قاعدة البيانات)
+    $newCountStmt = $pdo->prepare("SELECT COUNT(*) FROM complaints WHERE status = 'open'");
     $newCountStmt->execute();
     $newCount = (int) $newCountStmt->fetchColumn();
     

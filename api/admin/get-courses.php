@@ -51,18 +51,18 @@ try {
         exit;
     }
 
-    // استعلام بدون عمود price ليعمل حتى لو لم يُضف العمود بعد (migration)
     $stmt = $pdo->query("
         SELECT
             c.id,
             c.title,
             c.description,
+            COALESCE(c.price, 500) AS price,
             c.status,
             c.created_at,
             COUNT(cv.id) AS videos_count
         FROM courses c
         LEFT JOIN course_videos cv ON cv.course_id = c.id
-        GROUP BY c.id, c.title, c.description, c.status, c.created_at
+        GROUP BY c.id, c.title, c.description, c.price, c.status, c.created_at
         ORDER BY c.created_at DESC
     ");
     $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -86,7 +86,7 @@ try {
             'uploadDate' => $uploadDate,
             'created_at' => $createdAt,
             'videosCount' => (int) $row['videos_count'],
-            'price' => 500.00
+            'price' => isset($row['price']) ? (float) $row['price'] : 500.00
         ];
     }
 

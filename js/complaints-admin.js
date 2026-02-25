@@ -1,17 +1,42 @@
 document.addEventListener('DOMContentLoaded', function () {
-    // Check if we are on the complaints tab or if it's the default
+    // تحميل عداد "رسائل جديدة" من قاعدة البيانات فور فتح لوحة التحكم (فقط الحالة open = لم يُرد عليها)
+    loadNewComplaintsCount();
+
     const complaintsTab = document.querySelector('[data-tab="complaints"]');
     if (complaintsTab) {
         complaintsTab.addEventListener('click', function () {
             loadComplaints();
         });
 
-        // If already active (unlikely on reload unless state is saved, but good practice)
         if (complaintsTab.classList.contains('active')) {
             loadComplaints();
         }
     }
 });
+
+/**
+ * جلب عدد الرسائل الجديدة فقط (status = open) من قاعدة البيانات وتحديث العداد
+ */
+async function loadNewComplaintsCount() {
+    const el = document.getElementById('newComplaintsCount');
+    if (!el) return;
+    try {
+        const adminToken = localStorage.getItem('admin_session_token');
+        const headers = {};
+        if (adminToken) headers['Authorization'] = 'Bearer ' + adminToken;
+        const response = await fetch('../api/admin/get-all-complaints.php?page=1&limit=1', {
+            method: 'GET',
+            headers: headers,
+            credentials: 'include'
+        });
+        const result = await response.json();
+        if (result.success && result.data && result.data.new_count !== undefined) {
+            el.textContent = String(result.data.new_count);
+        }
+    } catch (e) {
+        console.error('Error loading new complaints count:', e);
+    }
+}
 
 let currentComplaintsPage = 1;
 const complaintsLimit = 10;
@@ -260,6 +285,7 @@ async function submitReply() {
             alert('تم الرد بنجاح');
             closeReplyModal();
             loadComplaints(); // Refresh list
+            loadNewComplaintsCount(); // تحديث عداد "رسائل جديدة" من قاعدة البيانات
         } else {
             alert(result.error || 'حدث خطأ أثناء الرد');
         }

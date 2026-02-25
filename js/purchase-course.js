@@ -26,6 +26,11 @@ document.addEventListener('DOMContentLoaded', async function () {
     const urlParams = new URLSearchParams(window.location.search);
     const courseId = urlParams.get('id') ? parseInt(urlParams.get('id'), 10) : null;
 
+    if (!courseId || courseId < 1) {
+        window.location.href = 'courses.html';
+        return;
+    }
+
     let userBalance = 0;
     let coursePrice = coursePriceEl ? parseFloat(coursePriceEl.textContent) || 500 : 500;
     let effectivePrice = coursePrice;

@@ -59,7 +59,7 @@ try {
     }
 
     $stmt = $pdo->prepare("
-        SELECT id, title, description, status, created_at
+        SELECT id, title, description, COALESCE(price, 500) AS price, status, created_at
         FROM courses
         WHERE id = ?
     ");
@@ -108,6 +108,7 @@ try {
         'id' => (int) $row['id'],
         'title' => $row['title'],
         'description' => $row['description'] ?: '',
+        'price' => isset($row['price']) ? (float) $row['price'] : 500.00,
         'status' => $statusAr,
         'statusRaw' => $row['status'],
         'uploadDate' => $uploadDate,

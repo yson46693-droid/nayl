@@ -1247,7 +1247,7 @@ async function loadAdminCourses() {
     const tbody = document.getElementById('coursesTableBody');
     const pagination = document.getElementById('coursesPagination');
     if (tbody) {
-        tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 2rem;">جاري تحميل الكورسات...</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 2rem;">جاري تحميل الكورسات...</td></tr>';
     }
     const token = localStorage.getItem('admin_session_token') || getCookie('admin_session_token');
     try {
@@ -1263,13 +1263,13 @@ async function loadAdminCourses() {
         try {
             result = await response.json();
         } catch (parseErr) {
-            if (tbody) tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 2rem; color: #e74c3c;">استجابة غير صحيحة من الخادم.</td></tr>';
+            if (tbody) tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 2rem; color: #e74c3c;">استجابة غير صحيحة من الخادم.</td></tr>';
             if (pagination) pagination.innerHTML = '';
             return;
         }
         if (!response.ok) {
             const msg = result.error || (response.status === 401 ? 'يجب تسجيل الدخول كمسؤول' : 'فشل تحميل الكورسات');
-            if (tbody) tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 2rem; color: #e74c3c;">' + (msg || 'فشل تحميل الكورسات') + '</td></tr>';
+            if (tbody) tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 2rem; color: #e74c3c;">' + (msg || 'فشل تحميل الكورسات') + '</td></tr>';
             if (pagination) pagination.innerHTML = '';
             return;
         }
@@ -1280,6 +1280,7 @@ async function loadAdminCourses() {
                 title: c.title,
                 description: c.description || '',
                 videosCount: c.videosCount || 0,
+                price: c.price != null ? parseFloat(c.price) : 500,
                 uploadDate: c.uploadDate || '—',
                 status: c.status || 'منشور',
                 videos: []
@@ -1290,7 +1291,7 @@ async function loadAdminCourses() {
     } catch (err) {
         console.error('Error loading courses:', err);
         if (tbody) {
-            tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 2rem; color: #e74c3c;">فشل تحميل الكورسات. تحقق من الاتصال أو من تسجيل الدخول.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 2rem; color: #e74c3c;">فشل تحميل الكورسات. تحقق من الاتصال أو من تسجيل الدخول.</td></tr>';
         }
         if (pagination) pagination.innerHTML = '';
     }
@@ -1312,7 +1313,7 @@ function renderCourses(page = 1) {
     // Render table rows
     tbody.innerHTML = '';
     if (courses.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; padding: 2rem; color: var(--text-gray);">لا توجد كورسات. ارفع كورساً جديداً من النموذج أعلاه.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; padding: 2rem; color: var(--text-gray);">لا توجد كورسات. ارفع كورساً جديداً من النموذج أعلاه.</td></tr>';
         if (pagination) pagination.innerHTML = '';
         currentCoursesPage = page;
         return;
@@ -1321,6 +1322,7 @@ function renderCourses(page = 1) {
         const row = document.createElement('tr');
         row.className = 'course-row';
         row.setAttribute('data-course-id', course.id);
+        const priceVal = course.price != null ? Number(course.price) : 500;
         row.innerHTML = `
             <td>
                 <div class="course-cell">
@@ -1329,6 +1331,7 @@ function renderCourses(page = 1) {
                 </div>
             </td>
             <td>${course.videosCount} فيديو</td>
+            <td>${priceVal.toFixed(2)} ج.م</td>
             <td>${course.uploadDate}</td>
             <td><span class="badge ${course.status === 'منشور' ? 'badge-active' : 'badge-pending'}">${course.status}</span></td>
             <td>
@@ -1505,6 +1508,10 @@ async function editCourse(courseId) {
                     <option value="مسودة" ${course.status === 'مسودة' ? 'selected' : ''}>مسودة</option>
                 </select>
             </div>
+            <div class="admin-form-group">
+                <label>سعر الكورس (ج.م)</label>
+                <input type="number" id="editCoursePrice" min="0" step="0.01" value="${course.price != null ? Number(course.price) : 500}" class="form-control" placeholder="500">
+            </div>
         </div>
 
         <div class="course-edit-section">
@@ -1616,35 +1623,72 @@ function closeCourseEditModal() {
     currentCourseId = null;
 }
 
-function saveCourseChanges() {
+async function saveCourseChanges() {
     if (!currentCourseId) return;
 
-    const courses = JSON.parse(localStorage.getItem('nayl_courses')) || [];
-    const courseIndex = courses.findIndex(c => c.id === currentCourseId);
-
-    if (courseIndex === -1) {
-        alert('الكورس غير موجود');
+    const titleEl = document.getElementById('editCourseTitle');
+    const descriptionEl = document.getElementById('editCourseDescription');
+    const statusEl = document.getElementById('editCourseStatus');
+    const priceEl = document.getElementById('editCoursePrice');
+    if (!titleEl || !descriptionEl || !statusEl || !priceEl) {
+        alert('لم يتم العثور على حقول التعديل. تأكد من فتح نافذة التعديل.');
         return;
     }
 
-    // Get updated values
-    const title = document.getElementById('editCourseTitle').value;
-    const description = document.getElementById('editCourseDescription').value;
-    const status = document.getElementById('editCourseStatus').value;
+    const title = titleEl.value.trim();
+    const description = descriptionEl.value.trim();
+    const status = statusEl.value;
+    const price = parseFloat(priceEl.value);
+    if (isNaN(price) || price < 0) {
+        alert('أدخل سعراً صحيحاً (رقم أكبر من أو يساوي 0).');
+        return;
+    }
 
-    // Update course
-    courses[courseIndex].title = title;
-    courses[courseIndex].description = description;
-    courses[courseIndex].status = status;
+    const token = localStorage.getItem('admin_session_token') || getCookie('admin_session_token');
+    try {
+        const response = await fetch('../api/admin/update-course.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + token
+            },
+            credentials: 'include',
+            body: JSON.stringify({
+                course_id: currentCourseId,
+                title: title,
+                description: description,
+                status: status,
+                price: price
+            })
+        });
+        const result = await response.json();
+        if (!result.success) {
+            alert(result.error || 'فشل تحديث الكورس');
+            return;
+        }
 
-    // Save to localStorage
-    localStorage.setItem('nayl_courses', JSON.stringify(courses));
+        const courses = JSON.parse(localStorage.getItem('nayl_courses')) || [];
+        const courseIndex = courses.findIndex(c => c.id === currentCourseId);
+        if (courseIndex !== -1) {
+            courses[courseIndex].title = title;
+            courses[courseIndex].description = description;
+            courses[courseIndex].status = status;
+            courses[courseIndex].price = price;
+            localStorage.setItem('nayl_courses', JSON.stringify(courses));
+        }
 
-    // Close modal and refresh table
-    closeCourseEditModal();
-    renderCourses(currentCoursesPage);
-
-    alert('تم حفظ التعديلات بنجاح');
+        const editPage = document.getElementById('courseEditPage');
+        if (editPage && editPage.style.display === 'block') {
+            closeCourseEditPage();
+        } else {
+            closeCourseEditModal();
+        }
+        renderCourses(currentCoursesPage);
+        alert('تم حفظ التعديلات بنجاح');
+    } catch (err) {
+        console.error('Error saving course:', err);
+        alert('حدث خطأ في الاتصال. تحقق من الاتصال وأعد المحاولة.');
+    }
 }
 
 async function deleteCourse(courseId) {
@@ -1859,7 +1903,15 @@ async function editCoursePage(courseId) {
             headers: { 'Authorization': 'Bearer ' + token },
             credentials: 'include'
         });
-        const result = await response.json();
+        let result = { success: false };
+        const contentType = response.headers.get('content-type') || '';
+        if (contentType.includes('application/json')) {
+            try {
+                result = await response.json();
+            } catch (parseErr) {
+                console.error('Error parsing course details response:', parseErr);
+            }
+        }
         if (result.success && result.data && result.data.course) {
             course = result.data.course;
             if (!Array.isArray(course.videos)) course.videos = [];
@@ -1887,9 +1939,12 @@ async function editCoursePage(courseId) {
                 headers: { 'Authorization': 'Bearer ' + token },
                 credentials: 'include'
             });
-            const dataVideos = await resVideos.json();
-            if (dataVideos.success && dataVideos.data && dataVideos.data.course && Array.isArray(dataVideos.data.course.videos)) {
-                course.videos = dataVideos.data.course.videos;
+            const ct = resVideos.headers.get('content-type') || '';
+            if (ct.includes('application/json')) {
+                const dataVideos = await resVideos.json();
+                if (dataVideos.success && dataVideos.data && dataVideos.data.course && Array.isArray(dataVideos.data.course.videos)) {
+                    course.videos = dataVideos.data.course.videos;
+                }
             }
         } catch (err) {
             console.error('Error loading course videos:', err);
@@ -1913,6 +1968,10 @@ async function editCoursePage(courseId) {
                     <option value="منشور" ${course.status === 'منشور' ? 'selected' : ''}>منشور</option>
                     <option value="مسودة" ${course.status === 'مسودة' ? 'selected' : ''}>مسودة</option>
                 </select>
+            </div>
+            <div class="admin-form-group" style="max-width: 300px;">
+                <label>سعر الكورس (ج.م)</label>
+                <input type="number" id="editCoursePrice" min="0" step="0.01" value="${course.price != null ? Number(course.price) : 500}" style="width: 100%; padding: 12px; border: 1px solid #e0e6ed; border-radius: var(--radius-sm); font-family: inherit;" placeholder="500">
             </div>
         </div>
 
@@ -1972,7 +2031,8 @@ async function editCoursePage(courseId) {
             `;
         });
     } else {
-        editContent += '<p style="color: var(--text-gray); text-align: center; padding: var(--spacing-xl); background: #f8fafc; border-radius: var(--radius-md);">لا توجد فيديوهات في هذا الكورس.</p>';
+        editContent += '<p style="color: var(--text-gray); text-align: center; padding: var(--spacing-xl); background: #f8fafc; border-radius: var(--radius-md);">' +
+            'لا توجد فيديوهات في هذا الكورس أو لم يتم تحميلها من السيرفر. <button type="button" onclick="editCoursePage(' + courseId + ')" class="btn btn-primary" style="margin-top: 8px;">إعادة تحميل الصفحة</button></p>';
     }
 
     editContent += `
@@ -1990,58 +2050,6 @@ function closeCourseEditPage() {
     document.querySelector('#coursesTable').closest('.data-card').style.display = 'block';
     document.getElementById('courseEditPage').style.display = 'none';
     currentCourseId = null;
-}
-
-function saveCourseChanges() {
-    if (!currentCourseId) return;
-
-    const courses = JSON.parse(localStorage.getItem('nayl_courses')) || [];
-    const courseIndex = courses.findIndex(c => c.id === currentCourseId);
-
-    if (courseIndex === -1) {
-        alert('الكورس غير موجود');
-        return;
-    }
-
-    // Get updated course info
-    const title = document.getElementById('editCourseTitle').value;
-    const description = document.getElementById('editCourseDescription').value;
-    const status = document.getElementById('editCourseStatus').value;
-
-    // Update course basic info
-    courses[courseIndex].title = title;
-    courses[courseIndex].description = description;
-    courses[courseIndex].status = status;
-
-    // Update videos info
-    const videoItems = document.querySelectorAll('#editVideosList .video-upload-item');
-    videoItems.forEach(item => {
-        const videoId = parseInt(item.getAttribute('data-video-id'));
-        const video = courses[courseIndex].videos.find(v => v.id === videoId);
-
-        if (video) {
-            const titleInput = item.querySelector('.edit-video-title');
-            const orderInput = item.querySelector('.edit-video-order');
-            const descriptionInput = item.querySelector('.edit-video-description');
-            const thumbnailInput = item.querySelector('.edit-video-thumbnail');
-
-            if (titleInput) video.title = titleInput.value;
-            if (orderInput) video.order = parseInt(orderInput.value);
-            if (descriptionInput) video.description = descriptionInput.value;
-            if (thumbnailInput && thumbnailInput.files[0]) {
-                video.thumbnail = thumbnailInput.files[0].name;
-            }
-        }
-    });
-
-    // Save to localStorage
-    localStorage.setItem('nayl_courses', JSON.stringify(courses));
-
-    // Close edit page and refresh table
-    closeCourseEditPage();
-    renderCourses(currentCoursesPage);
-
-    alert('تم حفظ التعديلات بنجاح ✓');
 }
 
 function closeCourseEditModal() {
