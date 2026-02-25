@@ -11,7 +11,12 @@
 }
 
 @media (max-width: 768px) {
-    /* زر فتح القائمة في التوب بار - يظهر فقط على الموبايل */
+    /* عكس اتجاه التوب بار: الزر في اليمين واللوجو واسم المنصة في اليسار */
+    .navbar .nav-container {
+        flex-direction: row;
+    }
+
+    /* زر فتح القائمة في التوب بار - يظهر فقط على الموبايل (في اليمين) */
     .app-drawer-toggle {
         display: flex;
         align-items: center;
@@ -73,7 +78,7 @@
         touch-action: none;
     }
 
-    /* القائمة الجانبية - ثابتة وكاملة دائماً حتى مع التمرير */
+    /* القائمة الجانبية - تفتح وتغلق من اليمين، ثابتة وكاملة */
     .app-drawer {
         display: flex;
         flex-direction: column;

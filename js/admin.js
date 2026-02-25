@@ -15,6 +15,18 @@ document.addEventListener('DOMContentLoaded', () => {
     // Setup Tab Navigation
     setupTabNavigation();
 
+    // قائمة الأفاتار (الملف الشخصي + تسجيل الخروج)
+    setupAdminProfileDropdown();
+
+    // نموذج الملف الشخصي للأدمن
+    const adminProfileForm = document.getElementById('adminProfileForm');
+    if (adminProfileForm) {
+        adminProfileForm.addEventListener('submit', (e) => {
+            e.preventDefault();
+            saveAdminProfile();
+        });
+    }
+
     // Load Data into Tables
     renderUsers();
     renderCodes(); // يعرض جدول الأكواد (فارغ حتى يتم استدعاء loadCodes عند فتح التبويب)
@@ -81,6 +93,8 @@ function setupTabNavigation() {
             if (savedTab === 'videos') loadAdminCourses();
             if (savedTab === 'recharge-requests') renderRechargeRequests();
             if (savedTab === 'devices') loadDevices();
+            if (savedTab === 'admin-profile') loadAdminProfileForm();
+            if (savedTab === 'admin-accounts') loadAdminAccounts();
         }
     }
 
@@ -113,6 +127,8 @@ function setupTabNavigation() {
             if (targetTab === 'discount-codes') loadDiscountCodes();
             if (targetTab === 'videos') loadAdminCourses();
             if (targetTab === 'devices') loadDevices();
+            if (targetTab === 'admin-profile') loadAdminProfileForm();
+            if (targetTab === 'admin-accounts') loadAdminAccounts();
         });
     });
 
@@ -160,6 +176,191 @@ function setupSidebarMobile() {
     });
 
     overlay.addEventListener('click', closeSidebar);
+}
+
+/** قائمة الأفاتار: الملف الشخصي + تسجيل الخروج */
+function setupAdminProfileDropdown() {
+    const toggle = document.getElementById('adminProfileToggle');
+    const dropdown = document.getElementById('adminDropdown');
+    if (!toggle || !dropdown) return;
+
+    toggle.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const isOpen = dropdown.classList.toggle('show');
+        toggle.setAttribute('aria-expanded', isOpen);
+        dropdown.setAttribute('aria-hidden', !isOpen);
+    });
+
+    document.addEventListener('click', () => {
+        dropdown.classList.remove('show');
+        toggle.setAttribute('aria-expanded', 'false');
+        dropdown.setAttribute('aria-hidden', 'true');
+    });
+
+    dropdown.addEventListener('click', (e) => e.stopPropagation());
+
+    const profileLink = dropdown.querySelector('.admin-dropdown-item[data-tab="admin-profile"]');
+    if (profileLink) {
+        profileLink.addEventListener('click', (e) => {
+            e.preventDefault();
+            switchToTab('admin-profile');
+            dropdown.classList.remove('show');
+            toggle.setAttribute('aria-expanded', 'false');
+            loadAdminProfileForm();
+        });
+    }
+}
+
+function switchToTab(tabId) {
+    const menuLinks = document.querySelectorAll('.menu-link');
+    const sections = document.querySelectorAll('.dashboard-section');
+    const link = document.querySelector('.menu-link[data-tab="' + tabId + '"]');
+    if (!link || !document.getElementById(tabId)) return;
+    menuLinks.forEach(l => l.classList.remove('active'));
+    link.classList.add('active');
+    sections.forEach(sec => {
+        sec.classList.remove('active');
+        if (sec.id === tabId) sec.classList.add('active');
+    });
+    localStorage.setItem('admin_active_tab', tabId);
+}
+
+/** تعبئة نموذج الملف الشخصي من بيانات الجلسة */
+function loadAdminProfileForm() {
+    const info = localStorage.getItem('admin_info');
+    if (!info) return;
+    try {
+        const admin = JSON.parse(info);
+        const fullNameEl = document.getElementById('adminProfileFullName');
+        const usernameEl = document.getElementById('adminProfileUsername');
+        const emailEl = document.getElementById('adminProfileEmail');
+        if (fullNameEl) fullNameEl.value = admin.full_name || '';
+        if (usernameEl) usernameEl.value = admin.username || '';
+        if (emailEl) emailEl.value = admin.email || '';
+    } catch (e) { console.error(e); }
+}
+
+/** حفظ بيانات الملف الشخصي (استدعاء API) */
+async function saveAdminProfile() {
+    const fullName = document.getElementById('adminProfileFullName').value.trim();
+    const email = document.getElementById('adminProfileEmail').value.trim();
+    if (!fullName) {
+        alert('الاسم الكامل مطلوب');
+        return;
+    }
+    try {
+        const token = localStorage.getItem('admin_session_token') || getCookie('admin_session_token');
+        const response = await fetch('../api/admin/update-profile.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+            body: JSON.stringify({ full_name: fullName, email: email })
+        });
+        const result = await response.json();
+        if (result.success) {
+            const admin = JSON.parse(localStorage.getItem('admin_info') || '{}');
+            admin.full_name = fullName;
+            admin.email = email;
+            localStorage.setItem('admin_info', JSON.stringify(admin));
+            const nameEl = document.querySelector('.admin-name-text');
+            const avatarEl = document.getElementById('adminAvatarEl');
+            if (nameEl) nameEl.textContent = fullName;
+            if (avatarEl) avatarEl.textContent = (fullName || 'أ').charAt(0).toUpperCase();
+            alert('تم حفظ التغييرات بنجاح');
+        } else {
+            alert(result.error || 'فشل الحفظ');
+        }
+    } catch (err) {
+        console.error(err);
+        alert('حدث خطأ في الاتصال. تم حفظ الاسم محلياً.');
+        const admin = JSON.parse(localStorage.getItem('admin_info') || '{}');
+        admin.full_name = fullName;
+        admin.email = email;
+        localStorage.setItem('admin_info', JSON.stringify(admin));
+        const nameEl = document.querySelector('.admin-name-text');
+        const avatarEl = document.getElementById('adminAvatarEl');
+        if (nameEl) nameEl.textContent = fullName;
+        if (avatarEl) avatarEl.textContent = (fullName || 'أ').charAt(0).toUpperCase();
+    }
+}
+
+/** تحميل جدول حسابات الأدمن */
+async function loadAdminAccounts() {
+    const tbody = document.getElementById('adminAccountsTableBody');
+    if (!tbody) return;
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:1.5rem;">جاري التحميل...</td></tr>';
+    try {
+        const token = localStorage.getItem('admin_session_token') || getCookie('admin_session_token');
+        const response = await fetch('../api/admin/get-admins.php', {
+            headers: { 'Authorization': 'Bearer ' + token }
+        });
+        const result = await response.json();
+        if (!result.success) {
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#94a3b8;">' + (result.error || 'لا يمكن تحميل القائمة') + '</td></tr>';
+            return;
+        }
+        const list = result.data || [];
+        if (list.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#94a3b8;">لا توجد حسابات أدمن</td></tr>';
+            return;
+        }
+        const roleLabels = { super_admin: 'مدير أعلى', admin: 'أدمن', moderator: 'مشرف' };
+        tbody.innerHTML = list.map(function (a) {
+            const role = roleLabels[a.role] || a.role;
+            const status = a.is_active ? 'نشط' : 'موقوف';
+            return '<tr>' +
+                '<td>' + escapeHtml(a.id) + '</td>' +
+                '<td>' + escapeHtml(a.full_name || '-') + '</td>' +
+                '<td>' + escapeHtml(a.username) + '</td>' +
+                '<td>' + escapeHtml(a.email || '-') + '</td>' +
+                '<td>' + escapeHtml(role) + '</td>' +
+                '<td>' + escapeHtml(status) + '</td>' +
+                '<td><button type="button" class="action-btn" onclick="editAdminAccount(' + a.id + ')" title="تعديل"><i class="bi bi-pencil"></i></button></td>' +
+                '</tr>';
+        }).join('');
+    } catch (err) {
+        console.error(err);
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#ef4444;">فشل تحميل البيانات</td></tr>';
+    }
+}
+
+function editAdminAccount(id) {
+    alert('تعديل حساب الأدمن (قريباً). المعرف: ' + id);
+}
+
+function openCreateAdminModal() {
+    document.getElementById('createAdminForm').reset();
+    openModal('createAdminModal');
+}
+
+async function submitCreateAdmin() {
+    const fullName = document.getElementById('newAdminFullName').value.trim();
+    const username = document.getElementById('newAdminUsername').value.trim();
+    const email = document.getElementById('newAdminEmail').value.trim();
+    const password = document.getElementById('newAdminPassword').value;
+    const role = document.getElementById('newAdminRole').value;
+    if (!fullName || !username || !password) {
+        alert('الاسم الكامل واسم المستخدم وكلمة المرور مطلوبة');
+        return;
+    }
+    try {
+        const token = localStorage.getItem('admin_session_token') || getCookie('admin_session_token');
+        const response = await fetch('../api/admin/create-admin.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+            body: JSON.stringify({ full_name: fullName, username: username, email: email || null, password: password, role: role })
+        });
+        const result = await response.json();
+        if (result.success) {
+            closeModal('createAdminModal');
+            loadAdminAccounts();
+            alert('تم إنشاء حساب الأدمن بنجاح');
+        } else {
+            alert(result.error || 'فشل إنشاء الحساب');
+        }
+    } catch (err) {
+        console.error(err);
+        alert('حدث خطأ في الاتصال');
+    }
 }
 
 // Render Users Table with Pagination
