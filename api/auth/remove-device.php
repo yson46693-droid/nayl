@@ -76,10 +76,12 @@ if (json_last_error() !== JSON_ERROR_NONE) {
     sendJsonResponse(false, null, 'بيانات غير صحيحة', 400);
 }
 
-$sessionId = isset($data['session_id']) ? (int)$data['session_id'] : 0;
+// قبول session_id أو id (معرف الجلسة في جدول user_sessions)
+$rawId = $data['session_id'] ?? $data['id'] ?? null;
+$sessionId = $rawId !== null && $rawId !== '' ? (int)$rawId : 0;
 
-if (!$sessionId || $sessionId <= 0) {
-    sendJsonResponse(false, null, 'يجب تحديد معرف الجلسة بشكل صحيح', 400);
+if ($sessionId <= 0) {
+    sendJsonResponse(false, null, 'يجب تحديد معرف الجلسة بشكل صحيح (رقم صحيح موجب)', 400);
 }
 
 // الاتصال بقاعدة البيانات

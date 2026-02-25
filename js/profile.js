@@ -1078,11 +1078,15 @@ function renderDevices(devices) {
                        
                     </div>
                 </div>
-                ${!isCurrent ? `
-                    <button class="device-remove-btn" data-session-id="${device.session_id}" title="إزالة الجهاز">
+                ${!isCurrent ? (() => {
+                    const sid = device.session_id ?? device.id;
+                    const n = sid != null ? parseInt(sid, 10) : NaN;
+                    if (!Number.isInteger(n) || n <= 0) return '';
+                    return `
+                    <button class="device-remove-btn" data-session-id="${n}" title="إزالة الجهاز">
                         <i class="bi bi-x-lg"></i>
                     </button>
-                ` : ''}
+                `; })() : ''}
             </div>
         `;
     });
@@ -1133,9 +1137,10 @@ async function removeDevice(sessionId) {
         return;
     }
 
-    if (!sessionId) {
-        console.error('Session ID is missing');
-        alert('خطأ: معرف الجلسة غير موجود');
+    const sessionIdNum = parseInt(String(sessionId), 10);
+    if (!sessionId || !Number.isInteger(sessionIdNum) || sessionIdNum <= 0) {
+        console.error('Session ID is missing or invalid:', sessionId);
+        alert('خطأ: معرف الجلسة غير موجود أو غير صالح');
         return;
     }
 
@@ -1146,7 +1151,7 @@ async function removeDevice(sessionId) {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${sessionToken}`
             },
-            body: JSON.stringify({ session_id: parseInt(sessionId) }),
+            body: JSON.stringify({ session_id: sessionIdNum }),
             credentials: 'include'
         });
 
