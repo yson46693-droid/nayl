@@ -840,28 +840,15 @@
                         <table id="devicesTable">
                             <thead>
                                 <tr>
+                                    <th>#</th>
                                     <th>نوع الجهاز</th>
-                                    <th>المستخدم</th>
+                                    <th>معرف الجهاز</th>
+                                    <th>عدد الزيارات</th>
                                     <th>آخر نشاط</th>
-                                    <th>الموقع التقريبي</th>
-                                    <th>الإجراءات</th>
                                 </tr>
                             </thead>
                             <tbody id="devicesTableBody">
-                                <!-- Mock Data -->
-                                <tr>
-                                    <td>Samsung Galaxy S21</td>
-                                    <td>أحمد محمد</td>
-                                    <td>منذ ساعتين</td>
-                                    <td>القاهرة، مصر</td>
-                                    <td>
-                                        <button class="btn btn-delete btn-with-icon"
-                                            style="padding: 6px 12px; font-size: 0.75rem;">
-                                            <i class="bi bi-link-45deg"></i>
-                                            <span>إلغاء الارتباط</span>
-                                        </button>
-                                    </td>
-                                </tr>
+                                <!-- تُحمّل من API حسب v_id المُنشأ عند أول زيارة -->
                             </tbody>
                         </table>
                     </div>

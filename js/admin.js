@@ -77,6 +77,7 @@ function setupTabNavigation() {
             if (savedTab === 'discount-codes') loadDiscountCodes();
             if (savedTab === 'videos') loadAdminCourses();
             if (savedTab === 'recharge-requests') renderRechargeRequests();
+            if (savedTab === 'devices') loadDevices();
         }
     }
 
@@ -105,6 +106,7 @@ function setupTabNavigation() {
             if (targetTab === 'codes') loadCodes();
             if (targetTab === 'discount-codes') loadDiscountCodes();
             if (targetTab === 'videos') loadAdminCourses();
+            if (targetTab === 'devices') loadDevices();
         });
     });
 }
@@ -307,6 +309,58 @@ async function loadCodes() {
         adminCodesData = [];
         renderCodes(1);
         tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding: 2rem; color: red;">خطأ في الاتصال بالخادم.</td></tr>';
+    }
+}
+
+// ——— الأجهزة المستخدمة (حسب v_id المُنشأ عند أول زيارة) ———
+function formatDeviceLastSeen(dateStr) {
+    if (!dateStr) return '—';
+    const d = new Date(dateStr);
+    if (isNaN(d.getTime())) return dateStr;
+    const now = new Date();
+    const diffMs = now - d;
+    const diffM = Math.floor(diffMs / 60000);
+    const diffH = Math.floor(diffMs / 3600000);
+    const diffD = Math.floor(diffMs / 86400000);
+    if (diffM < 1) return 'الآن';
+    if (diffM < 60) return 'منذ ' + diffM + ' د';
+    if (diffH < 24) return 'منذ ' + diffH + ' س';
+    if (diffD < 7) return 'منذ ' + diffD + ' يوم';
+    return d.toLocaleDateString('ar-EG', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
+}
+
+async function loadDevices() {
+    const tbody = document.getElementById('devicesTableBody');
+    if (!tbody) return;
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 2rem; color: var(--text-gray);">جاري التحميل...</td></tr>';
+    try {
+        const token = localStorage.getItem('admin_session_token') || getCookie('admin_session_token');
+        const response = await fetch('../api/admin/get-devices.php', {
+            headers: { 'Authorization': 'Bearer ' + token }
+        });
+        const result = await response.json();
+        if (result.success && result.data && Array.isArray(result.data.devices)) {
+            const devices = result.data.devices;
+            if (devices.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 2rem; color: var(--text-gray);">لا توجد أجهزة مسجّلة بعد.</td></tr>';
+                return;
+            }
+            tbody.innerHTML = devices.map((d, i) => {
+                const shortId = d.v_id ? (d.v_id.length > 12 ? d.v_id.slice(0, 8) + '…' : d.v_id) : '—';
+                return '<tr>' +
+                    '<td>' + (i + 1) + '</td>' +
+                    '<td>' + escapeHtml(d.device_type) + '</td>' +
+                    '<td title="' + escapeHtml(d.v_id || '') + '">' + escapeHtml(shortId) + '</td>' +
+                    '<td>' + (d.visit_count || 0) + '</td>' +
+                    '<td>' + formatDeviceLastSeen(d.last_visit_at) + '</td>' +
+                    '</tr>';
+            }).join('');
+        } else {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 2rem; color: red;">' + escapeHtml(result.error || 'حدث خطأ أثناء تحميل الأجهزة') + '</td></tr>';
+        }
+    } catch (err) {
+        console.error('Error loading devices:', err);
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 2rem; color: red;">خطأ في الاتصال بالخادم.</td></tr>';
     }
 }
 
@@ -1800,6 +1854,24 @@ async function editCoursePage(courseId) {
             return;
         }
         if (!Array.isArray(course.videos)) course.videos = [];
+    }
+
+    // إذا الكورس من localStorage أو الفيديوهات فارغة، جلب الفيديوهات من API (قائمة الكورسات لا ترجع فيديوهات)
+    if (course.videos.length === 0) {
+        try {
+            const token = localStorage.getItem('admin_session_token') || getCookie('admin_session_token');
+            const resVideos = await fetch('../api/admin/get-course-details.php?course_id=' + encodeURIComponent(courseId), {
+                method: 'GET',
+                headers: { 'Authorization': 'Bearer ' + token },
+                credentials: 'include'
+            });
+            const dataVideos = await resVideos.json();
+            if (dataVideos.success && dataVideos.data && dataVideos.data.course && Array.isArray(dataVideos.data.course.videos)) {
+                course.videos = dataVideos.data.course.videos;
+            }
+        } catch (err) {
+            console.error('Error loading course videos:', err);
+        }
     }
 
     let editContent = `
