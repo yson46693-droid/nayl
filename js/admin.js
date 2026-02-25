@@ -218,12 +218,16 @@ function setupAdminProfileDropdown() {
 }
 
 function switchToTab(tabId) {
+    const targetSection = document.getElementById(tabId);
+    if (!targetSection) return;
+
     const menuLinks = document.querySelectorAll('.menu-link');
     const sections = document.querySelectorAll('.dashboard-section');
     const link = document.querySelector('.menu-link[data-tab="' + tabId + '"]');
-    if (!link || !document.getElementById(tabId)) return;
+
     menuLinks.forEach(l => l.classList.remove('active'));
-    link.classList.add('active');
+    if (link) link.classList.add('active');
+
     sections.forEach(sec => {
         sec.classList.remove('active');
         if (sec.id === tabId) sec.classList.add('active');
@@ -338,8 +342,96 @@ async function loadAdminAccounts() {
     }
 }
 
-function editAdminAccount(id) {
-    alert('تعديل حساب الأدمن (قريباً). المعرف: ' + id);
+async function editAdminAccount(id) {
+    const token = localStorage.getItem('admin_session_token') || getCookie('admin_session_token');
+    if (!token) {
+        alert('انتهت صلاحية الجلسة، يرجى تسجيل الدخول.');
+        return;
+    }
+    try {
+        const res = await fetch('../api/admin/get-admin.php?id=' + parseInt(id, 10), {
+            method: 'GET',
+            headers: { 'Authorization': 'Bearer ' + token },
+            credentials: 'include'
+        });
+        const json = await res.json();
+        if (!json.success || !json.data) {
+            alert(json.error || 'فشل جلب بيانات الأدمن');
+            return;
+        }
+        const a = json.data;
+        document.getElementById('editAdminId').value = a.id;
+        document.getElementById('editAdminFullName').value = a.full_name || '';
+        document.getElementById('editAdminUsername').value = a.username || '';
+        document.getElementById('editAdminEmail').value = a.email || '';
+        document.getElementById('editAdminRole').value = a.role || 'admin';
+        document.getElementById('editAdminIsActive').value = a.is_active ? '1' : '0';
+        document.getElementById('editAdminPassword').value = '';
+        if (typeof openModal === 'function') {
+            openModal('editAdminModal');
+        } else {
+            const modal = document.getElementById('editAdminModal');
+            if (modal) {
+                modal.style.display = 'flex';
+                requestAnimationFrame(function () { modal.classList.add('active'); });
+            }
+        }
+    } catch (e) {
+        console.error('editAdminAccount:', e);
+        alert('حدث خطأ أثناء جلب البيانات');
+    }
+}
+
+function closeEditAdminModal() {
+    closeModal('editAdminModal');
+}
+
+async function submitEditAdmin() {
+    const id = document.getElementById('editAdminId').value;
+    const fullName = document.getElementById('editAdminFullName').value.trim();
+    const email = document.getElementById('editAdminEmail').value.trim();
+    const role = document.getElementById('editAdminRole').value;
+    const isActive = document.getElementById('editAdminIsActive').value === '1';
+    const password = document.getElementById('editAdminPassword').value;
+    if (!fullName) {
+        alert('الاسم الكامل مطلوب');
+        return;
+    }
+    const token = localStorage.getItem('admin_session_token') || getCookie('admin_session_token');
+    if (!token) {
+        alert('انتهت صلاحية الجلسة.');
+        return;
+    }
+    try {
+        const body = {
+            admin_id: parseInt(id, 10),
+            full_name: fullName,
+            email: email || null,
+            role: role,
+            is_active: isActive
+        };
+        if (password) body.password = password;
+        const res = await fetch('../api/admin/update-admin.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + token
+            },
+            credentials: 'include',
+            body: JSON.stringify(body)
+        });
+        const result = await res.json();
+        if (result.success) {
+            closeEditAdminModal();
+            loadAdminAccounts();
+            alert('تم تحديث حساب الأدمن بنجاح');
+        } else {
+            alert(result.error || 'فشل التحديث');
+        }
+    } catch (err) {
+        console.error('submitEditAdmin:', err);
+        alert('حدث خطأ أثناء الاتصال بالخادم');
+    }
 }
 
 function openCreateAdminModal() {
