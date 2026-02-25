@@ -5,15 +5,19 @@
 (function () {
     'use strict';
 
-    /** نقل الستار والقائمة إلى نهاية body لضمان تغطية كامل الشاشة حتى بعد التمرير (تجنب أي containing block من عنصر أب) */
-    function ensureDrawerInBody() {
+    /**
+     * نقل الستار والقائمة إلى html (وليس body) لأن body يستخدم animation + will-change: transform
+     * فيصبح containing block للـ fixed فيرتبط الشريط به بدل الـ viewport. بجعلهما أبناءً لـ html يُحل المشكلة.
+     */
+    function ensureDrawerInViewport() {
         var overlay = document.querySelector('.app-drawer-overlay');
         var drawer = document.querySelector('.app-drawer');
-        if (overlay && overlay.parentNode !== document.body) {
-            document.body.appendChild(overlay);
+        var root = document.documentElement;
+        if (overlay && overlay.parentNode !== root) {
+            root.appendChild(overlay);
         }
-        if (drawer && drawer.parentNode !== document.body) {
-            document.body.appendChild(drawer);
+        if (drawer && drawer.parentNode !== root) {
+            root.appendChild(drawer);
         }
     }
 
@@ -25,24 +29,42 @@
         };
     }
 
-    /** تحديث ارتفاع الستار والقائمة ليطابق المنطقة المرئية الفعلية (يحل مشكلة عدم التغطية على الموبايل) */
+    /**
+     * حساب ارتفاع كامل يغطي كل المنطقة المرئية (حل نهائي لمشكلة القص على الموبايل).
+     * نأخذ أكبر قيمة من كل المصادر ثم نطبّقها بـ !important حتى لا يُلغى من أي CSS آخر.
+     */
+    function getFullViewportHeight() {
+        var vv = window.visualViewport;
+        var inner = window.innerHeight || 0;
+        var client = document.documentElement.clientHeight || 0;
+        var vvH = (vv && vv.height) || 0;
+        var screenH = (typeof screen !== 'undefined' && screen.availHeight) || 0;
+        var h = Math.max(vvH, inner, client, screenH, 568);
+        return Math.min(h, 2000);
+    }
+
+    function getViewportTop() {
+        var vv = window.visualViewport;
+        return (vv && vv.offsetTop) || 0;
+    }
+
     function setDrawerFullHeight() {
         var overlay = document.querySelector('.app-drawer-overlay');
         var drawer = document.querySelector('.app-drawer');
-        var vv = window.visualViewport;
-        var h = (vv && vv.height) || window.innerHeight || document.documentElement.clientHeight;
-        var topOffset = (vv && vv.offsetTop) || 0;
+        var h = getFullViewportHeight();
+        var topOffset = getViewportTop();
+        var px = 'px';
         if (overlay) {
-            overlay.style.height = h + 'px';
-            overlay.style.top = topOffset + 'px';
-            overlay.style.left = '0';
-            overlay.style.right = '0';
-            overlay.style.bottom = '';
+            overlay.style.setProperty('height', h + px, 'important');
+            overlay.style.setProperty('top', topOffset + px, 'important');
+            overlay.style.setProperty('left', '0', 'important');
+            overlay.style.setProperty('right', '0', 'important');
+            overlay.style.setProperty('bottom', 'auto', 'important');
         }
         if (drawer) {
-            drawer.style.height = h + 'px';
-            drawer.style.top = topOffset + 'px';
-            drawer.style.bottom = '';
+            drawer.style.setProperty('height', h + px, 'important');
+            drawer.style.setProperty('top', topOffset + px, 'important');
+            drawer.style.setProperty('bottom', 'auto', 'important');
         }
     }
 
@@ -119,7 +141,7 @@
     }
 
     function init() {
-        ensureDrawerInBody();
+        ensureDrawerInViewport();
         var el = getDrawerElements();
         if (!el.toggle || !el.drawer) return;
 

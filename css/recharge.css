@@ -644,10 +644,18 @@
     flex-shrink: 0;
 }
 
-.image-source-option span {
+.image-source-option-text {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    flex: 1;
+    min-width: 0;
+}
+
+.image-source-option strong {
     font-weight: 700;
     color: var(--primary-dark, #1a2332);
-    flex: 1;
+    font-size: 1rem;
 }
 
 .image-source-option small {
