@@ -556,6 +556,150 @@
     background: #e04343;
 }
 
+/* زر الرفع كزر (بدون مظهر افتراضي) */
+.image-upload-wrapper .file-upload-label {
+    width: 100%;
+    border: none;
+    font-family: inherit;
+}
+
+/* ===========================
+   نافذة اختيار مصدر الصورة
+   =========================== */
+.image-source-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(26, 35, 50, 0.5);
+    backdrop-filter: blur(4px);
+    z-index: 9999;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    padding: 0;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.image-source-overlay.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.image-source-modal {
+    background: var(--bg-light, #f5f7fa);
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    width: 100%;
+    max-width: 420px;
+    padding: var(--spacing-xl);
+    padding-bottom: calc(var(--spacing-xl) + env(safe-area-inset-bottom));
+    box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.15);
+    transform: translateY(100%);
+    transition: transform 0.3s ease;
+}
+
+.image-source-overlay.active .image-source-modal {
+    transform: translateY(0);
+}
+
+.image-source-title {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: var(--primary-dark, #1a2332);
+    margin: 0 0 var(--spacing-lg);
+    text-align: center;
+}
+
+.image-source-options {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-sm);
+    margin-bottom: var(--spacing-lg);
+}
+
+.image-source-option {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md) var(--spacing-lg);
+    background: #ffffff;
+    border: 2px solid #e0e6ed;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: all 0.25s ease;
+    text-align: right;
+    font-family: inherit;
+    width: 100%;
+    box-sizing: border-box;
+}
+
+.image-source-option:hover {
+    border-color: var(--primary-blue, #4a90e2);
+    background: rgba(74, 144, 226, 0.06);
+}
+
+.image-source-option i {
+    font-size: 1.5rem;
+    color: var(--primary-blue, #4a90e2);
+    flex-shrink: 0;
+}
+
+.image-source-option span {
+    font-weight: 700;
+    color: var(--primary-dark, #1a2332);
+    flex: 1;
+}
+
+.image-source-option small {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--text-gray, #8b95a5);
+    font-weight: 400;
+    margin-top: 2px;
+}
+
+.image-source-cancel {
+    display: block;
+    width: 100%;
+    padding: var(--spacing-md);
+    background: transparent;
+    border: 2px solid #e0e6ed;
+    border-radius: var(--radius-md);
+    font-size: 1rem;
+    font-weight: 700;
+    color: var(--text-gray, #8b95a5);
+    cursor: pointer;
+    transition: all 0.25s ease;
+    font-family: inherit;
+}
+
+.image-source-cancel:hover {
+    border-color: var(--primary-dark, #1a2332);
+    color: var(--primary-dark, #1a2332);
+}
+
+@media (min-width: 480px) {
+    .image-source-overlay {
+        align-items: center;
+    }
+
+    .image-source-modal {
+        border-radius: var(--radius-lg);
+        max-width: 380px;
+        padding-bottom: var(--spacing-xl);
+    }
+}
+
+@media (max-width: 479px) {
+    .image-source-option {
+        padding: var(--spacing-sm) var(--spacing-md);
+    }
+
+    .image-source-option i {
+        font-size: 1.35rem;
+    }
+}
+
 /* ===========================
    Recharge Buttons
    =========================== */

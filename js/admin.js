@@ -343,12 +343,20 @@ function editAdminAccount(id) {
 }
 
 function openCreateAdminModal() {
-    const form = document.getElementById('createAdminForm');
-    if (form) form.reset();
-    const modal = document.getElementById('createAdminModal');
-    if (modal) {
-        modal.style.display = 'flex';
-        requestAnimationFrame(function () { modal.classList.add('active'); });
+    try {
+        var form = document.getElementById('createAdminForm');
+        if (form) form.reset();
+        if (typeof openModal === 'function') {
+            openModal('createAdminModal');
+        } else {
+            var modal = document.getElementById('createAdminModal');
+            if (modal) {
+                modal.style.display = 'flex';
+                requestAnimationFrame(function () { modal.classList.add('active'); });
+            }
+        }
+    } catch (e) {
+        console.error('openCreateAdminModal:', e);
     }
 }
 
@@ -830,12 +838,13 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 });
 
-// Modal functions
+// Modal functions (متاحة عالمياً لاستدعاء onclick)
 function openModal(modalId) {
     const el = document.getElementById(modalId);
     if (el) {
         el.style.display = 'flex';
-        requestAnimationFrame(() => el.classList.add('active'));
+        el.setAttribute('aria-hidden', 'false');
+        requestAnimationFrame(function () { el.classList.add('active'); });
     }
 }
 

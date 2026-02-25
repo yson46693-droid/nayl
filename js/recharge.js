@@ -236,20 +236,88 @@ document.addEventListener('DOMContentLoaded', function () {
     // Get form elements
     const vodafoneNumber = document.getElementById('vodafone-number');
     const vodafoneAmount = document.getElementById('vodafone-amount');
-    const vodafoneImage = document.getElementById('vodafone-image');
+    const vodafoneImageCamera = document.getElementById('vodafone-image-camera');
+    const vodafoneImageFile = document.getElementById('vodafone-image-file');
     const vodafoneMessage = document.getElementById('vodafone-message');
     const vodafoneBtn = document.querySelector('.vodafone-btn');
     const vodafonePreview = document.getElementById('vodafone-preview');
 
     const instapayNumber = document.getElementById('instapay-number');
     const instapayAmount = document.getElementById('instapay-amount');
-    const instapayImage = document.getElementById('instapay-image');
+    const instapayImageCamera = document.getElementById('instapay-image-camera');
+    const instapayImageFile = document.getElementById('instapay-image-file');
     const instapayMessage = document.getElementById('instapay-message');
     const instapayBtn = document.querySelector('.instapay-btn');
     const instapayPreview = document.getElementById('instapay-preview');
 
-    // Image upload handlers
-    function handleImageUpload(input, preview) {
+    // Image source modal: which method is selecting (vodafone | instapay)
+    let currentImageSourceMethod = null;
+    const imageSourceOverlay = document.getElementById('imageSourceOverlay');
+
+    function openImageSourceModal(method) {
+        currentImageSourceMethod = method;
+        if (imageSourceOverlay) {
+            imageSourceOverlay.classList.add('active');
+            imageSourceOverlay.setAttribute('aria-hidden', 'false');
+            document.body.style.overflow = 'hidden';
+        }
+    }
+
+    function closeImageSourceModal() {
+        currentImageSourceMethod = null;
+        if (imageSourceOverlay) {
+            imageSourceOverlay.classList.remove('active');
+            imageSourceOverlay.setAttribute('aria-hidden', 'true');
+            document.body.style.overflow = '';
+        }
+    }
+
+    document.querySelectorAll('.js-open-image-source').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            const method = this.getAttribute('data-method');
+            if (method) openImageSourceModal(method);
+        });
+    });
+
+    document.querySelectorAll('.js-close-image-source').forEach(function (btn) {
+        btn.addEventListener('click', closeImageSourceModal);
+    });
+
+    imageSourceOverlay && imageSourceOverlay.addEventListener('click', function (e) {
+        if (e.target === imageSourceOverlay) closeImageSourceModal();
+    });
+
+    function triggerImageInput(method, source) {
+        const isCamera = source === 'camera';
+        const cameraId = method === 'vodafone' ? 'vodafone-image-camera' : 'instapay-image-camera';
+        const fileId = method === 'vodafone' ? 'vodafone-image-file' : 'instapay-image-file';
+        const input = document.getElementById(isCamera ? cameraId : fileId);
+        if (input) {
+            input.value = '';
+            input.click();
+        }
+        closeImageSourceModal();
+    }
+
+    document.querySelectorAll('.js-image-source-camera').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            if (currentImageSourceMethod) triggerImageInput(currentImageSourceMethod, 'camera');
+        });
+    });
+    document.querySelectorAll('.js-image-source-gallery').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            if (currentImageSourceMethod) triggerImageInput(currentImageSourceMethod, 'gallery');
+        });
+    });
+    document.querySelectorAll('.js-image-source-files').forEach(function (btn) {
+        btn.addEventListener('click', function () {
+            if (currentImageSourceMethod) triggerImageInput(currentImageSourceMethod, 'files');
+        });
+    });
+
+    // Image upload handlers (for both camera and file inputs per method)
+    function handleImageUpload(input, preview, method) {
+        if (!input || !preview) return;
         input.addEventListener('change', function (e) {
             const file = e.target.files[0];
             if (file && file.type.startsWith('image/')) {
@@ -258,7 +326,7 @@ document.addEventListener('DOMContentLoaded', function () {
                     preview.innerHTML = `
                         <img src="${event.target.result}" alt="Transfer Screenshot">
                         <div class="image-preview-actions">
-                            <button type="button" class="btn-remove-image" onclick="removeImage('${input.id}', '${preview.id}')">
+                            <button type="button" class="btn-remove-image" onclick="removeRechargeImage('${method}')">
                                 حذف الصورة
                             </button>
                         </div>
@@ -270,12 +338,13 @@ document.addEventListener('DOMContentLoaded', function () {
         });
     }
 
-    if (vodafoneImage && vodafonePreview) {
-        handleImageUpload(vodafoneImage, vodafonePreview);
+    if (vodafonePreview) {
+        if (vodafoneImageCamera) handleImageUpload(vodafoneImageCamera, vodafonePreview, 'vodafone');
+        if (vodafoneImageFile) handleImageUpload(vodafoneImageFile, vodafonePreview, 'vodafone');
     }
-
-    if (instapayImage && instapayPreview) {
-        handleImageUpload(instapayImage, instapayPreview);
+    if (instapayPreview) {
+        if (instapayImageCamera) handleImageUpload(instapayImageCamera, instapayPreview, 'instapay');
+        if (instapayImageFile) handleImageUpload(instapayImageFile, instapayPreview, 'instapay');
     }
 
     // Get sidebar elements
@@ -396,8 +465,9 @@ document.addEventListener('DOMContentLoaded', function () {
                 // Clear form
                 formElements.number.value = '';
                 formElements.amount.value = '';
-                formElements.image.value = '';
                 formElements.message.value = '';
+                if (formElements.imageCamera) formElements.imageCamera.value = '';
+                if (formElements.imageFile) formElements.imageFile.value = '';
                 if (formElements.preview) {
                     formElements.preview.innerHTML = '';
                     formElements.preview.classList.remove('active');
@@ -432,7 +502,8 @@ document.addEventListener('DOMContentLoaded', function () {
     if (vodafoneBtn) {
         // Disable fields initially except number
         if (vodafoneAmount) vodafoneAmount.disabled = true;
-        if (vodafoneImage) vodafoneImage.disabled = true;
+        if (vodafoneImageCamera) vodafoneImageCamera.disabled = true;
+        if (vodafoneImageFile) vodafoneImageFile.disabled = true;
         if (vodafoneMessage) vodafoneMessage.disabled = true;
         vodafoneBtn.disabled = true;
 
@@ -443,13 +514,15 @@ document.addEventListener('DOMContentLoaded', function () {
 
             if (isValid) {
                 vodafoneAmount.disabled = false;
-                vodafoneImage.disabled = false;
+                if (vodafoneImageCamera) vodafoneImageCamera.disabled = false;
+                if (vodafoneImageFile) vodafoneImageFile.disabled = false;
                 vodafoneMessage.disabled = false;
                 vodafoneBtn.disabled = false;
-                showError('error-vodafone-number', ''); // Clear error
+                showError('error-vodafone-number', '');
             } else {
                 vodafoneAmount.disabled = true;
-                vodafoneImage.disabled = true;
+                if (vodafoneImageCamera) vodafoneImageCamera.disabled = true;
+                if (vodafoneImageFile) vodafoneImageFile.disabled = true;
                 vodafoneMessage.disabled = true;
                 vodafoneBtn.disabled = true;
                 if (val.length >= 11) {
@@ -466,11 +539,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
             const number = vodafoneNumber.value.replace(/\s/g, '');
             const amount = vodafoneAmount.value;
-            const image = vodafoneImage.files[0];
+            const image = (vodafoneImageCamera && vodafoneImageCamera.files[0]) || (vodafoneImageFile && vodafoneImageFile.files[0]);
             const message = vodafoneMessage.value;
             let isValid = true;
 
-            // Strict Validation for Vodafone Number
             if (!/^01[0125][0-9]{8}$/.test(number)) {
                 showError('error-vodafone-number', 'يرجى إدخال رقم فودافون كاش صحيح (11 رقم يبدأ بـ 01)');
                 isValid = false;
@@ -497,7 +569,8 @@ document.addEventListener('DOMContentLoaded', function () {
             }, this, {
                 number: vodafoneNumber,
                 amount: vodafoneAmount,
-                image: vodafoneImage,
+                imageCamera: vodafoneImageCamera,
+                imageFile: vodafoneImageFile,
                 message: vodafoneMessage,
                 preview: vodafonePreview
             });
@@ -512,11 +585,10 @@ document.addEventListener('DOMContentLoaded', function () {
 
             const number = instapayNumber.value.replace(/\s/g, '');
             const amount = instapayAmount.value;
-            const image = instapayImage.files[0];
+            const image = (instapayImageCamera && instapayImageCamera.files[0]) || (instapayImageFile && instapayImageFile.files[0]);
             const message = instapayMessage.value;
             let isValid = true;
 
-            // Validation
             if (!number || number.trim().length < 3) {
                 showError('error-instapay-number', 'يرجى إدخال اسم مستخدم صحيح');
                 isValid = false;
@@ -543,7 +615,8 @@ document.addEventListener('DOMContentLoaded', function () {
             }, this, {
                 number: instapayNumber,
                 amount: instapayAmount,
-                image: instapayImage,
+                imageCamera: instapayImageCamera,
+                imageFile: instapayImageFile,
                 message: instapayMessage,
                 preview: instapayPreview
             });
@@ -642,12 +715,16 @@ document.addEventListener('DOMContentLoaded', function () {
     }
 });
 
-// Global function to remove image
-function removeImage(inputId, previewId) {
-    const input = document.getElementById(inputId);
+// Global: remove recharge image for a payment method (clears both camera and file inputs)
+function removeRechargeImage(method) {
+    const cameraId = method === 'vodafone' ? 'vodafone-image-camera' : 'instapay-image-camera';
+    const fileId = method === 'vodafone' ? 'vodafone-image-file' : 'instapay-image-file';
+    const previewId = method === 'vodafone' ? 'vodafone-preview' : 'instapay-preview';
+    const cameraInput = document.getElementById(cameraId);
+    const fileInput = document.getElementById(fileId);
     const preview = document.getElementById(previewId);
-
-    if (input) input.value = '';
+    if (cameraInput) cameraInput.value = '';
+    if (fileInput) fileInput.value = '';
     if (preview) {
         preview.innerHTML = '';
         preview.classList.remove('active');

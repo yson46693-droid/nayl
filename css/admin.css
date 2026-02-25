@@ -482,6 +482,16 @@
     overflow-x: auto;
 }
 
+/* جدول حسابات الأدمن - وضوح الصفوف والرسائل */
+#adminAccountsTableBody tr td {
+    padding: 12px 16px;
+    vertical-align: middle;
+}
+#adminAccountsTableBody tr td[colspan="7"] {
+    padding: 2rem 1rem;
+    font-size: 0.95rem;
+}
+
 /* معرف الجهاز الكامل - قابل للنسخ */
 .device-vid-cell {
     max-width: 280px;
@@ -1164,40 +1174,70 @@ tr:hover td {
    Admin Dashboard - Responsive
    =========================== */
 
-/* زر فتح القائمة - منظم وواضح ويظهر على الشاشات الصغيرة */
-.admin-menu-toggle {
+/* ========== زر فتح القائمة (هامبرغر) - تصميم واضح ومنظم ========== */
+.top-bar-menu-btn,
+.admin-menu-toggle.top-bar-menu-btn {
     display: none;
     align-items: center;
     justify-content: center;
-    width: 44px;
-    height: 44px;
-    min-width: 44px;
-    min-height: 44px;
+    width: 48px;
+    height: 48px;
+    min-width: 48px;
+    min-height: 48px;
     padding: 0;
+    margin: 0;
     margin-left: var(--spacing-md);
-    margin-right: 0;
     flex-shrink: 0;
-    background: var(--bg-card);
-    border: 1px solid #e0e6ed;
-    border-radius: var(--radius-md);
-    color: var(--primary-dark);
+    background: linear-gradient(135deg, #4a90e2 0%, #3a7bc8 100%) !important;
+    border: none !important;
+    border-radius: 12px !important;
     cursor: pointer;
-    transition: var(--transition);
-    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 2px 8px rgba(74, 144, 226, 0.4) !important;
+    -webkit-tap-highlight-color: transparent;
 }
-.admin-menu-toggle:hover {
-    background: #f1f5f9;
-    color: var(--primary-blue);
-    border-color: var(--primary-blue);
+.top-bar-menu-btn:hover,
+.admin-menu-toggle.top-bar-menu-btn:hover {
+    background: linear-gradient(135deg, #3a7bc8 0%, #2d6bb3 100%) !important;
+    box-shadow: 0 4px 12px rgba(74, 144, 226, 0.5) !important;
+    transform: scale(1.02);
 }
-.admin-menu-toggle:focus {
-    outline: 2px solid var(--primary-blue);
-    outline-offset: 2px;
+.top-bar-menu-btn:active,
+.admin-menu-toggle.top-bar-menu-btn:active {
+    transform: scale(0.98);
 }
+.top-bar-menu-btn:focus,
+.admin-menu-toggle.top-bar-menu-btn:focus {
+    outline: 2px solid #4a90e2 !important;
+    outline-offset: 2px !important;
+}
+/* أيقونة الهامبرغر (ثلاث خطوط) */
+.top-bar-menu-btn-icon {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+    width: 22px;
+    height: 18px;
+}
+.top-bar-menu-btn-icon span {
+    display: block;
+    width: 22px;
+    height: 2.5px;
+    background: #ffffff !important;
+    border-radius: 2px;
+    transition: transform 0.2s ease, opacity 0.2s ease;
+}
+.top-bar-menu-btn:hover .top-bar-menu-btn-icon span {
+    background: #ffffff !important;
+}
+/* توافق مع الزر إن كان يستخدم SVG قديم */
 .admin-menu-toggle svg {
     width: 22px;
     height: 22px;
     display: block;
+    color: #fff;
 }
 
 /* Overlay عند فتح القائمة على الموبايل */
@@ -1218,8 +1258,9 @@ tr:hover td {
 
 /* Tablet + Mobile: الشريط الجانبي نصف عرض الصفحة فقط */
 @media (max-width: 1024px) {
-    .admin-menu-toggle {
-        display: flex;
+    .admin-menu-toggle,
+    .top-bar-menu-btn {
+        display: flex !important;
     }
     .sidebar-overlay {
         display: block;
