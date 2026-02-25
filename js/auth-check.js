@@ -33,7 +33,7 @@ async function checkAuth() {
 
     // تخزين مؤقت لنتيجة verify (90 ثانية) لتقليل عدد طلبات API وحماية حد الاتصالات بالساعة
     const verifyCacheKey = 'verifyCacheAt';
-    const cacheMs = 90000;
+    const cacheMs = 300000;
     const cachedAt = sessionStorage.getItem(verifyCacheKey);
     if (cachedAt) {
         const t = parseInt(cachedAt, 10);

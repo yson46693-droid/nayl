@@ -2431,7 +2431,7 @@ document.addEventListener('DOMContentLoaded', () => {
     fetchNotifications();
 
     // Start Polling (every 30 seconds)
-    notificationPollInterval = setInterval(fetchNotifications, 60000);
+    notificationPollInterval = setInterval(fetchNotifications, 120000);
 
     // Close dropdown when clicking outside
     document.addEventListener('click', (e) => {
@@ -2763,7 +2763,7 @@ async function updatePendingRechargeCount() {
 // Initial Call
 document.addEventListener('DOMContentLoaded', updatePendingRechargeCount);
 // Also update every 60 seconds
-setInterval(updatePendingRechargeCount, 120000);
+setInterval(updatePendingRechargeCount, 180000);
 
 // ===========================
 // Visitor Stats
