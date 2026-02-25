@@ -49,10 +49,47 @@
                 <a href="courses.html" class="nav-link"><i class="bi bi-grid-fill"
                         style="margin-left: 6px;"></i>الكورسات</a>
             </div>
+            <button type="button" class="nav-menu-btn" id="navMenuBtn" aria-label="فتح القائمة">
+                <i class="bi bi-list"></i>
+            </button>
             <a href="home.html" class="logo" style="text-decoration: none;">
                 <span>AmrNayl academy</span>
                 <img src="pics/logo.png" alt="AMR NAYL ACADEMY" width="50" height="50" style="border-radius: 8px;">
             </a>
+        </div>
+        <div class="nav-drawer-overlay" id="navDrawerOverlay" aria-hidden="true"></div>
+        <div class="nav-drawer" id="navDrawer">
+            <div class="nav-drawer-inner">
+                <div class="nav-drawer-header">
+                    <a href="home.html" class="logo" style="text-decoration: none;">
+                        <img src="pics/logo.png" alt="AMR NAYL ACADEMY" width="36" height="36" style="border-radius: 8px;">
+                        <span>AmrNayl academy</span>
+                    </a>
+                </div>
+                <div class="profile-dropdown">
+                    <div class="profile-avatar">
+                        <i class="bi bi-person-fill"></i>
+                    </div>
+                    <div class="dropdown-menu">
+                        <a href="profile.html" class="dropdown-item">
+                            <i class="bi bi-person-circle"></i>
+                            <span>الملف الشخصي</span>
+                        </a>
+                        <a href="#" class="dropdown-item open-support-modal" onclick="openSupportModal(); return false;">
+                            <i class="bi bi-headset"></i>
+                            <span>الدعم الفني</span>
+                        </a>
+                        <a href="index.html" class="dropdown-item logout-item">
+                            <i class="bi bi-box-arrow-left"></i>
+                            <span>تسجيل الخروج</span>
+                        </a>
+                    </div>
+                </div>
+                <a href="profile.html?tab=course-codes" class="nav-link"><i class="bi bi-upc-scan" style="margin-left: 6px;"></i>أكوادي</a>
+                <a href="my-courses.html" class="nav-link"><i class="bi bi-collection-play-fill" style="margin-left: 6px;"></i>كورساتي</a>
+                <a href="recharge.html" class="nav-link"><i class="bi bi-wallet2" style="margin-left: 6px;"></i>شحن الرصيد</a>
+                <a href="courses.html" class="nav-link"><i class="bi bi-grid-fill" style="margin-left: 6px;"></i>الكورسات</a>
+            </div>
         </div>
     </nav>
 
@@ -268,6 +305,7 @@
     </section>
 
     <script src="js/auth-check.js"></script>
+    <script src="js/nav-mobile.js"></script>
     <script>
         // حماية الصفحة - التحقق من تسجيل الدخول
         document.addEventListener('DOMContentLoaded', async function() {
