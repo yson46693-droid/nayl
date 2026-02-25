@@ -15,7 +15,7 @@ require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../config/auth.php';
 require_once __DIR__ . '/../config/security.php';
 
-loadEnv(__DIR__ . '/../../.env');
+loadEnv(__DIR__ . '/../.env');
 
 // CORS Headers
 $allowedOrigin = getAllowedOrigin(); // Assuming this is available via auth.php or we need to define/include it? 

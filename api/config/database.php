@@ -11,8 +11,9 @@ require_once __DIR__ . '/env.php';
 $envPath = __DIR__ . '/../.env';
 if (!file_exists($envPath)) {
     error_log("Database config: .env file not found at api/.env - using defaults. Create api/.env on server with DB_HOST, DB_NAME, DB_USER, DB_PASS for production.");
+} else {
+    loadEnv($envPath);
 }
-loadEnv($envPath);
 
 // إعدادات قاعدة البيانات من ملف .env مع قيم افتراضية
 define('DB_HOST', env('DB_HOST', 'localhost'));

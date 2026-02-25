@@ -13,7 +13,7 @@ if (session_status() === PHP_SESSION_NONE) {
 }
 
 require_once __DIR__ . '/../../config/env.php';
-loadEnv(__DIR__ . '/../../.env');
+loadEnv(__DIR__ . '/../.env');
 
 // دالة التحقق من Origin (نسخ مختصر)
 $allowedOrigins = ['http://localhost','https://localhost','http://127.0.0.1','https://127.0.0.1'];

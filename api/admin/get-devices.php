@@ -16,7 +16,7 @@ require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../config/auth.php';
 require_once __DIR__ . '/../config/security.php';
 
-loadEnv(__DIR__ . '/../../.env');
+loadEnv(__DIR__ . '/../.env');
 
 $allowedOrigin = getAllowedOrigin();
 if ($allowedOrigin) {

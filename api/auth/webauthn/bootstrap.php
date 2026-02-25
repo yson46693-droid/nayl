@@ -14,7 +14,7 @@ if (session_status() === PHP_SESSION_NONE) {
 
 try {
     require_once __DIR__ . '/../../config/env.php';
-    loadEnv(__DIR__ . '/../../.env');
+    loadEnv(__DIR__ . '/../.env');
     require_once __DIR__ . '/../../config/auth.php';
     require_once __DIR__ . '/../../config/database.php';
     require_once __DIR__ . '/../../config/security.php';

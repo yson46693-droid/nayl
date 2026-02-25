@@ -18,7 +18,7 @@ require_once __DIR__ . '/../config/auth.php';
 require_once __DIR__ . '/../config/security.php';
 
 // تحميل متغيرات البيئة
-loadEnv(__DIR__ . '/../../.env');
+loadEnv(__DIR__ . '/../.env');
 
 // التحقق من تسجيل الدخول
 $user = requireAuth();

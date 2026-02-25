@@ -15,7 +15,7 @@ if (session_status() === PHP_SESSION_NONE) {
 
 // تحميل الإعدادات
 require_once __DIR__ . '/../../config/env.php';
-loadEnv(__DIR__ . '/../../.env');
+loadEnv(__DIR__ . '/../.env');
 
 // دالة التحقق من Origin (مشتركة)
 function getAdminAllowedOrigin() {
