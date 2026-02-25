@@ -765,8 +765,12 @@ tr:hover td {
     background: var(--bg-card, #ffffff);
     width: 500px;
     max-width: 90%;
+    max-height: calc(100vh - 2rem);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-lg);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
 
     /* Transition State */
     opacity: 0;
@@ -789,10 +793,14 @@ tr:hover td {
     display: flex;
     justify-content: space-between;
     align-items: center;
+    flex-shrink: 0;
 }
 
 .modal-content {
     padding: var(--spacing-lg);
+    overflow-y: auto;
+    min-height: 0;
+    flex: 1;
 }
 
 .modal-footer {
@@ -801,6 +809,7 @@ tr:hover td {
     display: flex;
     justify-content: flex-end;
     gap: var(--spacing-md);
+    flex-shrink: 0;
 }
 
 @media (max-width: 560px) {
