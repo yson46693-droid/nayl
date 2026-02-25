@@ -5,6 +5,18 @@
 (function () {
     'use strict';
 
+    /** نقل الستار والقائمة إلى نهاية body لضمان تغطية كامل الشاشة حتى بعد التمرير (تجنب أي containing block من عنصر أب) */
+    function ensureDrawerInBody() {
+        var overlay = document.querySelector('.app-drawer-overlay');
+        var drawer = document.querySelector('.app-drawer');
+        if (overlay && overlay.parentNode !== document.body) {
+            document.body.appendChild(overlay);
+        }
+        if (drawer && drawer.parentNode !== document.body) {
+            document.body.appendChild(drawer);
+        }
+    }
+
     function getDrawerElements() {
         return {
             toggle: document.querySelector('.app-drawer-toggle'),
@@ -85,6 +97,7 @@
     }
 
     function init() {
+        ensureDrawerInBody();
         var el = getDrawerElements();
         if (!el.toggle || !el.drawer) return;
 
