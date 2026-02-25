@@ -203,18 +203,23 @@ function setupAdminProfileDropdown() {
         dropdown.setAttribute('aria-hidden', 'true');
     });
 
-    dropdown.addEventListener('click', (e) => e.stopPropagation());
-
-    const profileLink = dropdown.querySelector('.admin-dropdown-item[data-tab="admin-profile"]');
-    if (profileLink) {
-        profileLink.addEventListener('click', (e) => {
-            e.preventDefault();
-            switchToTab('admin-profile');
-            dropdown.classList.remove('show');
-            toggle.setAttribute('aria-expanded', 'false');
+    dropdown.addEventListener('click', (e) => {
+        e.stopPropagation();
+        var item = e.target && e.target.closest ? e.target.closest('.admin-dropdown-item[data-tab]') : null;
+        if (!item) return;
+        e.preventDefault();
+        var tab = item.getAttribute('data-tab');
+        if (!tab) return;
+        dropdown.classList.remove('show');
+        toggle.setAttribute('aria-expanded', 'false');
+        dropdown.setAttribute('aria-hidden', 'true');
+        switchToTab(tab);
+        if (tab === 'admin-profile') {
             loadAdminProfileForm();
-        });
-    }
+            var section = document.getElementById('admin-profile');
+            if (section) section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    });
 }
 
 function switchToTab(tabId) {
@@ -436,8 +441,18 @@ async function submitEditAdmin() {
 
 function openCreateAdminModal() {
     try {
-        var form = document.getElementById('createAdminForm');
-        if (form) form.reset();
+        var isMobile = typeof window !== 'undefined' && window.innerWidth <= 768;
+        var card = document.getElementById('createAdminCard');
+        var formCard = document.getElementById('createAdminFormCard');
+        var formModal = document.getElementById('createAdminForm');
+        if (isMobile && card) {
+            if (formCard) formCard.reset();
+            card.classList.add('show');
+            card.setAttribute('aria-hidden', 'false');
+            card.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            return;
+        }
+        if (formModal) formModal.reset();
         if (typeof openModal === 'function') {
             openModal('createAdminModal');
         } else {
@@ -449,6 +464,14 @@ function openCreateAdminModal() {
         }
     } catch (e) {
         console.error('openCreateAdminModal:', e);
+    }
+}
+
+function closeCreateAdminCard() {
+    var card = document.getElementById('createAdminCard');
+    if (card) {
+        card.classList.remove('show');
+        card.setAttribute('aria-hidden', 'true');
     }
 }
 
@@ -472,6 +495,44 @@ async function submitCreateAdmin() {
         const result = await response.json();
         if (result.success) {
             closeModal('createAdminModal');
+            loadAdminAccounts();
+            alert('تم إنشاء حساب الأدمن بنجاح');
+        } else {
+            alert(result.error || 'فشل إنشاء الحساب');
+        }
+    } catch (err) {
+        console.error(err);
+        alert('حدث خطأ في الاتصال');
+    }
+}
+
+/** إنشاء أدمن من البطاقة (الهواتف) */
+async function submitCreateAdminFromCard() {
+    const fullNameEl = document.getElementById('newAdminFullNameCard');
+    const usernameEl = document.getElementById('newAdminUsernameCard');
+    const emailEl = document.getElementById('newAdminEmailCard');
+    const passwordEl = document.getElementById('newAdminPasswordCard');
+    const roleEl = document.getElementById('newAdminRoleCard');
+    if (!fullNameEl || !usernameEl || !passwordEl) return;
+    const fullName = fullNameEl.value.trim();
+    const username = usernameEl.value.trim();
+    const email = emailEl.value ? emailEl.value.trim() : '';
+    const password = passwordEl.value;
+    const role = roleEl ? roleEl.value : 'admin';
+    if (!fullName || !username || !password) {
+        alert('الاسم الكامل واسم المستخدم وكلمة المرور مطلوبة');
+        return;
+    }
+    try {
+        const token = localStorage.getItem('admin_session_token') || getCookie('admin_session_token');
+        const response = await fetch('../api/admin/create-admin.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+            body: JSON.stringify({ full_name: fullName, username: username, email: email || null, password: password, role: role })
+        });
+        const result = await response.json();
+        if (result.success) {
+            closeCreateAdminCard();
             loadAdminAccounts();
             alert('تم إنشاء حساب الأدمن بنجاح');
         } else {

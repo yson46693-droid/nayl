@@ -286,9 +286,11 @@
                     <div class="admin-dropdown" id="adminDropdown" role="menu" aria-hidden="true">
                         <a href="#" class="admin-dropdown-item" data-tab="admin-profile" role="menuitem">
                             <i class="bi bi-person-fill"></i>
+                            <span>الملف الشخصي</span>
                         </a>
                         <button type="button" class="admin-dropdown-item admin-dropdown-logout" onclick="adminLogout()" role="menuitem">
                             <i class="bi bi-box-arrow-left"></i>
+                            <span>تسجيل الخروج</span>
                         </button>
                     </div>
                 </div>
@@ -999,6 +1001,49 @@
                         <i class="bi bi-person-plus-fill"></i>
                         <span>إنشاء حساب أدمن</span>
                     </button>
+                </div>
+                <!-- بطاقة إنشاء أدمن (للأجهزة المحمولة بدلاً من المودال) -->
+                <div class="create-admin-card" id="createAdminCard" aria-hidden="true">
+                    <div class="create-admin-card-header">
+                        <h3 style="font-weight: 800; margin: 0;">إنشاء حساب أدمن جديد</h3>
+                        <button type="button" class="create-admin-card-close" onclick="closeCreateAdminCard()" aria-label="إغلاق">&times;</button>
+                    </div>
+                    <div class="create-admin-card-body">
+                        <form id="createAdminFormCard">
+                            <div class="admin-form-group">
+                                <label><i class="bi bi-person-fill"></i> الاسم الكامل</label>
+                                <input type="text" id="newAdminFullNameCard" placeholder="الاسم الكامل" required>
+                            </div>
+                            <div class="admin-form-group">
+                                <label><i class="bi bi-at"></i> اسم المستخدم</label>
+                                <input type="text" id="newAdminUsernameCard" placeholder="اسم المستخدم (للدخول)" required>
+                            </div>
+                            <div class="admin-form-group">
+                                <label><i class="bi bi-envelope-fill"></i> البريد الإلكتروني</label>
+                                <input type="email" id="newAdminEmailCard" placeholder="example@domain.com">
+                            </div>
+                            <div class="admin-form-group">
+                                <label><i class="bi bi-lock-fill"></i> كلمة المرور</label>
+                                <input type="password" id="newAdminPasswordCard" placeholder="كلمة مرور قوية" required>
+                            </div>
+                            <div class="admin-form-group">
+                                <label><i class="bi bi-shield-check"></i> الصلاحية</label>
+                                <select id="newAdminRoleCard">
+                                    <option value="admin">أدمن</option>
+                                    <option value="super_admin">مدير أعلى</option>
+                                    <option value="moderator">مشرف</option>
+                                </select>
+                            </div>
+                            <div class="create-admin-card-actions">
+                                <button type="button" class="btn btn-secondary" onclick="closeCreateAdminCard()">
+                                    <i class="bi bi-x-circle"></i> إلغاء
+                                </button>
+                                <button type="button" class="btn btn-primary" onclick="submitCreateAdminFromCard()">
+                                    <i class="bi bi-person-plus-fill"></i> إنشاء الحساب
+                                </button>
+                            </div>
+                        </form>
+                    </div>
                 </div>
                 <div class="data-card">
                     <div class="table-responsive">

@@ -785,6 +785,58 @@ tr:hover td {
     transform: translateY(0);
 }
 
+/* بطاقة إنشاء أدمن (للأجهزة المحمولة بدلاً من المودال) */
+.create-admin-card {
+    display: none;
+    background: var(--bg-card);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-md);
+    margin-bottom: var(--spacing-xl);
+    overflow: hidden;
+    animation: slideDown 0.3s ease-out;
+}
+.create-admin-card.show {
+    display: block;
+}
+.create-admin-card-header {
+    padding: var(--spacing-lg);
+    border-bottom: 1px solid #edf2f7;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.create-admin-card-close {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--text-gray);
+    padding: 0;
+    line-height: 1;
+}
+.create-admin-card-close:hover {
+    color: var(--text-dark);
+}
+.create-admin-card-body {
+    padding: var(--spacing-lg);
+}
+.create-admin-card-body .admin-form-group {
+    margin-bottom: var(--spacing-md);
+}
+.create-admin-card-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-md);
+    margin-top: var(--spacing-lg);
+    padding-top: var(--spacing-lg);
+    border-top: 1px solid #edf2f7;
+}
+@media (min-width: 769px) {
+    .create-admin-card {
+        display: none !important;
+    }
+}
+
 /* @keyframes slideUp removed in favor of transition */
 
 .modal-header {
