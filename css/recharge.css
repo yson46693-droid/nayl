@@ -878,14 +878,15 @@
         min-width: 0;
     }
 
-    .recharge-sidebar {
-        position: static;
+    .recharge-main {
         order: -1;
-        max-width: 100%;
+        min-width: 0;
     }
 
-    .recharge-main,
     .recharge-sidebar {
+        position: static;
+        order: 1;
+        max-width: 100%;
         min-width: 0;
     }
 
