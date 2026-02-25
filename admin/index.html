@@ -286,11 +286,9 @@
                     <div class="admin-dropdown" id="adminDropdown" role="menu" aria-hidden="true">
                         <a href="#" class="admin-dropdown-item" data-tab="admin-profile" role="menuitem">
                             <i class="bi bi-person-fill"></i>
-                            <span>الملف الشخصي</span>
                         </a>
                         <button type="button" class="admin-dropdown-item admin-dropdown-logout" onclick="adminLogout()" role="menuitem">
                             <i class="bi bi-box-arrow-left"></i>
-                            <span>تسجيل الخروج</span>
                         </button>
                     </div>
                 </div>
@@ -953,7 +951,7 @@
                 <div class="section-header">
                     <div class="section-title-wrapper">
                         <h2>الملف الشخصي للأدمن</h2>
-                        <p>تعديل بيانات حسابك (الاسم، البريد الإلكتروني).</p>
+                        <p>تعديل بيانات حسابك (الاسم، اسم المستخدم، البريد الإلكتروني).</p>
                     </div>
                 </div>
                 <div class="data-card">
@@ -972,7 +970,7 @@
                                 </div>
                                 <div class="admin-form-group">
                                     <label><i class="bi bi-at"></i> اسم المستخدم</label>
-                                    <input type="text" id="adminProfileUsername" placeholder="اسم المستخدم" readonly disabled style="background: #f1f5f9; cursor: not-allowed;">
+                                    <input type="text" id="adminProfileUsername" placeholder="اسم المستخدم (للدخول)" required minlength="3" pattern="[a-zA-Z0-9_]+" title="حروف إنجليزية وأرقام وشرطة سفلية فقط">
                                 </div>
                                 <div class="admin-form-group">
                                     <label><i class="bi bi-envelope-fill"></i> البريد الإلكتروني</label>

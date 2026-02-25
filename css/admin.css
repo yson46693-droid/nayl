@@ -1467,18 +1467,36 @@ tr:hover td {
     }
     .stats-overview {
         grid-template-columns: repeat(2, 1fr);
-        gap: var(--spacing-sm);
+        gap: 8px;
         margin-bottom: var(--spacing-lg);
-        padding: var(--spacing-xs) 0 var(--spacing-sm);
+        padding: 6px 0 10px;
     }
     .stat-card-admin {
-        padding: var(--spacing-md);
+        padding: 10px 12px;
+        gap: 8px;
+        border-radius: var(--radius-md);
+    }
+    .stat-card-admin:hover {
+        transform: none;
+    }
+    .stat-icon {
+        width: 40px;
+        height: 40px;
+    }
+    .stat-icon i {
+        font-size: 1rem !important;
     }
     .stat-details h3 {
-        font-size: 0.85rem;
+        font-size: 0.75rem;
+        margin-bottom: 2px;
     }
     .stat-value {
-        font-size: 1.25rem;
+        font-size: 1rem;
+        font-weight: 700;
+    }
+    .stat-trend {
+        font-size: 0.7rem;
+        margin-top: 2px;
     }
     .data-card .section-header {
         padding: var(--spacing-md) var(--spacing-lg) !important;

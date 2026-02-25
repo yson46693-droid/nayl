@@ -44,10 +44,23 @@ if (!$admin) {
 
 $input = json_decode(file_get_contents('php://input'), true) ?: [];
 $fullName = isset($input['full_name']) ? trim(sanitizeInput($input['full_name'])) : '';
+$username = isset($input['username']) ? trim(sanitizeInput($input['username'])) : '';
 $email = isset($input['email']) ? trim(sanitizeInput($input['email'])) : null;
 
 if ($fullName === '') {
     echo json_encode(['success' => false, 'error' => 'الاسم الكامل مطلوب'], JSON_UNESCAPED_UNICODE);
+    http_response_code(400);
+    exit;
+}
+
+if ($username === '' || strlen($username) < 3) {
+    echo json_encode(['success' => false, 'error' => 'اسم المستخدم مطلوب (3 أحرف على الأقل)'], JSON_UNESCAPED_UNICODE);
+    http_response_code(400);
+    exit;
+}
+
+if (!preg_match('/^[a-zA-Z0-9_]+$/', $username)) {
+    echo json_encode(['success' => false, 'error' => 'اسم المستخدم: حروف إنجليزية وأرقام وشرطة سفلية فقط'], JSON_UNESCAPED_UNICODE);
     http_response_code(400);
     exit;
 }
@@ -70,12 +83,20 @@ if (!$pdo) {
 $adminId = (int) ($admin['admin_id'] ?? $admin['id']);
 
 try {
+    $check = $pdo->prepare('SELECT id FROM admins WHERE username = ? AND id != ?');
+    $check->execute([$username, $adminId]);
+    if ($check->fetch()) {
+        echo json_encode(['success' => false, 'error' => 'اسم المستخدم مستخدم من حساب آخر'], JSON_UNESCAPED_UNICODE);
+        http_response_code(400);
+        exit;
+    }
+
     if ($email !== null && $email !== '') {
-        $stmt = $pdo->prepare('UPDATE admins SET full_name = ?, email = ?, updated_at = NOW() WHERE id = ?');
-        $stmt->execute([$fullName, $email, $adminId]);
+        $stmt = $pdo->prepare('UPDATE admins SET username = ?, full_name = ?, email = ?, updated_at = NOW() WHERE id = ?');
+        $stmt->execute([$username, $fullName, $email, $adminId]);
     } else {
-        $stmt = $pdo->prepare('UPDATE admins SET full_name = ?, email = NULL, updated_at = NOW() WHERE id = ?');
-        $stmt->execute([$fullName, $adminId]);
+        $stmt = $pdo->prepare('UPDATE admins SET username = ?, full_name = ?, email = NULL, updated_at = NOW() WHERE id = ?');
+        $stmt->execute([$username, $fullName, $adminId]);
     }
     if ($stmt->rowCount() >= 0) {
         echo json_encode(['success' => true], JSON_UNESCAPED_UNICODE);
@@ -83,7 +104,7 @@ try {
     }
 } catch (PDOException $e) {
     if ($e->getCode() == 23000) {
-        echo json_encode(['success' => false, 'error' => 'البريد الإلكتروني مستخدم من حساب آخر'], JSON_UNESCAPED_UNICODE);
+        echo json_encode(['success' => false, 'error' => 'اسم المستخدم أو البريد مستخدم من حساب آخر'], JSON_UNESCAPED_UNICODE);
         http_response_code(400);
         exit;
     }

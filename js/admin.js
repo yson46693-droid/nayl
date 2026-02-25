@@ -258,9 +258,18 @@ function loadAdminProfileForm() {
 /** حفظ بيانات الملف الشخصي (استدعاء API) */
 async function saveAdminProfile() {
     const fullName = document.getElementById('adminProfileFullName').value.trim();
+    const username = document.getElementById('adminProfileUsername').value.trim();
     const email = document.getElementById('adminProfileEmail').value.trim();
     if (!fullName) {
         alert('الاسم الكامل مطلوب');
+        return;
+    }
+    if (!username || username.length < 3) {
+        alert('اسم المستخدم مطلوب (3 أحرف على الأقل)');
+        return;
+    }
+    if (!/^[a-zA-Z0-9_]+$/.test(username)) {
+        alert('اسم المستخدم: حروف إنجليزية وأرقام وشرطة سفلية فقط');
         return;
     }
     try {
@@ -268,12 +277,13 @@ async function saveAdminProfile() {
         const response = await fetch('../api/admin/update-profile.php', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
-            body: JSON.stringify({ full_name: fullName, email: email })
+            body: JSON.stringify({ full_name: fullName, username: username, email: email })
         });
         const result = await response.json();
         if (result.success) {
             const admin = JSON.parse(localStorage.getItem('admin_info') || '{}');
             admin.full_name = fullName;
+            admin.username = username;
             admin.email = email;
             localStorage.setItem('admin_info', JSON.stringify(admin));
             const nameEl = document.querySelector('.admin-name-text');
