@@ -972,7 +972,8 @@ tr:hover td {
 .notifications-dropdown {
     position: absolute;
     top: 50px;
-    left: 0;
+    right: 0;
+    left: auto;
     width: 320px;
     background: #fff;
     border-radius: var(--radius-md);
@@ -1376,9 +1377,9 @@ tr:hover td {
         width: 100%;
     }
     .notifications-dropdown {
-        left: 50%;
-        transform: translateX(-50%);
-        width: calc(100vw - 24px);
+        right: 0;
+        left: auto;
+        width: min(320px, calc(100vw - 24px));
         max-width: 320px;
     }
     .course-edit-section h4 {

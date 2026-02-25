@@ -48,4 +48,33 @@
             closeDrawer();
         }
     });
+
+    /**
+     * تعبئة بطاقة الملف الشخصي في أسفل الشريط الجانبي (اسم المستخدم، المعرف)
+     */
+    function fillDrawerProfileCard() {
+        const nameEl = document.getElementById('navDrawerUserName');
+        const idEl = document.getElementById('navDrawerUserId');
+        if (!nameEl && !idEl) return;
+
+        const user = typeof getCurrentUser === 'function' ? getCurrentUser() : null;
+        if (user) {
+            if (nameEl) {
+                nameEl.textContent = user.full_name || user.name || (user.email ? user.email.split('@')[0] : '') || 'مستخدم';
+            }
+            if (idEl) {
+                const userId = user.id || user.user_id || '';
+                idEl.textContent = 'ID: ' + (userId || '--');
+            }
+        } else {
+            if (nameEl) nameEl.textContent = 'زائر';
+            if (idEl) idEl.textContent = 'ID: --';
+        }
+    }
+
+    if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', fillDrawerProfileCard);
+    } else {
+        fillDrawerProfileCard();
+    }
 })();

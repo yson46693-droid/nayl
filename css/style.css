@@ -353,6 +353,7 @@ body::-webkit-scrollbar-thumb:hover {
     flex-direction: column;
     gap: 0.5rem;
     padding: 0 1rem;
+    min-height: 100%;
 }
 .nav-drawer .nav-drawer-header {
     display: flex;
@@ -369,9 +370,6 @@ body::-webkit-scrollbar-thumb:hover {
 .nav-drawer .nav-drawer-header .logo img {
     width: 36px;
     height: 36px;
-}
-.nav-drawer .profile-dropdown {
-    margin-bottom: 0.25rem;
 }
 .nav-drawer .nav-link {
     display: flex;
@@ -396,6 +394,63 @@ body::-webkit-scrollbar-thumb:hover {
 }
 .nav-drawer .dropdown-menu::before {
     left: 24px;
+}
+
+/* بطاقة الملف الشخصي في أسفل الشريط الجانبي للموبايل */
+.nav-drawer-profile-card {
+    margin-top: auto;
+    padding: 1rem;
+    background: rgba(255, 255, 255, 0.08);
+    border-radius: var(--radius-lg);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.5rem;
+}
+.nav-drawer-profile-avatar {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: var(--primary-blue);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+}
+.nav-drawer-user-name {
+    font-weight: 600;
+    font-size: 0.95rem;
+    color: var(--text-light);
+    word-break: break-word;
+}
+.nav-drawer-user-id {
+    font-size: 0.8rem;
+    color: #8b95a5;
+    font-family: inherit;
+    direction: ltr;
+}
+.nav-drawer-logout {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+    margin-top: 0.25rem;
+    padding: 0.5rem 1rem;
+    color: #e74c3c;
+    text-decoration: none;
+    font-size: 0.9rem;
+    font-weight: 500;
+    border-radius: var(--radius-sm);
+    transition: background 0.2s ease, color 0.2s ease;
+}
+.nav-drawer-logout:hover {
+    background: rgba(231, 76, 60, 0.15);
+    color: #c0392b;
+}
+.nav-drawer-logout i {
+    font-size: 1rem;
 }
 
 /* إخفاء الدرج والزر على الشاشات الكبيرة */
