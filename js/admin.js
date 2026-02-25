@@ -139,6 +139,7 @@ function closeSidebar() {
     const overlay = document.getElementById('sidebarOverlay');
     if (sidebar) sidebar.classList.remove('open');
     if (overlay) overlay.classList.remove('active');
+    document.body.classList.remove('sidebar-open');
     document.body.style.overflow = '';
 }
 
@@ -152,6 +153,7 @@ function setupSidebarMobile() {
     toggle.addEventListener('click', function () {
         const isOpen = sidebar.classList.toggle('open');
         overlay.classList.toggle('active', isOpen);
+        document.body.classList.toggle('sidebar-open', isOpen);
         overlay.setAttribute('aria-hidden', !isOpen);
         document.body.style.overflow = isOpen ? 'hidden' : '';
         toggle.setAttribute('aria-label', isOpen ? 'إغلاق القائمة' : 'فتح القائمة');

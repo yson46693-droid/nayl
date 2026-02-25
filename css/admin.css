@@ -1201,8 +1201,8 @@ tr:hover td {
 /* Mobile */
 @media (max-width: 768px) {
     .sidebar {
-        width: 280px;
-        max-width: 85vw;
+        width: 50%;
+        max-width: 50vw;
     }
     .sidebar-header {
         padding: var(--spacing-lg);
@@ -1211,10 +1211,23 @@ tr:hover td {
         padding: 12px 20px;
         font-size: 0.9rem;
     }
+    /* التوب بار ثابت فوق الشريط الجانبي لعدم إخفاء "لوحة التحكم" */
     .top-bar {
+        position: fixed;
+        top: 0;
+        right: 0;
+        left: 0;
+        z-index: 1100;
         padding: 0 var(--spacing-md);
         min-height: 60px;
         gap: var(--spacing-sm);
+    }
+    .main-content {
+        padding-top: var(--header-height);
+    }
+    /* عند فتح الشريط الجانبي: التوب بار أسفله حتى لا يحجب "لوحة التحكم" */
+    body.sidebar-open .top-bar {
+        z-index: 999;
     }
     .search-bar {
         flex: 1;
@@ -1408,11 +1421,12 @@ tr:hover td {
         right: 8px;
     }
     .sidebar {
-        width: 100%;
-        max-width: 100%;
+        width: 50%;
+        max-width: 50vw;
     }
     .top-bar {
         height: 56px;
+        min-height: 56px;
         padding: 0 var(--spacing-sm);
     }
     .admin-menu-toggle {
