@@ -53,14 +53,13 @@
         display: none !important;
     }
 
-    /* الستار الخلفي - ثابت على كامل الشاشة دائماً (من أعلى إلى أسفل الـ viewport) */
+    /* الستار الخلفي - الارتفاع يُحدَّث من JS بـ visualViewport لضمان تغطية كاملة على الموبايل */
     .app-drawer-overlay {
         display: block;
         position: fixed;
         top: 0;
         left: 0;
         right: 0;
-        bottom: 0;
         width: 100%;
         min-height: 100vh;
         min-height: 100dvh;
@@ -80,18 +79,18 @@
         touch-action: none;
     }
 
-    /* القائمة الجانبية - تفتح وتغلق من اليمين، تغطي كامل ارتفاع الشاشة دائماً (top+bottom يربطانها بالـ viewport) */
+    /* القائمة الجانبية - الارتفاع يُحدَّث من JS بـ visualViewport لضمان تغطية كاملة عند التمرير */
     .app-drawer {
         display: flex;
         flex-direction: column;
         position: fixed;
         top: 0;
         right: 0;
-        bottom: 0;
         left: auto;
         width: min(320px, 85vw);
         max-width: 320px;
-        /* الارتفاع من top إلى bottom يضمن تغطية كاملة حتى بعد التمرير */
+        min-height: 100vh;
+        min-height: 100dvh;
         background: linear-gradient(180deg, #1a2332 0%, #243447 100%);
         box-shadow: -4px 0 24px rgba(0, 0, 0, 0.35);
         z-index: 9999;

@@ -25,8 +25,30 @@
         };
     }
 
+    /** تحديث ارتفاع الستار والقائمة ليطابق المنطقة المرئية الفعلية (يحل مشكلة عدم التغطية على الموبايل) */
+    function setDrawerFullHeight() {
+        var overlay = document.querySelector('.app-drawer-overlay');
+        var drawer = document.querySelector('.app-drawer');
+        var vv = window.visualViewport;
+        var h = (vv && vv.height) || window.innerHeight || document.documentElement.clientHeight;
+        var topOffset = (vv && vv.offsetTop) || 0;
+        if (overlay) {
+            overlay.style.height = h + 'px';
+            overlay.style.top = topOffset + 'px';
+            overlay.style.left = '0';
+            overlay.style.right = '0';
+            overlay.style.bottom = '';
+        }
+        if (drawer) {
+            drawer.style.height = h + 'px';
+            drawer.style.top = topOffset + 'px';
+            drawer.style.bottom = '';
+        }
+    }
+
     function openDrawer() {
         var el = getDrawerElements();
+        setDrawerFullHeight();
         if (el.drawer) el.drawer.classList.add('open');
         if (el.overlay) el.overlay.classList.add('active');
         document.body.classList.add('app-drawer-open');
@@ -100,6 +122,13 @@
         ensureDrawerInBody();
         var el = getDrawerElements();
         if (!el.toggle || !el.drawer) return;
+
+        setDrawerFullHeight();
+        if (window.visualViewport) {
+            window.visualViewport.addEventListener('resize', setDrawerFullHeight);
+            window.visualViewport.addEventListener('scroll', setDrawerFullHeight);
+        }
+        window.addEventListener('resize', setDrawerFullHeight);
 
         el.toggle.addEventListener('click', function () {
             if (isDrawerOpen()) {
