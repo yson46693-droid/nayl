@@ -410,6 +410,26 @@
     overflow-x: auto;
 }
 
+/* معرف الجهاز الكامل - قابل للنسخ */
+.device-vid-cell {
+    max-width: 280px;
+    word-break: break-all;
+}
+.device-vid-code {
+    font-family: ui-monospace, 'Cascadia Code', 'Source Code Pro', Menlo, monospace;
+    font-size: 0.8rem;
+    background: #f1f5f9;
+    padding: 0.25rem 0.5rem;
+    border-radius: 4px;
+    display: inline-block;
+    direction: ltr;
+    text-align: left;
+}
+@media (max-width: 768px) {
+    .device-vid-cell { max-width: 160px; }
+    .device-vid-code { font-size: 0.7rem; }
+}
+
 table {
     width: 100%;
     border-collapse: collapse;

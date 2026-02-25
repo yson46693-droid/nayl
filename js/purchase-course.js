@@ -3,6 +3,27 @@
  * يعرض بيانات المستخدم الحالي (الرصيد) ويُحمّلها من API
  * إذا وُجد id في الرابط (?id=) يُحمّل تفاصيل الكورس من API
  */
+
+function showPurchasePageError(message) {
+    const container = document.querySelector('.purchase-section .container');
+    const layout = document.querySelector('.purchase-section .purchase-layout');
+    if (layout) layout.style.display = 'none';
+    let errorEl = document.getElementById('purchase-page-error');
+    if (!errorEl && container) {
+        errorEl = document.createElement('div');
+        errorEl.id = 'purchase-page-error';
+        container.appendChild(errorEl);
+    }
+    if (errorEl) {
+        errorEl.style.display = 'block';
+        const coursesHref = (window.location.pathname || '').indexOf('/') > 0 && (window.location.pathname.split('/').filter(Boolean).length > 1)
+            ? window.location.pathname.replace(/\/[^/]*$/, '/') + 'courses.html'
+            : 'courses.html';
+        const escapedMsg = (message || 'تعذر تحميل الصفحة.').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
+        errorEl.innerHTML = '<div class="purchase-error-card" style="text-align: center; padding: 2rem; margin-top: 1rem; background: #f8fafc; border: 1px solid #e0e6ed; border-radius: 12px;"><p style="color: #2c3e50; margin: 0 0 1rem;">' + escapedMsg + '</p><a href="' + coursesHref + '" class="btn-purchase" style="display: inline-flex; align-items: center; gap: 8px; text-decoration: none;"><i class="bi bi-arrow-right"></i><span>العودة إلى الكورسات</span></a></div>';
+    }
+}
+
 document.addEventListener('DOMContentLoaded', async function () {
     const sessionToken = localStorage.getItem('sessionToken') || sessionStorage.getItem('sessionToken');
     const coursePriceEl = document.getElementById('course-price');
@@ -24,10 +45,16 @@ document.addEventListener('DOMContentLoaded', async function () {
     const codeRedeemOverlay = document.querySelector('#code-redeem-modal .code-redeem-overlay');
 
     const urlParams = new URLSearchParams(window.location.search);
-    const courseId = urlParams.get('id') ? parseInt(urlParams.get('id'), 10) : null;
+    const idParam = urlParams.get('id');
+    const courseId = idParam ? parseInt(idParam, 10) : null;
+    const hasValidId = courseId !== null && !isNaN(courseId) && courseId >= 1;
 
-    if (!courseId || courseId < 1) {
-        window.location.href = 'courses.html';
+    // مسار الـ API بالنسبة لموقع الصفحة (يعمل من الجذر أو من مجلد فرعي)
+    const pathParts = window.location.pathname.split('/').filter(Boolean);
+    const apiBase = pathParts.length > 1 ? '/' + pathParts.slice(0, -1).join('/') + '/' : '';
+
+    if (!hasValidId) {
+        showPurchasePageError('معرف الكورس غير صحيح أو غير موجود في الرابط. يرجى اختيار كورس من قائمة الكورسات.');
         return;
     }
 
@@ -261,51 +288,59 @@ document.addEventListener('DOMContentLoaded', async function () {
         return mins + ' دقيقة';
     }
 
-    if (courseId && courseId > 0) {
-        try {
-            const res = await fetch('api/courses/get.php?id=' + courseId, {
-                method: 'GET',
-                headers: { 'Content-Type': 'application/json' },
-                credentials: 'include'
-            });
-            const result = await res.json();
-            if (res.ok && result.success && result.data) {
-                const c = result.data;
-                const apiPrice = (c.price != null && c.price !== '') ? parseFloat(c.price) : 500;
-                coursePrice = !isNaN(apiPrice) && apiPrice >= 0 ? apiPrice : 500;
-                const titleEl = document.querySelector('.course-title');
-                const descEl = document.querySelector('.course-description');
-                const imgEl = document.querySelector('.course-image-container .course-image');
-                const featureDuration = document.getElementById('feature-duration');
-                const featureLessons = document.getElementById('feature-lessons');
-                const summaryName = document.getElementById('summary-course-name');
-                const summaryPrice = document.getElementById('summary-price');
-                const summaryTotal = document.getElementById('summary-total');
-                if (titleEl) titleEl.textContent = c.title;
-                if (descEl) descEl.textContent = c.description || '';
-                if (imgEl) {
-                    imgEl.src = c.cover_image_url || 'pics/1.jpg';
-                    imgEl.alt = c.title;
-                }
-                if (featureDuration) featureDuration.textContent = formatDuration(c.total_duration_seconds);
-                if (featureLessons) featureLessons.textContent = (c.videos_count || 0) + ' درس فيديو';
-                if (summaryName) summaryName.textContent = c.title;
-                effectivePrice = coursePrice;
-                appliedDiscount = { amount: 0, code: '' };
-                const priceStr = coursePrice.toFixed(2) + ' ج.م';
-                if (summaryPrice) summaryPrice.textContent = priceStr;
-                if (summaryTotal) summaryTotal.textContent = priceStr;
-                if (coursePriceEl) coursePriceEl.textContent = coursePrice.toFixed(2);
-                updateDiscountUI();
-            } else {
-                window.location.href = 'courses.html';
-                return;
+    try {
+        const getUrl = apiBase + 'api/courses/get.php?id=' + encodeURIComponent(courseId);
+        const res = await fetch(getUrl, {
+            method: 'GET',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include'
+        });
+        let result = { success: false };
+        const contentType = res.headers.get('content-type') || '';
+        if (contentType.includes('application/json')) {
+            try {
+                result = await res.json();
+            } catch (parseErr) {
+                console.error('Error parsing get course response:', parseErr);
             }
-        } catch (err) {
-            console.error('Error loading course:', err);
-            window.location.href = 'courses.html';
+        }
+        if (res.ok && result.success && result.data) {
+            const c = result.data;
+            const apiPrice = (c.price != null && c.price !== '') ? parseFloat(c.price) : 500;
+            coursePrice = !isNaN(apiPrice) && apiPrice >= 0 ? apiPrice : 500;
+            const titleEl = document.querySelector('.course-title');
+            const descEl = document.querySelector('.course-description');
+            const imgEl = document.querySelector('.course-image-container .course-image');
+            const featureDuration = document.getElementById('feature-duration');
+            const featureLessons = document.getElementById('feature-lessons');
+            const summaryName = document.getElementById('summary-course-name');
+            const summaryPrice = document.getElementById('summary-price');
+            const summaryTotal = document.getElementById('summary-total');
+            if (titleEl) titleEl.textContent = c.title;
+            if (descEl) descEl.textContent = c.description || '';
+            if (imgEl) {
+                imgEl.src = c.cover_image_url || 'pics/1.jpg';
+                imgEl.alt = c.title;
+            }
+            if (featureDuration) featureDuration.textContent = formatDuration(c.total_duration_seconds);
+            if (featureLessons) featureLessons.textContent = (c.videos_count || 0) + ' درس فيديو';
+            if (summaryName) summaryName.textContent = c.title;
+            effectivePrice = coursePrice;
+            appliedDiscount = { amount: 0, code: '' };
+            const priceStr = coursePrice.toFixed(2) + ' ج.م';
+            if (summaryPrice) summaryPrice.textContent = priceStr;
+            if (summaryTotal) summaryTotal.textContent = priceStr;
+            if (coursePriceEl) coursePriceEl.textContent = coursePrice.toFixed(2);
+            updateDiscountUI();
+        } else {
+            const msg = (result && result.message) ? result.message : (res.status === 404 ? 'الكورس غير موجود أو غير متاح للشراء.' : 'تعذر تحميل تفاصيل الكورس. تحقق من الاتصال أو حدّث الصفحة.');
+            showPurchasePageError(msg);
             return;
         }
+    } catch (err) {
+        console.error('Error loading course:', err);
+        showPurchasePageError('تعذر الاتصال بالسيرفر. تحقق من الاتصال بالإنترنت وحاول مرة أخرى.');
+        return;
     }
 
     // عرض "جاري التحميل..." للرصيد حتى يتم الجلب

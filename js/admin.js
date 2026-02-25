@@ -122,6 +122,9 @@ function setupTabNavigation() {
         });
         observer.observe(devicesSection, { attributes: true, attributeFilter: ['class'] });
     }
+    // تغيير فلتر الأيام يعيد تحميل الأجهزة
+    const devicesDaysFilter = document.getElementById('devicesDaysFilter');
+    if (devicesDaysFilter) devicesDaysFilter.addEventListener('change', loadDevices);
 }
 
 // Render Users Table with Pagination
@@ -345,10 +348,13 @@ function formatDeviceLastSeen(dateStr) {
 async function loadDevices() {
     const tbody = document.getElementById('devicesTableBody');
     if (!tbody) return;
+    const daysFilter = document.getElementById('devicesDaysFilter');
+    const days = (daysFilter && daysFilter.value) ? parseInt(daysFilter.value, 10) : 90;
     tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 2rem; color: var(--text-gray);">جاري التحميل...</td></tr>';
     const token = localStorage.getItem('admin_session_token') || getCookie('admin_session_token');
+    const url = days > 0 ? '../api/admin/get-devices.php?days=' + days : '../api/admin/get-devices.php';
     try {
-        const response = await fetch('../api/admin/get-devices.php', {
+        const response = await fetch(url, {
             method: 'GET',
             headers: { 'Authorization': 'Bearer ' + (token || '') },
             credentials: 'same-origin'
@@ -371,15 +377,37 @@ async function loadDevices() {
             return;
         }
         tbody.innerHTML = devices.map((d, i) => {
-            const shortId = d.v_id ? (d.v_id.length > 12 ? d.v_id.slice(0, 8) + '…' : d.v_id) : '—';
+            const fullId = (d.v_id && String(d.v_id).trim()) ? d.v_id : '—';
+            const copyTitle = fullId !== '—' ? ' انقر للنسخ' : '';
             return '<tr>' +
                 '<td>' + (i + 1) + '</td>' +
                 '<td>' + escapeHtml(d.device_type) + '</td>' +
-                '<td title="' + escapeHtml(d.v_id || '') + '">' + escapeHtml(shortId) + '</td>' +
+                '<td class="device-vid-cell" title="' + escapeHtml(fullId) + copyTitle + '"><code class="device-vid-code">' + escapeHtml(fullId) + '</code></td>' +
                 '<td>' + (d.visit_count || 0) + '</td>' +
                 '<td>' + formatDeviceLastSeen(d.last_visit_at) + '</td>' +
                 '</tr>';
         }).join('');
+        // نسخ معرف الجهاز عند النقر على الخلية
+        tbody.querySelectorAll('.device-vid-cell').forEach(function (cell) {
+            cell.style.cursor = 'pointer';
+            cell.addEventListener('click', function () {
+                const code = cell.querySelector('.device-vid-code');
+                const text = code ? code.textContent : '';
+                if (text && text !== '—') {
+                    navigator.clipboard.writeText(text).then(function () {
+                        if (typeof cell._copyToast === 'undefined') {
+                            cell._copyToast = true;
+                            const msg = document.createElement('span');
+                            msg.textContent = 'تم النسخ';
+                            msg.style.cssText = 'position:absolute;background:#4CAF50;color:#fff;padding:2px 8px;border-radius:4px;font-size:0.75rem;';
+                            cell.style.position = 'relative';
+                            cell.appendChild(msg);
+                            setTimeout(function () { msg.remove(); cell._copyToast = false; }, 1500);
+                        }
+                    }).catch(function () {});
+                }
+            });
+        });
     } catch (err) {
         console.error('Error loading devices:', err);
         tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 2rem; color: red;">خطأ في الاتصال بالخادم. تأكد من تسجيل الدخول ومسار الـ API.</td></tr>';
@@ -1455,6 +1483,8 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 async function editCourse(courseId) {
+    courseId = parseInt(courseId, 10) || 0;
+    if (!courseId) return;
     currentCourseId = courseId;
 
     const contentEl = document.getElementById('courseEditContent');
@@ -1470,10 +1500,13 @@ async function editCourse(courseId) {
             headers: { 'Authorization': 'Bearer ' + token },
             credentials: 'include'
         });
-        const result = await response.json();
-        if (result.success && result.data && result.data.course) {
-            course = result.data.course;
-            if (!Array.isArray(course.videos)) course.videos = [];
+        const contentType = response.headers.get('content-type') || '';
+        if (contentType.includes('application/json')) {
+            const result = await response.json();
+            if (result.success && result.data && result.data.course) {
+                course = result.data.course;
+                if (!Array.isArray(course.videos)) course.videos = [];
+            }
         }
     } catch (e) {
         console.error('Error loading course details:', e);
@@ -1481,13 +1514,38 @@ async function editCourse(courseId) {
 
     if (!course) {
         const courses = JSON.parse(localStorage.getItem('nayl_courses')) || [];
-        course = courses.find(c => c.id === courseId);
+        course = courses.find(c => (c && (c.id === courseId || c.id === parseInt(courseId, 10)))) || null;
         if (!course) {
             if (contentEl) contentEl.innerHTML = '<div style="text-align: center; padding: 2rem; color: #e74c3c;">الكورس غير موجود أو فشل تحميل التفاصيل.</div>';
             return;
         }
         if (!Array.isArray(course.videos)) course.videos = [];
     }
+
+    // إذا الفيديوهات فارغة، جلبها من API مرة أخرى (قد تكون الاستجابة الأولى لم تتضمنها)
+    if (!course.videos || course.videos.length === 0) {
+        try {
+            const token = localStorage.getItem('admin_session_token') || getCookie('admin_session_token');
+            const resVideos = await fetch('../api/admin/get-course-details.php?course_id=' + encodeURIComponent(courseId), {
+                method: 'GET',
+                headers: { 'Authorization': 'Bearer ' + token },
+                credentials: 'include'
+            });
+            const ct = resVideos.headers.get('content-type') || '';
+            if (ct.includes('application/json')) {
+                const dataVideos = await resVideos.json();
+                if (dataVideos.success && dataVideos.data && dataVideos.data.course) {
+                    const full = dataVideos.data.course;
+                    if (Array.isArray(full.videos)) course.videos = full.videos;
+                    if (full.videosCount != null) course.videosCount = full.videosCount;
+                }
+            }
+        } catch (err) {
+            console.error('Error loading course videos:', err);
+        }
+    }
+
+    const videosCountModal = (course.videos && course.videos.length) ? course.videos.length : (course.videosCount != null ? course.videosCount : 0);
 
     // Build edit modal content
     let modalContent = `
@@ -1516,7 +1574,7 @@ async function editCourse(courseId) {
 
         <div class="course-edit-section">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-md);">
-                <h4 style="margin: 0;">الفيديوهات (${course.videos.length})</h4>
+                <h4 style="margin: 0;">الفيديوهات (${videosCountModal})</h4>
                 <button class="btn btn-secondary btn-with-icon" onclick="showAddVideoForm(${courseId})">
                     <i class="bi bi-plus-circle-fill"></i>
                     <span>إضافة فيديو جديد</span>
@@ -1883,6 +1941,8 @@ document.addEventListener('DOMContentLoaded', () => {
 // ===========================
 
 async function editCoursePage(courseId) {
+    courseId = parseInt(courseId, 10) || 0;
+    if (!courseId) return;
     currentCourseId = courseId;
 
     const pageContentEl = document.getElementById('courseEditPageContent');
@@ -1922,7 +1982,7 @@ async function editCoursePage(courseId) {
 
     if (!course) {
         const courses = JSON.parse(localStorage.getItem('nayl_courses')) || [];
-        course = courses.find(c => c.id === courseId);
+        course = courses.find(c => (c && (c.id === courseId || c.id === parseInt(courseId, 10)))) || null;
         if (!course) {
             if (pageContentEl) pageContentEl.innerHTML = '<div style="text-align: center; padding: 2rem; color: #e74c3c;">الكورس غير موجود أو فشل تحميل التفاصيل.</div>';
             return;
@@ -1930,8 +1990,8 @@ async function editCoursePage(courseId) {
         if (!Array.isArray(course.videos)) course.videos = [];
     }
 
-    // إذا الكورس من localStorage أو الفيديوهات فارغة، جلب الفيديوهات من API (قائمة الكورسات لا ترجع فيديوهات)
-    if (course.videos.length === 0) {
+    // إذا الفيديوهات فارغة، جلبها من API (قد تكون الاستجابة الأولى لم تتضمنها أو الكورس من localStorage)
+    if (!course.videos || course.videos.length === 0) {
         try {
             const token = localStorage.getItem('admin_session_token') || getCookie('admin_session_token');
             const resVideos = await fetch('../api/admin/get-course-details.php?course_id=' + encodeURIComponent(courseId), {
@@ -1942,14 +2002,18 @@ async function editCoursePage(courseId) {
             const ct = resVideos.headers.get('content-type') || '';
             if (ct.includes('application/json')) {
                 const dataVideos = await resVideos.json();
-                if (dataVideos.success && dataVideos.data && dataVideos.data.course && Array.isArray(dataVideos.data.course.videos)) {
-                    course.videos = dataVideos.data.course.videos;
+                if (dataVideos.success && dataVideos.data && dataVideos.data.course) {
+                    const full = dataVideos.data.course;
+                    if (Array.isArray(full.videos)) course.videos = full.videos;
+                    if (full.videosCount != null && course.videos.length === 0) course.videosCount = full.videosCount;
                 }
             }
         } catch (err) {
             console.error('Error loading course videos:', err);
         }
     }
+
+    const videosCountDisplay = (course.videos && course.videos.length) ? course.videos.length : (course.videosCount != null ? course.videosCount : 0);
 
     let editContent = `
         <div class="course-edit-section">
@@ -1977,7 +2041,7 @@ async function editCoursePage(courseId) {
 
         <div class="course-edit-section">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-md);">
-                <h4 style="margin: 0;">فيديوهات الكورس (${course.videos.length})</h4>
+                <h4 style="margin: 0;">فيديوهات الكورس (${videosCountDisplay})</h4>
             </div>
             <div id="editVideosList">
     `;

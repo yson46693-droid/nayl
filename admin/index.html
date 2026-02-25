@@ -837,13 +837,21 @@
                 </div>
 
                 <div class="data-card">
+                    <div class="devices-filter" style="margin-bottom: 1rem; display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+                        <label for="devicesDaysFilter" style="color: var(--text-gray); font-size: 0.9rem;">عرض الأجهزة:</label>
+                        <select id="devicesDaysFilter" style="padding: 0.4rem 0.75rem; border-radius: 6px; border: 1px solid #ddd; background: #fff;">
+                            <option value="90">النشطة خلال آخر 90 يوم</option>
+                            <option value="30">النشطة خلال آخر 30 يوم</option>
+                            <option value="0">الكل</option>
+                        </select>
+                    </div>
                     <div class="table-responsive">
                         <table id="devicesTable">
                             <thead>
                                 <tr>
                                     <th>#</th>
                                     <th>نوع الجهاز</th>
-                                    <th>معرف الجهاز</th>
+                                    <th>معرف الجهاز (كامل)</th>
                                     <th>عدد الزيارات</th>
                                     <th>آخر نشاط</th>
                                 </tr>

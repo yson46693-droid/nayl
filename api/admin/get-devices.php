@@ -76,11 +76,29 @@ try {
         sendJsonResponse(false, null, 'Database Connection Error', 500);
     }
 
-    $stmt = $pdo->query("
-        SELECT id, v_id, visit_count, last_visit_at, user_agent
-        FROM site_visits
+    // فلترة حسب الأيام (اختياري): ?days=90 = الأجهزة النشطة خلال آخر 90 يوم فقط
+    $days = isset($_GET['days']) ? (int) $_GET['days'] : 0;
+    $whereClause = '';
+    $params = [];
+    if ($days > 0 && $days <= 365) {
+        $whereClause = ' WHERE t.last_visit_at >= (NOW() - INTERVAL :days DAY) ';
+        $params['days'] = $days;
+    }
+
+    // صف واحد لكل جهاز (v_id): مجموع الزيارات، آخر نشاط، و user_agent من آخر زيارة
+    $sql = "
+        SELECT
+            t.v_id,
+            SUM(t.visit_count) AS visit_count,
+            MAX(t.last_visit_at) AS last_visit_at,
+            (SELECT u.user_agent FROM site_visits u WHERE u.v_id = t.v_id ORDER BY u.last_visit_at DESC LIMIT 1) AS user_agent
+        FROM site_visits t
+        $whereClause
+        GROUP BY t.v_id
         ORDER BY last_visit_at DESC
-    ");
+    ";
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute($params);
     $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     $devices = [];
@@ -89,7 +107,6 @@ try {
         $deviceType = getDeviceTypeFromUserAgent($ua);
 
         $devices[] = [
-            'id' => (int) $row['id'],
             'v_id' => $row['v_id'],
             'device_type' => $deviceType,
             'visit_count' => (int) ($row['visit_count'] ?? 0),

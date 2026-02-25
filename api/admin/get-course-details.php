@@ -81,13 +81,14 @@ try {
     $createdAt = $row['created_at'];
     $uploadDate = $createdAt ? date('d/m/Y', strtotime($createdAt)) : '—';
 
+    $courseIdForVideos = (int) $row['id'];
     $stmtVideos = $pdo->prepare("
         SELECT id, title, description, video_order, duration, status, thumbnail_url, video_url
         FROM course_videos
         WHERE course_id = ?
         ORDER BY video_order ASC, id ASC
     ");
-    $stmtVideos->execute([$courseId]);
+    $stmtVideos->execute([$courseIdForVideos]);
     $videoRows = $stmtVideos->fetchAll(PDO::FETCH_ASSOC);
 
     $videos = [];
