@@ -15,6 +15,7 @@
     <link rel="stylesheet" href="css/user-identity.css">
     <link rel="stylesheet" href="css/complaints.css">
     <link rel="stylesheet" href="css/course-codes.css">
+    <link rel="stylesheet" href="css/app-drawer.css">
     <link rel="shortcut icon" href="fav.ico" type="image/x-icon">
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;600;700;800;900&display=swap"
         rel="stylesheet">
@@ -25,6 +26,9 @@
     <!-- شريط التنقل -->
     <nav class="navbar">
         <div class="nav-container">
+            <button type="button" class="app-drawer-toggle" aria-label="فتح القائمة">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"/><line x1="3" y1="12" x2="21" y2="12"/><line x1="3" y1="18" x2="21" y2="18"/></svg>
+            </button>
             <div class="nav-links">
                 <div class="profile-dropdown">
                     <div class="profile-avatar">
@@ -61,6 +65,25 @@
             </a>
         </div>
     </nav>
+
+    <div class="app-drawer-overlay" id="appDrawerOverlay" aria-hidden="true"></div>
+    <aside class="app-drawer" id="appDrawer" role="dialog" aria-label="قائمة الصفحات">
+        <nav class="app-drawer-tabs">
+            <a href="profile.html?tab=course-codes" class="app-drawer-link"><i class="bi bi-upc-scan"></i>أكوادي</a>
+            <a href="my-courses.html" class="app-drawer-link"><i class="bi bi-collection-play-fill"></i>كورساتي</a>
+            <a href="recharge.html" class="app-drawer-link"><i class="bi bi-wallet2"></i>صفحة الشحن</a>
+            <a href="courses.html" class="app-drawer-link"><i class="bi bi-grid-fill"></i>الكورسات</a>
+        </nav>
+        <div class="app-drawer-spacer"></div>
+        <div class="app-drawer-user-card">
+            <div class="app-drawer-user-avatar"><i class="bi bi-person-circle"></i></div>
+            <h3 class="app-drawer-user-name">—</h3>
+            <div class="app-drawer-user-id"><span class="id-label">ID</span><span class="app-drawer-user-id-value">—</span></div>
+        </div>
+        <div class="app-drawer-logout-wrap">
+            <button type="button" class="app-drawer-logout"><i class="bi bi-box-arrow-right"></i>تسجيل الخروج</button>
+        </div>
+    </aside>
 
     <!-- قسم الملف الشخصي -->
     <section class="profile-section">
@@ -644,6 +667,7 @@
         })();
     </script>
     <script src="js/auth-check.js"></script>
+    <script src="js/app-drawer.js"></script>
     <script>
         // حماية الصفحة - التحقق من تسجيل الدخول
         document.addEventListener('DOMContentLoaded', async function () {
