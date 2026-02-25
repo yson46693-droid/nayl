@@ -21,7 +21,10 @@ define('DB_NAME', env('DB_NAME', 'nayl'));
 define('DB_USER', env('DB_USER', 'root'));
 define('DB_PASS', env('DB_PASS', ''));
 define('DB_CHARSET', env('DB_CHARSET', 'utf8mb4'));
-define('DB_PORT', env('DB_PORT', '3306'));
+// استخراج الأرقام فقط للبورت (تجنباً لالتصاق قيمة أخرى عند خطأ في تنسيق .env)
+$rawPort = env('DB_PORT', '3306');
+define('DB_PORT', preg_match('/^[0-9]+/', $rawPort, $m) ? $m[0] : '3306');
+define('DB_PERSISTENT', env('DB_PERSISTENT', 'false') === 'true');
 
 /** آخر رسالة خطأ من PDO (للتشخيص عند ?debug=1 فقط) */
 $GLOBALS['__db_last_error'] = null;
@@ -47,7 +50,8 @@ function getDatabaseConnection() {
                 PDO::ATTR_ERRMODE            => PDO::ERRMODE_EXCEPTION,
                 PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
                 PDO::ATTR_EMULATE_PREPARES   => false,
-                PDO::ATTR_TIMEOUT            => 5 // timeout 5 ثواني
+                PDO::ATTR_TIMEOUT            => 5, // timeout 5 ثواني
+                PDO::ATTR_PERSISTENT         => DB_PERSISTENT // يقلل عدد الاتصالات بالساعة على الاستضافة
             ];
             
             $pdo = new PDO($dsn, DB_USER, DB_PASS, $options);
