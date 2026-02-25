@@ -1376,8 +1376,11 @@ tr:hover td {
     #recharge-requests .section-header .btn {
         width: 100%;
     }
+    /* قائمة الإشعارات: ثابتة بالنسبة للشاشة حتى لا يختفي زر "حذف الكل" */
     .notifications-dropdown {
-        right: 0;
+        position: fixed;
+        top: 60px;
+        right: 12px;
         left: auto;
         width: min(320px, calc(100vw - 24px));
         max-width: 320px;
@@ -1399,6 +1402,10 @@ tr:hover td {
 @media (max-width: 480px) {
     :root {
         --header-height: 56px;
+    }
+    .notifications-dropdown {
+        top: 56px;
+        right: 8px;
     }
     .sidebar {
         width: 100%;
