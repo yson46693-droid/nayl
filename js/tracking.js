@@ -35,6 +35,14 @@
         // Unlikely to visit api files directly with HTML
     }
 
+    // تتبع مرة واحدة لكل صفحة في الجلسة لتقليل عدد الاتصالات بالساعة (حد max_connections_per_hour)
+    var trackKey = 'tracked_' + (path || '/') + '_' + v_id;
+    try {
+        if (sessionStorage.getItem(trackKey)) {
+            return;
+        }
+    } catch (e) { /* قد يفشل في وضع خاص */ }
+
     // Try to send
     fetch(apiPath, {
         method: 'POST',
@@ -42,6 +50,8 @@
             'Content-Type': 'application/json'
         },
         body: JSON.stringify({ v_id: v_id })
+    }).then(function () {
+        try { sessionStorage.setItem(trackKey, '1'); } catch (e) {}
     }).catch(err => {
         // Fallback for pathing issues, try absolute if likely root
         if (apiPath !== '/api/visit/track.php') {
@@ -49,6 +59,8 @@
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ v_id: v_id })
+            }).then(function () {
+                try { sessionStorage.setItem(trackKey, '1'); } catch (e) {}
             }).catch(e => console.error('Tracking failed', e));
         }
     });

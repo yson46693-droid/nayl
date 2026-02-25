@@ -9,6 +9,9 @@ document.addEventListener('DOMContentLoaded', () => {
     // Load Site Visitor Stats
     loadSiteVisitorStats();
 
+    // Setup Sidebar toggle for mobile/tablet
+    setupSidebarMobile();
+
     // Setup Tab Navigation
     setupTabNavigation();
 
@@ -86,6 +89,9 @@ function setupTabNavigation() {
             e.preventDefault();
             const targetTab = link.getAttribute('data-tab');
 
+            // Close sidebar on mobile when navigating
+            closeSidebar();
+
             // Save active tab to localStorage
             localStorage.setItem('admin_active_tab', targetTab);
 
@@ -125,6 +131,33 @@ function setupTabNavigation() {
     // تغيير فلتر الأيام يعيد تحميل الأجهزة
     const devicesDaysFilter = document.getElementById('devicesDaysFilter');
     if (devicesDaysFilter) devicesDaysFilter.addEventListener('change', loadDevices);
+}
+
+/** إغلاق القائمة الجانبية على الموبايل/التابلت */
+function closeSidebar() {
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    if (sidebar) sidebar.classList.remove('open');
+    if (overlay) overlay.classList.remove('active');
+    document.body.style.overflow = '';
+}
+
+/** فتح/إغلاق القائمة الجانبية على الموبايل والتابلت */
+function setupSidebarMobile() {
+    const toggle = document.getElementById('adminMenuToggle');
+    const sidebar = document.getElementById('sidebar');
+    const overlay = document.getElementById('sidebarOverlay');
+    if (!toggle || !sidebar || !overlay) return;
+
+    toggle.addEventListener('click', function () {
+        const isOpen = sidebar.classList.toggle('open');
+        overlay.classList.toggle('active', isOpen);
+        overlay.setAttribute('aria-hidden', !isOpen);
+        document.body.style.overflow = isOpen ? 'hidden' : '';
+        toggle.setAttribute('aria-label', isOpen ? 'إغلاق القائمة' : 'فتح القائمة');
+    });
+
+    overlay.addEventListener('click', closeSidebar);
 }
 
 // Render Users Table with Pagination
@@ -2398,7 +2431,7 @@ document.addEventListener('DOMContentLoaded', () => {
     fetchNotifications();
 
     // Start Polling (every 30 seconds)
-    notificationPollInterval = setInterval(fetchNotifications, 30000);
+    notificationPollInterval = setInterval(fetchNotifications, 60000);
 
     // Close dropdown when clicking outside
     document.addEventListener('click', (e) => {
@@ -2730,7 +2763,7 @@ async function updatePendingRechargeCount() {
 // Initial Call
 document.addEventListener('DOMContentLoaded', updatePendingRechargeCount);
 // Also update every 60 seconds
-setInterval(updatePendingRechargeCount, 60000);
+setInterval(updatePendingRechargeCount, 120000);
 
 // ===========================
 // Visitor Stats

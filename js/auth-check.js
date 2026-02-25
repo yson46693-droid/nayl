@@ -31,6 +31,17 @@ async function checkAuth() {
         // إذا كان التاريخ غير صالح (NaN) نتجاهل الفحص ونعتمد على verify الخادم
     }
 
+    // تخزين مؤقت لنتيجة verify (90 ثانية) لتقليل عدد طلبات API وحماية حد الاتصالات بالساعة
+    const verifyCacheKey = 'verifyCacheAt';
+    const cacheMs = 90000;
+    const cachedAt = sessionStorage.getItem(verifyCacheKey);
+    if (cachedAt) {
+        const t = parseInt(cachedAt, 10);
+        if (!isNaN(t) && (Date.now() - t) < cacheMs) {
+            return true;
+        }
+    }
+
     // بناء مسار verify (يدعم الجذر والمجلد الفرعي)
     function getVerifyUrl() {
         if (typeof window.API_BASE !== 'undefined' && window.API_BASE) return window.API_BASE + '/api/auth/verify.php';
@@ -88,6 +99,7 @@ async function checkAuth() {
         }
 
         if (result && result.success) {
+            sessionStorage.setItem(verifyCacheKey, String(Date.now()));
             if (result.data) {
                 var storage = localStorage.getItem('sessionToken') ? localStorage : sessionStorage;
                 var userData = result.data.user || result.data;
@@ -139,6 +151,7 @@ function clearAuthData() {
     sessionStorage.removeItem('userIdentifier');
     sessionStorage.removeItem('identifierType');
     sessionStorage.removeItem('isGuest');
+    sessionStorage.removeItem('verifyCacheAt');
 
     // توافق مع auth.js (مفاتيح بديلة)
     localStorage.removeItem('session_token');

@@ -17,15 +17,16 @@ if ($pdo) {
         'message' => 'اتصال ناجح بقاعدة البيانات'
     ], JSON_UNESCAPED_UNICODE);
 } else {
+    $err = function_exists('getLastDatabaseError') ? getLastDatabaseError() : null;
+    $isMaxConnections = $err && (strpos($err, '1226') !== false || strpos($err, 'max_connections_per_hour') !== false);
     $response = [
         'success' => false,
-        'message' => 'فشل الاتصال. تحقق من: 1) وجود ملف api/.env 2) قيم DB_HOST, DB_NAME, DB_USER, DB_PASS 3) تشغيل MySQL 4) إنشاء قاعدة البيانات (استورد database-schema.sql أو nayl.sql)'
+        'message' => $isMaxConnections
+            ? 'تم استهلاك حد الاتصالات بالساعة (500). جرّب بعد دقائق، أو فعّل DB_PERSISTENT=true في api/.env، أو اطلب من الاستضافة رفع الحد.'
+            : 'فشل الاتصال. تحقق من: 1) وجود ملف api/.env 2) قيم DB_HOST, DB_NAME, DB_USER, DB_PASS 3) تشغيل MySQL 4) إنشاء قاعدة البيانات (استورد database-schema.sql أو nayl.sql)'
     ];
-    if ($debug && function_exists('getLastDatabaseError')) {
-        $err = getLastDatabaseError();
-        if ($err) {
-            $response['debug_error'] = $err;
-        }
+    if ($debug && $err) {
+        $response['debug_error'] = $err;
         $response['debug_used'] = [
             'DB_HOST' => defined('DB_HOST') ? DB_HOST : '(غير معرّف)',
             'DB_NAME' => defined('DB_NAME') ? DB_NAME : '(غير معرّف)',
