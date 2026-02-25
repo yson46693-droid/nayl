@@ -73,6 +73,11 @@ try {
     $countStmt->execute($params);
     $totalRecords = $countStmt->fetchColumn();
     $totalPages = ceil($totalRecords / $limit);
+
+    // عدد الشكاوي الجديدة (لم يرد عليها بعد: غير replied و closed)
+    $newCountStmt = $pdo->prepare("SELECT COUNT(*) FROM complaints WHERE status NOT IN ('replied', 'closed')");
+    $newCountStmt->execute();
+    $newCount = (int) $newCountStmt->fetchColumn();
     
     // جلب البيانات مع بيانات المستخدم
     $query = "
@@ -107,6 +112,7 @@ try {
     
     sendJsonResponse(true, [
         'complaints' => $complaints,
+        'new_count' => $newCount,
         'pagination' => [
             'current_page' => $page,
             'total_pages' => $totalPages,

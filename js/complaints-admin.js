@@ -46,6 +46,12 @@ async function loadComplaints() {
             document.getElementById('complaintsPagination').style.display = 'none';
         }
 
+        // تحديث عداد "رسائل جديدة" بالعدد الفعلي من الـ API
+        const newCountEl = document.getElementById('newComplaintsCount');
+        if (newCountEl && result.success && result.data.new_count !== undefined) {
+            newCountEl.textContent = String(result.data.new_count);
+        }
+
     } catch (error) {
         console.error('Error loading complaints:', error);
         tbody.innerHTML = '<tr><td colspan="5" style="text-align: center; color: red;">حدث خطأ أثناء تحميل الشكاوي</td></tr>';
