@@ -23,12 +23,16 @@ define('DB_PASS', env('DB_PASS', ''));
 define('DB_CHARSET', env('DB_CHARSET', 'utf8mb4'));
 define('DB_PORT', env('DB_PORT', '3306'));
 
+/** آخر رسالة خطأ من PDO (للتشخيص عند ?debug=1 فقط) */
+$GLOBALS['__db_last_error'] = null;
+
 /**
  * إنشاء اتصال بقاعدة البيانات
  * @return PDO|null
  */
 function getDatabaseConnection() {
     static $pdo = null;
+    global $__db_last_error;
     
     if ($pdo === null) {
         try {
@@ -49,9 +53,10 @@ function getDatabaseConnection() {
             $pdo = new PDO($dsn, DB_USER, DB_PASS, $options);
             
             $pdo->exec("SET NAMES utf8mb4 COLLATE utf8mb4_unicode_ci");
+            $__db_last_error = null;
             
         } catch (PDOException $e) {
-            // تسجيل تفاصيل الخطأ بشكل أفضل
+            $__db_last_error = $e->getMessage();
             $errorDetails = [
                 'message' => $e->getMessage(),
                 'code' => $e->getCode(),
@@ -66,4 +71,12 @@ function getDatabaseConnection() {
     }
     
     return $pdo;
+}
+
+/**
+ * آخر رسالة خطأ اتصال (للتشخيص فقط - لا تعرض للمستخدم في الإنتاج)
+ * @return string|null
+ */
+function getLastDatabaseError() {
+    return isset($GLOBALS['__db_last_error']) ? $GLOBALS['__db_last_error'] : null;
 }
