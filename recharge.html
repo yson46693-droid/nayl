@@ -172,16 +172,20 @@
                                     <div class="image-upload-wrapper">
                                         <input type="file" id="vodafone-image-camera" class="file-input" accept="image/*" capture="environment" aria-hidden="true">
                                         <input type="file" id="vodafone-image-file" class="file-input" accept="image/*" aria-hidden="true">
-                                        <button type="button" class="file-upload-label js-open-image-source" data-method="vodafone" aria-label="ارفاق صورة التحويل">
-                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                                                <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor"
-                                                    stroke-width="2" />
-                                                <circle cx="8.5" cy="8.5" r="1.5" fill="currentColor" />
-                                                <path d="M21 15L16 10L5 21" stroke="currentColor" stroke-width="2"
-                                                    stroke-linecap="round" stroke-linejoin="round" />
-                                            </svg>
-                                            <span>اضغط لرفع صورة أو التقاط صورة</span>
-                                        </button>
+                                        <div class="image-source-options-inline">
+                                            <button type="button" class="image-source-option-inline js-trigger-image-source" data-method="vodafone" data-source="camera" aria-label="فتح الكاميرا">
+                                                <i class="bi bi-camera-fill" aria-hidden="true"></i>
+                                                <span>فتح الكاميرا</span>
+                                            </button>
+                                            <button type="button" class="image-source-option-inline js-trigger-image-source" data-method="vodafone" data-source="gallery" aria-label="من المعرض">
+                                                <i class="bi bi-images" aria-hidden="true"></i>
+                                                <span>من المعرض</span>
+                                            </button>
+                                            <button type="button" class="image-source-option-inline js-trigger-image-source" data-method="vodafone" data-source="files" aria-label="من الملفات">
+                                                <i class="bi bi-folder2-open" aria-hidden="true"></i>
+                                                <span>من الملفات</span>
+                                            </button>
+                                        </div>
                                         <div class="image-preview" id="vodafone-preview"></div>
                                     </div>
                                     <small class="error-text" id="error-vodafone-image"></small>
@@ -247,16 +251,20 @@
                                     <div class="image-upload-wrapper">
                                         <input type="file" id="instapay-image-camera" class="file-input" accept="image/*" capture="environment" aria-hidden="true">
                                         <input type="file" id="instapay-image-file" class="file-input" accept="image/*" aria-hidden="true">
-                                        <button type="button" class="file-upload-label js-open-image-source" data-method="instapay" aria-label="ارفاق صورة التحويل">
-                                            <svg width="24" height="24" viewBox="0 0 24 24" fill="none">
-                                                <rect x="3" y="3" width="18" height="18" rx="2" stroke="currentColor"
-                                                    stroke-width="2" />
-                                                <circle cx="8.5" cy="8.5" r="1.5" fill="currentColor" />
-                                                <path d="M21 15L16 10L5 21" stroke="currentColor" stroke-width="2"
-                                                    stroke-linecap="round" stroke-linejoin="round" />
-                                            </svg>
-                                            <span>اضغط لرفع صورة أو التقاط صورة</span>
-                                        </button>
+                                        <div class="image-source-options-inline">
+                                            <button type="button" class="image-source-option-inline js-trigger-image-source" data-method="instapay" data-source="camera" aria-label="فتح الكاميرا">
+                                                <i class="bi bi-camera-fill" aria-hidden="true"></i>
+                                                <span>فتح الكاميرا</span>
+                                            </button>
+                                            <button type="button" class="image-source-option-inline js-trigger-image-source" data-method="instapay" data-source="gallery" aria-label="من المعرض">
+                                                <i class="bi bi-images" aria-hidden="true"></i>
+                                                <span>من المعرض</span>
+                                            </button>
+                                            <button type="button" class="image-source-option-inline js-trigger-image-source" data-method="instapay" data-source="files" aria-label="من الملفات">
+                                                <i class="bi bi-folder2-open" aria-hidden="true"></i>
+                                                <span>من الملفات</span>
+                                            </button>
+                                        </div>
                                         <div class="image-preview" id="instapay-preview"></div>
                                     </div>
                                     <small class="error-text" id="error-instapay-image"></small>
@@ -278,37 +286,6 @@
                             </div>
                         </div>
                     </div> <!-- Close payment-section -->
-
-                    <!-- نافذة اختيار مصدر صورة التحويل -->
-                    <div class="image-source-overlay" id="imageSourceOverlay" role="dialog" aria-modal="true" aria-labelledby="imageSourceTitle" aria-hidden="true">
-                        <div class="image-source-modal">
-                            <h3 class="image-source-title" id="imageSourceTitle">اختر طريقة إرفاق الصورة</h3>
-                            <div class="image-source-options">
-                                <button type="button" class="image-source-option js-image-source-camera" data-source="camera">
-                                    <i class="bi bi-camera-fill" aria-hidden="true"></i>
-                                    <span class="image-source-option-text">
-                                        <strong>فتح الكاميرا</strong>
-                                        <small>التقط صورة جديدة</small>
-                                    </span>
-                                </button>
-                                <button type="button" class="image-source-option js-image-source-gallery" data-source="gallery">
-                                    <i class="bi bi-images" aria-hidden="true"></i>
-                                    <span class="image-source-option-text">
-                                        <strong>من المعرض</strong>
-                                        <small>اختر من معرض الصور</small>
-                                    </span>
-                                </button>
-                                <button type="button" class="image-source-option js-image-source-files" data-source="files">
-                                    <i class="bi bi-folder2-open" aria-hidden="true"></i>
-                                    <span class="image-source-option-text">
-                                        <strong>من الملفات</strong>
-                                        <small>اختر من الملفات</small>
-                                    </span>
-                                </button>
-                            </div>
-                            <button type="button" class="image-source-cancel js-close-image-source">إلغاء</button>
-                        </div>
-                    </div>
 
                     <!-- رسالة النجاح (مخفية افتراضياً) -->
                     <div id="success-message-container"

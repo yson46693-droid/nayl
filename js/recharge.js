@@ -250,43 +250,7 @@ document.addEventListener('DOMContentLoaded', function () {
     const instapayBtn = document.querySelector('.instapay-btn');
     const instapayPreview = document.getElementById('instapay-preview');
 
-    // Image source modal: which method is selecting (vodafone | instapay)
-    let currentImageSourceMethod = null;
-    const imageSourceOverlay = document.getElementById('imageSourceOverlay');
-
-    function openImageSourceModal(method) {
-        currentImageSourceMethod = method;
-        if (imageSourceOverlay) {
-            imageSourceOverlay.classList.add('active');
-            imageSourceOverlay.setAttribute('aria-hidden', 'false');
-            document.body.style.overflow = 'hidden';
-        }
-    }
-
-    function closeImageSourceModal() {
-        currentImageSourceMethod = null;
-        if (imageSourceOverlay) {
-            imageSourceOverlay.classList.remove('active');
-            imageSourceOverlay.setAttribute('aria-hidden', 'true');
-            document.body.style.overflow = '';
-        }
-    }
-
-    document.querySelectorAll('.js-open-image-source').forEach(function (btn) {
-        btn.addEventListener('click', function () {
-            const method = this.getAttribute('data-method');
-            if (method) openImageSourceModal(method);
-        });
-    });
-
-    document.querySelectorAll('.js-close-image-source').forEach(function (btn) {
-        btn.addEventListener('click', closeImageSourceModal);
-    });
-
-    imageSourceOverlay && imageSourceOverlay.addEventListener('click', function (e) {
-        if (e.target === imageSourceOverlay) closeImageSourceModal();
-    });
-
+    // خيارات إرفاق الصورة داخل كل بطاقة: تفعيل المدخل المناسب عند الضغط
     function triggerImageInput(method, source) {
         const isCamera = source === 'camera';
         const cameraId = method === 'vodafone' ? 'vodafone-image-camera' : 'instapay-image-camera';
@@ -296,22 +260,13 @@ document.addEventListener('DOMContentLoaded', function () {
             input.value = '';
             input.click();
         }
-        closeImageSourceModal();
     }
 
-    document.querySelectorAll('.js-image-source-camera').forEach(function (btn) {
+    document.querySelectorAll('.js-trigger-image-source').forEach(function (btn) {
         btn.addEventListener('click', function () {
-            if (currentImageSourceMethod) triggerImageInput(currentImageSourceMethod, 'camera');
-        });
-    });
-    document.querySelectorAll('.js-image-source-gallery').forEach(function (btn) {
-        btn.addEventListener('click', function () {
-            if (currentImageSourceMethod) triggerImageInput(currentImageSourceMethod, 'gallery');
-        });
-    });
-    document.querySelectorAll('.js-image-source-files').forEach(function (btn) {
-        btn.addEventListener('click', function () {
-            if (currentImageSourceMethod) triggerImageInput(currentImageSourceMethod, 'files');
+            const method = this.getAttribute('data-method');
+            const source = this.getAttribute('data-source');
+            if (method && source) triggerImageInput(method, source);
         });
     });
 
