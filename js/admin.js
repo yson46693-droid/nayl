@@ -1490,7 +1490,10 @@ async function editCourse(courseId) {
     const contentEl = document.getElementById('courseEditContent');
     const modalEl = document.getElementById('courseEditModal');
     if (contentEl) contentEl.innerHTML = '<div style="text-align: center; padding: 2rem; color: var(--text-gray);">جاري تحميل تفاصيل الكورس...</div>';
-    if (modalEl) modalEl.style.display = 'flex';
+    if (modalEl) {
+        modalEl.style.display = 'flex';
+        modalEl.setAttribute('data-course-id', String(courseId));
+    }
 
     let course = null;
     try {
@@ -1682,7 +1685,13 @@ function closeCourseEditModal() {
 }
 
 async function saveCourseChanges() {
-    if (!currentCourseId) return;
+    const courseIdFromPage = parseInt(document.getElementById('courseEditPage')?.dataset?.courseId, 10);
+    const courseIdFromModal = parseInt(document.getElementById('courseEditModal')?.dataset?.courseId, 10);
+    const courseIdToSave = currentCourseId || courseIdFromPage || courseIdFromModal || 0;
+    if (!courseIdToSave) {
+        alert('لم يتم تحديد الكورس. يرجى فتح صفحة التعديل مرة أخرى.');
+        return;
+    }
 
     const titleEl = document.getElementById('editCourseTitle');
     const descriptionEl = document.getElementById('editCourseDescription');
@@ -1712,7 +1721,7 @@ async function saveCourseChanges() {
             },
             credentials: 'include',
             body: JSON.stringify({
-                course_id: currentCourseId,
+                course_id: courseIdToSave,
                 title: title,
                 description: description,
                 status: status,
@@ -1726,7 +1735,7 @@ async function saveCourseChanges() {
         }
 
         const courses = JSON.parse(localStorage.getItem('nayl_courses')) || [];
-        const courseIndex = courses.findIndex(c => c.id === currentCourseId);
+        const courseIndex = courses.findIndex(c => c && (c.id === courseIdToSave || String(c.id) === String(courseIdToSave)));
         if (courseIndex !== -1) {
             courses[courseIndex].title = title;
             courses[courseIndex].description = description;
@@ -1741,6 +1750,7 @@ async function saveCourseChanges() {
         } else {
             closeCourseEditModal();
         }
+        currentCourseId = courseIdToSave;
         renderCourses(currentCoursesPage);
         alert('تم حفظ التعديلات بنجاح');
     } catch (err) {
@@ -1953,7 +1963,10 @@ async function editCoursePage(courseId) {
     if (pageContentEl) pageContentEl.innerHTML = '<div style="text-align: center; padding: 2rem; color: var(--text-gray);">جاري تحميل تفاصيل الكورس...</div>';
     if (uploadForm) uploadForm.style.display = 'none';
     if (coursesTable) coursesTable.style.display = 'none';
-    if (editPage) editPage.style.display = 'block';
+    if (editPage) {
+        editPage.style.display = 'block';
+        editPage.setAttribute('data-course-id', String(courseId));
+    }
 
     let course = null;
     try {

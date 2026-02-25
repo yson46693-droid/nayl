@@ -42,14 +42,14 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 }
 
 $raw = file_get_contents('php://input');
-$data = json_decode($raw, true);
-if (!is_array($data) || empty($data['course_id'])) {
-    sendJsonResponse(false, null, 'معرف الكورس مطلوب', 400);
+$data = is_string($raw) && $raw !== '' ? json_decode($raw, true) : null;
+if (!is_array($data)) {
+    sendJsonResponse(false, null, 'بيانات الطلب غير صالحة أو فارغة. تأكد من إرسال JSON يتضمن course_id.', 400);
 }
 
-$courseId = (int) $data['course_id'];
+$courseId = isset($data['course_id']) ? (int) $data['course_id'] : 0;
 if ($courseId < 1) {
-    sendJsonResponse(false, null, 'معرف الكورس غير صالح', 400);
+    sendJsonResponse(false, null, 'معرف الكورس مطلوب ويجب أن يكون رقماً صحيحاً أكبر من 0', 400);
 }
 
 $title = isset($data['title']) ? sanitizeInput(trim($data['title'])) : null;
