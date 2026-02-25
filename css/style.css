@@ -347,15 +347,7 @@ body::-webkit-scrollbar-thumb:hover {
 .nav-drawer.is-open {
     transform: translateX(0);
 }
-[dir="rtl"] .nav-drawer {
-    right: auto;
-    left: 0;
-    box-shadow: 4px 0 24px rgba(0, 0, 0, 0.3);
-    transform: translateX(-100%);
-}
-[dir="rtl"] .nav-drawer.is-open {
-    transform: translateX(0);
-}
+/* الشريط يفتح دائماً من جهة الزر (اليمين) في RTL و LTR */
 .nav-drawer-inner {
     display: flex;
     flex-direction: column;
@@ -410,6 +402,20 @@ body::-webkit-scrollbar-thumb:hover {
 .nav-drawer,
 .nav-drawer-overlay {
     display: none;
+}
+
+/* للكمبيوتر فقط: إخفاء زر القائمة والشريط الجانبي وإظهار التبويبات كالمعتاد */
+@media (min-width: 769px) {
+    .nav-menu-btn,
+    .nav-drawer,
+    .nav-drawer-overlay {
+        display: none !important;
+        visibility: hidden !important;
+        pointer-events: none !important;
+    }
+    .navbar:not(.navbar-home) .nav-links {
+        display: flex !important;
+    }
 }
 
 @media (max-width: 768px) {
