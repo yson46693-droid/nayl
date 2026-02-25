@@ -27,6 +27,12 @@ document.addEventListener('DOMContentLoaded', () => {
         });
     }
 
+    // زر إنشاء حساب أدمن (ربط احتياطي)
+    const btnCreateAdmin = document.getElementById('btnCreateAdmin');
+    if (btnCreateAdmin) {
+        btnCreateAdmin.addEventListener('click', function () { openCreateAdminModal(); });
+    }
+
     // Load Data into Tables
     renderUsers();
     renderCodes(); // يعرض جدول الأكواد (فارغ حتى يتم استدعاء loadCodes عند فتح التبويب)
@@ -287,39 +293,48 @@ async function saveAdminProfile() {
 async function loadAdminAccounts() {
     const tbody = document.getElementById('adminAccountsTableBody');
     if (!tbody) return;
-    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:1.5rem;">جاري التحميل...</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:1.5rem;color:#64748b;">جاري التحميل...</td></tr>';
     try {
         const token = localStorage.getItem('admin_session_token') || getCookie('admin_session_token');
         const response = await fetch('../api/admin/get-admins.php', {
-            headers: { 'Authorization': 'Bearer ' + token }
+            method: 'GET',
+            headers: { 'Authorization': 'Bearer ' + token },
+            credentials: 'include'
         });
-        const result = await response.json();
+        let result;
+        const text = await response.text();
+        try {
+            result = JSON.parse(text);
+        } catch (e) {
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:1.5rem;color:#ef4444;">استجابة غير صحيحة من الخادم</td></tr>';
+            return;
+        }
         if (!result.success) {
-            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#94a3b8;">' + (result.error || 'لا يمكن تحميل القائمة') + '</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:1.5rem;color:#94a3b8;">' + escapeHtml(result.error || 'لا يمكن تحميل القائمة') + '</td></tr>';
             return;
         }
         const list = result.data || [];
-        if (list.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#94a3b8;">لا توجد حسابات أدمن</td></tr>';
+        if (!Array.isArray(list) || list.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:1.5rem;color:#94a3b8;">لا توجد حسابات أدمن</td></tr>';
             return;
         }
         const roleLabels = { super_admin: 'مدير أعلى', admin: 'أدمن', moderator: 'مشرف' };
         tbody.innerHTML = list.map(function (a) {
             const role = roleLabels[a.role] || a.role;
-            const status = a.is_active ? 'نشط' : 'موقوف';
+            const status = (a.is_active === true || a.is_active === 1) ? 'نشط' : 'موقوف';
             return '<tr>' +
-                '<td>' + escapeHtml(a.id) + '</td>' +
+                '<td>' + escapeHtml(String(a.id)) + '</td>' +
                 '<td>' + escapeHtml(a.full_name || '-') + '</td>' +
-                '<td>' + escapeHtml(a.username) + '</td>' +
+                '<td>' + escapeHtml(a.username || '-') + '</td>' +
                 '<td>' + escapeHtml(a.email || '-') + '</td>' +
                 '<td>' + escapeHtml(role) + '</td>' +
                 '<td>' + escapeHtml(status) + '</td>' +
-                '<td><button type="button" class="action-btn" onclick="editAdminAccount(' + a.id + ')" title="تعديل"><i class="bi bi-pencil"></i></button></td>' +
+                '<td><button type="button" class="action-btn" onclick="editAdminAccount(' + parseInt(a.id, 10) + ')" title="تعديل"><i class="bi bi-pencil"></i></button></td>' +
                 '</tr>';
         }).join('');
     } catch (err) {
         console.error(err);
-        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;color:#ef4444;">فشل تحميل البيانات</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:1.5rem;color:#ef4444;">فشل تحميل البيانات. تحقق من الاتصال.</td></tr>';
     }
 }
 
@@ -328,8 +343,13 @@ function editAdminAccount(id) {
 }
 
 function openCreateAdminModal() {
-    document.getElementById('createAdminForm').reset();
-    openModal('createAdminModal');
+    const form = document.getElementById('createAdminForm');
+    if (form) form.reset();
+    const modal = document.getElementById('createAdminModal');
+    if (modal) {
+        modal.style.display = 'flex';
+        requestAnimationFrame(function () { modal.classList.add('active'); });
+    }
 }
 
 async function submitCreateAdmin() {

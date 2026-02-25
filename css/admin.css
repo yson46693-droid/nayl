@@ -157,10 +157,10 @@
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: var(--spacing-sm);
     padding: 0 var(--spacing-xl);
     box-shadow: var(--shadow-sm);
     margin: 0;
-    /* Remove negative margins */
 }
 
 .search-bar {
@@ -197,6 +197,7 @@
     display: flex;
     align-items: center;
     gap: var(--spacing-md);
+    flex-shrink: 0;
 }
 
 .notifications-btn {
@@ -249,7 +250,7 @@
     background: #f1f5f9;
 }
 
-/* قائمة الأفاتار: الملف الشخصي + تسجيل الخروج */
+/* قائمة الأفاتار: الملف الشخصي + تسجيل الخروج - لا تغطي البحث أو الإشعارات */
 .admin-dropdown {
     display: none;
     position: absolute;
@@ -257,11 +258,12 @@
     right: 0;
     left: auto;
     min-width: 200px;
+    max-width: 260px;
     background: #fff;
     border-radius: var(--radius-md);
-    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.15);
+    box-shadow: 0 8px 24px rgba(0, 0, 0, 0.12);
     border: 1px solid #edf2f7;
-    z-index: 1100;
+    z-index: 1200;
     overflow: hidden;
 }
 
@@ -1162,7 +1164,7 @@ tr:hover td {
    Admin Dashboard - Responsive
    =========================== */
 
-/* زر فتح القائمة - يظهر على الشاشات الصغيرة فقط */
+/* زر فتح القائمة - منظم وواضح ويظهر على الشاشات الصغيرة */
 .admin-menu-toggle {
     display: none;
     align-items: center;
@@ -1173,21 +1175,29 @@ tr:hover td {
     min-height: 44px;
     padding: 0;
     margin-left: var(--spacing-md);
+    margin-right: 0;
+    flex-shrink: 0;
     background: var(--bg-card);
     border: 1px solid #e0e6ed;
     border-radius: var(--radius-md);
     color: var(--primary-dark);
     cursor: pointer;
     transition: var(--transition);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 .admin-menu-toggle:hover {
     background: #f1f5f9;
     color: var(--primary-blue);
     border-color: var(--primary-blue);
 }
+.admin-menu-toggle:focus {
+    outline: 2px solid var(--primary-blue);
+    outline-offset: 2px;
+}
 .admin-menu-toggle svg {
     width: 22px;
     height: 22px;
+    display: block;
 }
 
 /* Overlay عند فتح القائمة على الموبايل */
