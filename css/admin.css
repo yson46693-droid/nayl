@@ -1136,7 +1136,7 @@ tr:hover td {
     visibility: visible;
 }
 
-/* Tablet */
+/* Tablet + Mobile: الشريط الجانبي نصف عرض الصفحة فقط */
 @media (max-width: 1024px) {
     .admin-menu-toggle {
         display: flex;
@@ -1145,7 +1145,8 @@ tr:hover td {
         display: block;
     }
     .sidebar {
-        width: var(--sidebar-width);
+        width: 50% !important;
+        max-width: 50vw !important;
         transform: translateX(100%);
         box-shadow: -8px 0 24px rgba(0, 0, 0, 0.15);
     }
@@ -1155,13 +1156,22 @@ tr:hover td {
     .main-content {
         margin-right: 0;
         width: 100%;
+        padding-top: var(--header-height);
     }
     .main-content-inner {
         padding: var(--spacing-lg);
         max-width: none;
     }
     .top-bar {
+        position: fixed !important;
+        top: 0 !important;
+        right: 0 !important;
+        left: 0 !important;
+        z-index: 1100 !important;
         padding: 0 var(--spacing-lg);
+    }
+    body.sidebar-open .top-bar {
+        z-index: 999 !important;
     }
     .search-bar {
         width: 220px;
@@ -1194,15 +1204,15 @@ tr:hover td {
     }
     .notifications-dropdown {
         width: 280px;
-        max-width: calc(100vw - 32px);
+        max-width: min(280px, calc(100vw - var(--spacing-lg) * 2));
     }
 }
 
 /* Mobile */
 @media (max-width: 768px) {
     .sidebar {
-        width: 50%;
-        max-width: 50vw;
+        width: 50% !important;
+        max-width: 50vw !important;
     }
     .sidebar-header {
         padding: var(--spacing-lg);
@@ -1213,11 +1223,11 @@ tr:hover td {
     }
     /* التوب بار ثابت فوق الشريط الجانبي لعدم إخفاء "لوحة التحكم" */
     .top-bar {
-        position: fixed;
-        top: 0;
-        right: 0;
-        left: 0;
-        z-index: 1100;
+        position: fixed !important;
+        top: 0 !important;
+        right: 0 !important;
+        left: 0 !important;
+        z-index: 1100 !important;
         padding: 0 var(--spacing-md);
         min-height: 60px;
         gap: var(--spacing-sm);
@@ -1227,7 +1237,7 @@ tr:hover td {
     }
     /* عند فتح الشريط الجانبي: التوب بار أسفله حتى لا يحجب "لوحة التحكم" */
     body.sidebar-open .top-bar {
-        z-index: 999;
+        z-index: 999 !important;
     }
     .search-bar {
         flex: 1;
@@ -1389,14 +1399,16 @@ tr:hover td {
     #recharge-requests .section-header .btn {
         width: 100%;
     }
-    /* قائمة الإشعارات: ثابتة بالنسبة للشاشة حتى لا يختفي زر "حذف الكل" */
+    /* قائمة الإشعارات: ضمن حدود عرض الشريط العلوي (نفس الهوامش) */
     .notifications-dropdown {
         position: fixed;
         top: 60px;
-        right: 12px;
-        left: auto;
-        width: min(320px, calc(100vw - 24px));
+        left: var(--spacing-md);
+        right: var(--spacing-md);
+        width: auto;
         max-width: 320px;
+        margin-right: 0;
+        margin-left: auto;
     }
     .course-edit-section h4 {
         font-size: 1rem;
@@ -1418,11 +1430,12 @@ tr:hover td {
     }
     .notifications-dropdown {
         top: 56px;
-        right: 8px;
+        left: var(--spacing-sm);
+        right: var(--spacing-sm);
     }
     .sidebar {
-        width: 50%;
-        max-width: 50vw;
+        width: 50% !important;
+        max-width: 50vw !important;
     }
     .top-bar {
         height: 56px;
