@@ -24,7 +24,8 @@ $allowedOrigins = [
     'http://localhost', 'https://localhost',
     'http://127.0.0.1', 'https://127.0.0.1',
     'https://almoustafa.site', 'http://almoustafa.site',
-    'https://www.almoustafa.site', 'http://www.almoustafa.site'
+    'https://www.almoustafa.site', 'http://www.almoustafa.site',
+    'https://an.almoustafa.site', 'http://an.almoustafa.site'
 ];
 if (function_exists('env')) {
     $appUrl = env('APP_URL', '');

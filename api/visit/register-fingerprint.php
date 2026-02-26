@@ -21,7 +21,9 @@ function getAllowedOrigin() {
         'https://almoustafa.site',
         'http://almoustafa.site',
         'https://www.almoustafa.site',
-        'http://www.almoustafa.site'
+        'http://www.almoustafa.site',
+        'https://an.almoustafa.site',
+        'http://an.almoustafa.site'
     ];
 
     if (function_exists('env')) {

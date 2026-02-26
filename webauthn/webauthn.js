@@ -43,7 +43,7 @@ class SimpleWebAuthn {
             // التحقق من دعم HTTPS (مطلوب لـ WebAuthn إلا في localhost أو IP محلي أو الدومين المسموح)
             const hostname = window.location.hostname ? window.location.hostname.toLowerCase() : '';
             const protocol = window.location.protocol ? window.location.protocol.toLowerCase() : '';
-            const allowedHosts = ['almoustafa.site', 'www.almoustafa.site'];
+            const allowedHosts = ['almoustafa.site', 'www.almoustafa.site', 'an.almoustafa.site'];
             const isLocalhost = hostname === 'localhost' || 
                                hostname === '127.0.0.1' || 
                                hostname === '[::1]' ||
@@ -120,7 +120,7 @@ class SimpleWebAuthn {
             
             const hostname = window.location.hostname ? window.location.hostname.toLowerCase() : 'unknown';
             const protocol = window.location.protocol ? window.location.protocol : 'unknown';
-            const allowedHosts = ['almoustafa.site', 'www.almoustafa.site'];
+            const allowedHosts = ['almoustafa.site', 'www.almoustafa.site', 'an.almoustafa.site'];
             const isLocalhost = hostname === 'localhost' || 
                                hostname === '127.0.0.1' || 
                                hostname === '[::1]' ||
@@ -260,7 +260,7 @@ class SimpleWebAuthn {
 
             // التحقق من HTTPS (مطلوب لـ WebAuthn إلا في localhost أو الدومين المسموح)
             const hostname = window.location.hostname.toLowerCase();
-            const allowedHosts = ['almoustafa.site', 'www.almoustafa.site'];
+            const allowedHosts = ['almoustafa.site', 'www.almoustafa.site', 'an.almoustafa.site'];
             const isLocalhost = hostname === 'localhost' || 
                                hostname === '127.0.0.1' || 
                                hostname === '[::1]' ||
@@ -555,7 +555,7 @@ class SimpleWebAuthn {
 
             // التحقق من HTTPS (مطلوب لـ WebAuthn إلا في localhost أو الدومين المسموح)
             const hostname = window.location.hostname.toLowerCase();
-            const allowedHosts = ['almoustafa.site', 'www.almoustafa.site'];
+            const allowedHosts = ['almoustafa.site', 'www.almoustafa.site', 'an.almoustafa.site'];
             const isLocalhost = hostname === 'localhost' || 
                                hostname === '127.0.0.1' || 
                                hostname === '[::1]' ||
@@ -851,7 +851,7 @@ class SimpleWebAuthn {
 
             // التحقق من HTTPS (مطلوب لـ WebAuthn إلا في localhost أو الدومين المسموح)
             const hostname = window.location.hostname.toLowerCase();
-            const allowedHosts = ['almoustafa.site', 'www.almoustafa.site'];
+            const allowedHosts = ['almoustafa.site', 'www.almoustafa.site', 'an.almoustafa.site'];
             const isLocalhost = hostname === 'localhost' || 
                                hostname === '127.0.0.1' || 
                                hostname === '[::1]' ||
