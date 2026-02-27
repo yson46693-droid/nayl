@@ -780,7 +780,6 @@ tr:hover td {
 
 .modal-overlay.active .modal,
 .modal-overlay[style*="display: flex"] .modal {
-    display: block;
     opacity: 1;
     transform: translateY(0);
 }
