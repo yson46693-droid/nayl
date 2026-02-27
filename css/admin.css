@@ -1121,8 +1121,8 @@ tr:hover td {
 .notifications-dropdown {
     position: absolute;
     top: 50px;
-    right: auto;
-    left: 0;
+    right: auto !important;
+    left: 0 !important;
     width: 320px;
     background: #fff;
     border-radius: var(--radius-md);
