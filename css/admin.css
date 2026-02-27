@@ -255,8 +255,8 @@
     display: none;
     position: absolute;
     top: calc(100% + 8px);
-    right: 0;
-    left: auto;
+    right: auto;
+    left: 0;
     min-width: 200px;
     max-width: 260px;
     background: #fff;
@@ -1121,8 +1121,8 @@ tr:hover td {
 .notifications-dropdown {
     position: absolute;
     top: 50px;
-    right: 0;
-    left: auto;
+    right: auto;
+    left: 0;
     width: 320px;
     background: #fff;
     border-radius: var(--radius-md);
@@ -1611,8 +1611,8 @@ tr:hover td {
     .notifications-dropdown {
         position: fixed;
         top: 60px;
-        left: var(--spacing-md);
-        right: var(--spacing-md);
+        /* left: var(--spacing-md);
+        right: var(--spacing-md); */
         width: auto;
         max-width: 320px;
         margin-right: 0;
@@ -1638,8 +1638,8 @@ tr:hover td {
     }
     .notifications-dropdown {
         top: 56px;
-        left: var(--spacing-sm);
-        right: var(--spacing-sm);
+        /* left: var(--spacing-sm);
+        right: var(--spacing-sm); */
     }
     .sidebar {
         width: 50% !important;
