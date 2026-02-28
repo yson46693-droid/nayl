@@ -370,6 +370,7 @@ body.recharge-page {
     .profile-tab .transaction-id-column{
         border-left: none;
     }
+    
 }
 
 @media (max-width: 480px) {
@@ -405,5 +406,29 @@ body.recharge-page {
 
     .profile-tab .pagination-btn span {
         display: none;
+    }
+
+    .profile-section .back-button {
+        font-size: .5rem;
+        padding: 5px 10px;
+        margin-bottom: 0 !important;
+    }
+
+    .profile-section .profile-sidebar {
+        gap: 0px !important;
+        padding: 10px !important;
+    }
+
+    .profile-section .user-avatar-container {
+        margin-bottom: 0px !important;
+    }
+
+    .profile-section .user-avatar {
+        width: 80px !important;
+        height: 80px !important;
+    }
+
+    .profile-section .user-avatar i {
+        font-size: 80px !important;
     }
 }
