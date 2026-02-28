@@ -135,6 +135,8 @@ body.recharge-page {
 /* جدول البصمة المسجلة */
 .webauthn-table-wrap {
     margin-bottom: 1.25rem;
+    max-width: 100%;
+    box-sizing: border-box;
 }
 
 .webauthn-table-title {
@@ -153,13 +155,16 @@ body.recharge-page {
 
 .webauthn-table-responsive {
     overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
     border: 1px solid #e0e6ed;
     border-radius: 8px;
     background: #fff;
+    max-width: 100%;
 }
 
 .webauthn-credential-table {
     width: 100%;
+    min-width: 320px;
     border-collapse: collapse;
     font-size: 0.9rem;
 }
@@ -217,13 +222,127 @@ body.recharge-page {
     margin: 0.5rem 0 0 0;
 }
 
+/* جدول البصمة - تابلت */
 @media (max-width: 768px) {
+    .webauthn-table-wrap {
+        padding: 0;
+        margin-left: 0;
+        margin-right: 0;
+    }
+
+    .webauthn-table-title {
+        font-size: 0.95rem;
+    }
+
+    .webauthn-table-responsive {
+        border-radius: var(--radius-md);
+        margin: 0;
+    }
+
     .webauthn-credential-table {
         font-size: 0.85rem;
+        min-width: 280px;
     }
+
     .webauthn-credential-table th,
     .webauthn-credential-table td {
         padding: 8px 10px;
+    }
+}
+
+/* جدول البصمة - موبايل: عرض كبطاقات (Card layout) */
+@media (max-width: 576px) {
+    .webauthn-table-wrap {
+        padding: 0;
+    }
+
+    .webauthn-table-responsive {
+        overflow-x: visible;
+        border: none;
+        background: transparent;
+    }
+
+    .webauthn-credential-table {
+        min-width: 0;
+        display: block;
+    }
+
+    .webauthn-credential-table thead {
+        display: none;
+    }
+
+    .webauthn-credential-table tbody {
+        display: block;
+    }
+
+    .webauthn-credential-table tbody tr {
+        display: block;
+        background: #fff;
+        border: 1px solid #e0e6ed;
+        border-radius: var(--radius-md);
+        margin-bottom: var(--spacing-sm);
+        padding: var(--spacing-md);
+        box-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    }
+
+    .webauthn-credential-table tbody tr:last-child {
+        margin-bottom: 0;
+    }
+
+    .webauthn-credential-table td {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.25rem 0.5rem;
+        padding: 0.5rem 0;
+        border-bottom: 1px solid #f0f2f5;
+        text-align: right;
+    }
+
+    .webauthn-credential-table tbody tr td:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+        padding-top: 0.75rem;
+    }
+
+    .webauthn-credential-table td::before {
+        font-weight: 600;
+        color: #2c3e50;
+        flex: 0 0 100%;
+        font-size: 0.75rem;
+        margin-bottom: 2px;
+    }
+
+    .webauthn-credential-table td:nth-child(1)::before {
+        content: "نوع الجهاز";
+    }
+
+    .webauthn-credential-table td:nth-child(2)::before {
+        content: "معرف البصمة";
+    }
+
+    .webauthn-credential-table td:nth-child(3)::before {
+        content: "تاريخ التسجيل";
+    }
+
+    .webauthn-credential-table td:nth-child(4)::before {
+        content: "إجراء";
+    }
+
+    .webauthn-credential-table .webauthn-cred-id {
+        font-size: 0.8rem;
+        word-break: break-all;
+        flex: 1 1 100%;
+    }
+
+    .btn-webauthn-delete-row {
+        width: 100%;
+        padding: 8px 12px;
+        margin-top: 4px;
+    }
+
+    .webauthn-no-credential-msg {
+        font-size: 0.85rem;
     }
 }
 
@@ -459,11 +578,43 @@ body.recharge-page {
     }
 
     .profile-section .profile-title {
-        font-size: 1.4rem;
+        font-size: 1.3rem;
     }
 
     .profile-section .profile-tab {
         padding: 10px !important;
     }
+
+    .profile-section .course-codes-intro {
+        flex-direction: column !important;
+        align-items: center;
+        padding: 5px 10px !important
+    }
+    
+
+    .profile-section .wallet-card-content-digital{
+        padding: 20px 5px !important;
+    }
+
+    .profile-section .wallet-card-content-digital i{
+        font-size: 2rem !important;
+    }
+
+    .profile-section .wallet-card-content-digital .btn-wallet-digital{
+        padding: 5px 30px !important;
+    }
+
+
+    .profile-section .wallet-card-content-digital .btn-title-digital{
+        font-size: 1rem !important;
+    }
+
+
+    
+    .profile-section .security-section .device-item {
+        gap: 0px !important;
+        padding-top: 0px !important;
+    }
+
     
 }
