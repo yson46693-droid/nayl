@@ -238,7 +238,6 @@ async function checkVerificationStatus() {
  * منطق تبديل التبويبات
  */
 function initTabs() {
-    console.log('[Profile] initTabs تم تحميله');
     const navItems = document.querySelectorAll('.profile-nav-item');
     const tabs = document.querySelectorAll('.profile-tab');
 
@@ -298,6 +297,9 @@ function initTabs() {
                 const scrollTarget = profileMain || targetTab;
                 setTimeout(() => {
                     scrollTarget.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    setTimeout(() => {
+                        window.scrollBy(0, -100);
+                    }, 400);
                 }, 50);
             }
             // تحميل البيانات عند النقر على التبويب
