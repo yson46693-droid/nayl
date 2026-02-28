@@ -171,6 +171,15 @@
             logoutBtn.addEventListener('click', handleLogoutClick);
         }
 
+        var userCard = document.querySelector('.app-drawer-user-card');
+        if (userCard) {
+            userCard.addEventListener('click', function () {
+                closeDrawer();
+                window.location.href = 'profile.html';
+            });
+            userCard.style.cursor = 'pointer';
+        }
+
         var drawerLinks = el.drawer.querySelectorAll('.app-drawer-link[href]');
         drawerLinks.forEach(function (link) {
             link.addEventListener('click', function () {
