@@ -238,6 +238,7 @@ async function checkVerificationStatus() {
  * منطق تبديل التبويبات
  */
 function initTabs() {
+    console.log('[Profile] initTabs تم تحميله');
     const navItems = document.querySelectorAll('.profile-nav-item');
     const tabs = document.querySelectorAll('.profile-tab');
 
@@ -279,7 +280,6 @@ function initTabs() {
 
     navItems.forEach(item => {
         item.addEventListener('click', function () {
-            console.log('zzzzzzzz');
             const tabId = this.getAttribute('data-tab');
 
             // Save active tab to localStorage
@@ -294,6 +294,11 @@ function initTabs() {
             const targetTab = document.getElementById(`${tabId}-tab`);
             if (targetTab) {
                 targetTab.classList.add('active');
+                const profileMain = targetTab.closest('.profile-main');
+                const scrollTarget = profileMain || targetTab;
+                setTimeout(() => {
+                    scrollTarget.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 50);
             }
             // تحميل البيانات عند النقر على التبويب
             if (tabId === 'course-codes' && typeof loadCourseCodes === 'function') {
