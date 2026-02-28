@@ -293,23 +293,22 @@ function initTabs() {
             const targetTab = document.getElementById(`${tabId}-tab`);
             if (targetTab) {
                 targetTab.classList.add('active');
+
                 const profileMain = targetTab.closest('.profile-main');
                 const scrollTarget = profileMain || targetTab;
+                
                 setTimeout(() => {
-                    scrollTarget.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    const isDesktop = window.innerWidth >= 768;
-                    const scrollOffset = isDesktop ? -350 : -200; // كمبيوتر: فوق أكتر | موبايل: زي ما هو
-                    console.log('[Profile Tab Scroll]', {
-                        tabId,
-                        windowWidth: window.innerWidth,
-                        isDesktop,
-                        scrollOffset,
-                        scrollYBefore: window.scrollY
+                
+                    const offset = window.innerWidth >= 968 ? 350 : 200; 
+                
+                    const elementPosition = scrollTarget.getBoundingClientRect().top + window.pageYOffset;
+                    const offsetPosition = elementPosition - offset;
+                
+                    window.scrollTo({
+                        top: offsetPosition,
+                        behavior: 'smooth'
                     });
-                    setTimeout(() => {
-                        window.scrollBy(0, scrollOffset);
-                        console.log('[Profile Tab Scroll] بعد scrollBy', { scrollYAfter: window.scrollY });
-                    }, 400);
+                
                 }, 50);
             }
             // تحميل البيانات عند النقر على التبويب
