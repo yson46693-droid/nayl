@@ -226,3 +226,142 @@ body.recharge-page {
         padding: 8px 10px;
     }
 }
+
+/* سجل المعاملات - توافق الموبايل (منع الخروج عن الشاشة) */
+@media (max-width: 768px) {
+    .profile-tab .transactions-section-premium {
+        padding: var(--spacing-md);
+        max-width: 100%;
+        box-sizing: border-box;
+        border-radius: var(--radius-md);
+        overflow-x: hidden;
+    }
+
+    .profile-tab .transactions-header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: var(--spacing-sm);
+        margin-bottom: var(--spacing-md);
+        padding-bottom: var(--spacing-sm);
+    }
+
+    .profile-tab .section-heading-premium {
+        font-size: 1.1rem;
+        font-weight: 700;
+    }
+
+    .profile-tab .section-heading-premium i {
+        font-size: 1rem;
+    }
+
+    .profile-tab .transactions-filter {
+        width: 100%;
+    }
+
+    .profile-tab .filter-select {
+        width: 100%;
+        padding: 8px 12px;
+        font-size: 0.85rem;
+    }
+
+    .profile-tab .transactions-list-premium {
+        min-height: 180px;
+        gap: var(--spacing-xs);
+    }
+
+    .profile-tab .transaction-item-premium {
+        padding: var(--spacing-sm);
+        gap: var(--spacing-sm);
+    }
+
+    .profile-tab .transaction-icon-premium {
+        width: 44px;
+        height: 44px;
+        border-radius: 10px;
+        font-size: 1rem;
+    }
+
+    .profile-tab .transaction-title-premium {
+        font-size: 0.9rem;
+    }
+
+    .profile-tab .transaction-date-premium {
+        font-size: 0.75rem;
+    }
+
+    .profile-tab .transaction-amount-premium {
+        font-size: 1rem;
+        font-weight: 700;
+    }
+
+    .profile-tab .transaction-details-premium {
+        min-width: 0;
+        overflow: hidden;
+    }
+
+    .profile-tab .transaction-title-premium,
+    .profile-tab .transaction-date-premium {
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .profile-tab .pagination-container {
+        flex-wrap: wrap;
+        gap: var(--spacing-sm);
+        margin-top: var(--spacing-md);
+        padding-top: var(--spacing-md);
+    }
+
+    .profile-tab .pagination-btn {
+        padding: 8px 12px;
+        font-size: 0.85rem;
+    }
+
+    .profile-tab .pagination-btn svg {
+        width: 18px;
+        height: 18px;
+    }
+
+    .profile-tab .pagination-number {
+        width: 32px;
+        height: 32px;
+        font-size: 0.85rem;
+    }
+
+    .profile-tab .transactions-empty {
+        padding: var(--spacing-lg);
+    }
+
+    .profile-tab .transactions-empty h4 {
+        font-size: 1rem;
+    }
+
+    .profile-tab .transactions-empty p {
+        font-size: 0.85rem;
+    }
+}
+
+@media (max-width: 480px) {
+    .profile-tab .transactions-section-premium {
+        padding: 0.75rem;
+        max-width: 100%;
+    }
+
+    .profile-tab .section-heading-premium {
+        font-size: 1rem;
+    }
+
+    .profile-tab .transaction-icon-premium {
+        width: 38px;
+        height: 38px;
+    }
+
+    .profile-tab .transaction-amount-premium {
+        font-size: 0.95rem;
+    }
+
+    .profile-tab .pagination-btn span {
+        display: none;
+    }
+}

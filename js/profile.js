@@ -298,17 +298,15 @@ function initTabs() {
                 const scrollTarget = profileMain || targetTab;
                 
                 setTimeout(() => {
-                
-                    const offset = window.innerWidth >= 968 ? 350 : 200; 
-                
-                    const elementPosition = scrollTarget.getBoundingClientRect().top + window.pageYOffset;
-                    const offsetPosition = elementPosition - offset;
-                
+                    const rect = scrollTarget.getBoundingClientRect();
+                    const elementTop = rect.top + window.scrollY;
+                    
+                    const offset = window.innerWidth >= 968 ? 100 : 80; // المسافة من أعلى الشاشة
+                    
                     window.scrollTo({
-                        top: offsetPosition,
+                        top: elementTop - offset,
                         behavior: 'smooth'
                     });
-                
                 }, 50);
             }
             // تحميل البيانات عند النقر على التبويب
