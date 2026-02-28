@@ -293,12 +293,6 @@ function initTabs() {
             const targetTab = document.getElementById(`${tabId}-tab`);
             if (targetTab) {
                 targetTab.classList.add('active');
-                const profileMain = targetTab.closest('.profile-main');
-                const scrollTarget = profileMain || targetTab;
-                console.log(scrollTarget);
-                setTimeout(() => {
-                    scrollTarget.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                }, 50);
             }
             // تحميل البيانات عند النقر على التبويب
             if (tabId === 'course-codes' && typeof loadCourseCodes === 'function') {
