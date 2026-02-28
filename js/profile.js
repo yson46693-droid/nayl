@@ -279,6 +279,7 @@ function initTabs() {
 
     navItems.forEach(item => {
         item.addEventListener('click', function () {
+            console.log('zzzzzzzz');
             const tabId = this.getAttribute('data-tab');
 
             // Save active tab to localStorage
@@ -290,7 +291,6 @@ function initTabs() {
 
             // إضافة الكلاس النشط للعنصر والتبويب المختار
             this.classList.add('active');
-            console.log(tabId);
             const targetTab = document.getElementById(`${tabId}-tab`);
             if (targetTab) {
                 targetTab.classList.add('active');
