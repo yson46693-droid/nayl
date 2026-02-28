@@ -431,4 +431,9 @@ body.recharge-page {
     .profile-section .user-avatar i {
         font-size: 80px !important;
     }
+
+    .profile-section .profile-title {
+        font-size: 1.4rem;
+    }
+    
 }
