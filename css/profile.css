@@ -393,7 +393,11 @@ body.recharge-page {
         margin: 0;
         margin-right: 0;
     }
-}
+    
+    .profile-main {
+        padding: 0px !important;
+    }
+ }
 
 @media (max-width: 480px) {
     .profile-tab .transactions-section-premium,
