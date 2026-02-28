@@ -293,20 +293,14 @@ function initTabs() {
             const targetTab = document.getElementById(`${tabId}-tab`);
             if (targetTab) {
                 targetTab.classList.add('active');
-
                 const profileMain = targetTab.closest('.profile-main');
                 const scrollTarget = profileMain || targetTab;
-                
                 setTimeout(() => {
-                    const rect = scrollTarget.getBoundingClientRect();
-                    const elementTop = rect.top + window.scrollY;
-                    
-                    const offset = window.innerWidth >= 968 ? 100 : 80; // المسافة من أعلى الشاشة
-                    
-                    window.scrollTo({
-                        top: elementTop - offset,
-                        behavior: 'smooth'
-                    });
+                    scrollTarget.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    setTimeout(() => {
+                        const offset = window.innerWidth >= 968 ? -180 : -130;
+                        window.scrollBy(0, offset);
+                    }, 400);
                 }, 50);
             }
             // تحميل البيانات عند النقر على التبويب

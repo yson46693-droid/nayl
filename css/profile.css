@@ -270,40 +270,47 @@ body.recharge-page {
     }
 
     .profile-tab .transaction-item-premium {
-        padding: var(--spacing-sm);
-        gap: var(--spacing-sm);
+        padding: 6px 8px;
+        gap: 8px;
     }
 
     .profile-tab .transaction-icon-premium {
-        width: 44px;
-        height: 44px;
-        border-radius: 10px;
-        font-size: 1rem;
-    }
-
-    .profile-tab .transaction-title-premium {
+        width: 40px;
+        height: 40px;
+        border-radius: 8px;
         font-size: 0.9rem;
-    }
-
-    .profile-tab .transaction-date-premium {
-        font-size: 0.75rem;
-    }
-
-    .profile-tab .transaction-amount-premium {
-        font-size: 1rem;
-        font-weight: 700;
     }
 
     .profile-tab .transaction-details-premium {
         min-width: 0;
         overflow: hidden;
+        flex: 1;
+        padding: 2px 0;
     }
 
-    .profile-tab .transaction-title-premium,
-    .profile-tab .transaction-date-premium {
+    .profile-tab .transaction-title-premium {
+        font-size: 0.8rem;
+        font-weight: 600;
+        margin: 0 0 2px 0;
+        line-height: 1.25;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
+    }
+
+    .profile-tab .transaction-date-premium {
+        font-size: 0.7rem;
+        margin: 0;
+        gap: 4px;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        white-space: nowrap;
+    }
+
+    .profile-tab .transaction-amount-premium {
+        font-size: 0.9rem;
+        font-weight: 700;
+        flex-shrink: 0;
     }
 
     .profile-tab .pagination-container {
@@ -344,7 +351,7 @@ body.recharge-page {
 
 @media (max-width: 480px) {
     .profile-tab .transactions-section-premium {
-        padding: 0.75rem;
+        padding: 0.5rem;
         max-width: 100%;
     }
 
@@ -352,13 +359,32 @@ body.recharge-page {
         font-size: 1rem;
     }
 
+    .profile-tab .transaction-item-premium {
+        padding: 5px 6px;
+        gap: 6px;
+    }
+
     .profile-tab .transaction-icon-premium {
-        width: 38px;
-        height: 38px;
+        width: 34px;
+        height: 34px;
+        border-radius: 6px;
+        font-size: 0.8rem;
+    }
+
+    .profile-tab .transaction-details-premium {
+        padding: 0;
+    }
+
+    .profile-tab .transaction-title-premium {
+        font-size: 0.75rem;
+    }
+
+    .profile-tab .transaction-date-premium {
+        font-size: 0.65rem;
     }
 
     .profile-tab .transaction-amount-premium {
-        font-size: 0.95rem;
+        font-size: 0.85rem;
     }
 
     .profile-tab .pagination-btn span {
