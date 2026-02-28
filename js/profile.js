@@ -290,6 +290,7 @@ function initTabs() {
 
             // إضافة الكلاس النشط للعنصر والتبويب المختار
             this.classList.add('active');
+            console.log(tabId);
             const targetTab = document.getElementById(`${tabId}-tab`);
             if (targetTab) {
                 targetTab.classList.add('active');
