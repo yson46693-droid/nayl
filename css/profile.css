@@ -354,6 +354,24 @@ body.recharge-page {
     }
 }
 
+@media (max-width: 550px) {
+    
+    .profile-tab .transaction-item-premium {
+        flex-direction: column;
+        justify-content: center;
+        padding: 5px 6px;
+        gap: 6px;
+    }
+
+    .profile-tab .transaction-icon-premium{
+        display: none;
+    }
+
+    .profile-tab .transaction-id-column{
+        border-left: none;
+    }
+}
+
 @media (max-width: 480px) {
     .profile-tab .transactions-section-premium,
     .profile-tab .recharge-requests-section {
@@ -365,10 +383,6 @@ body.recharge-page {
         font-size: 1rem;
     }
 
-    .profile-tab .transaction-item-premium {
-        padding: 5px 6px;
-        gap: 6px;
-    }
 
     .profile-tab .transaction-icon-premium {
         width: 34px;
@@ -379,10 +393,6 @@ body.recharge-page {
 
     .profile-tab .transaction-details-premium {
         padding: 0;
-    }
-
-    .profile-tab .transaction-title-premium {
-        font-size: 0.75rem;
     }
 
     .profile-tab .transaction-date-premium {
