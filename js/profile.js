@@ -297,9 +297,18 @@ function initTabs() {
                 const scrollTarget = profileMain || targetTab;
                 setTimeout(() => {
                     scrollTarget.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    const scrollOffset = window.innerWidth >= 968 ? -350 : -200; // كمبيوتر: فوق أكتر | موبايل: زي ما هو
+                    const isDesktop = window.innerWidth >= 768;
+                    const scrollOffset = isDesktop ? -350 : -200; // كمبيوتر: فوق أكتر | موبايل: زي ما هو
+                    console.log('[Profile Tab Scroll]', {
+                        tabId,
+                        windowWidth: window.innerWidth,
+                        isDesktop,
+                        scrollOffset,
+                        scrollYBefore: window.scrollY
+                    });
                     setTimeout(() => {
                         window.scrollBy(0, scrollOffset);
+                        console.log('[Profile Tab Scroll] بعد scrollBy', { scrollYAfter: window.scrollY });
                     }, 400);
                 }, 50);
             }
