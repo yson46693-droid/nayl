@@ -298,7 +298,7 @@ function initTabs() {
                 setTimeout(() => {
                     scrollTarget.scrollIntoView({ behavior: 'smooth', block: 'start' });
                     setTimeout(() => {
-                        const offset = window.innerWidth >= 968 ? -180 : -130;
+                        const offset = window.innerWidth >= 968 ? 0 : -130;
                         window.scrollBy(0, offset);
                     }, 400);
                 }, 50);

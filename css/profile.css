@@ -227,14 +227,19 @@ body.recharge-page {
     }
 }
 
-/* سجل المعاملات - توافق الموبايل (منع الخروج عن الشاشة) */
+/* سجل المعاملات + طلبات تعبئة الرصيد - توافق الموبايل (منع الخروج عن الشاشة) */
 @media (max-width: 768px) {
-    .profile-tab .transactions-section-premium {
+    .profile-tab .transactions-section-premium,
+    .profile-tab .recharge-requests-section {
         padding: var(--spacing-md);
         max-width: 100%;
         box-sizing: border-box;
         border-radius: var(--radius-md);
         overflow-x: hidden;
+    }
+
+    .profile-tab .recharge-requests-section {
+        margin-bottom: var(--spacing-md);
     }
 
     .profile-tab .transactions-header {
@@ -350,7 +355,8 @@ body.recharge-page {
 }
 
 @media (max-width: 480px) {
-    .profile-tab .transactions-section-premium {
+    .profile-tab .transactions-section-premium,
+    .profile-tab .recharge-requests-section {
         padding: 0.5rem;
         max-width: 100%;
     }
