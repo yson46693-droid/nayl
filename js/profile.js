@@ -293,6 +293,7 @@ function initTabs() {
             const targetTab = document.getElementById(`${tabId}-tab`);
             if (targetTab) {
                 targetTab.classList.add('active');
+                targetTab.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }
             // تحميل البيانات عند النقر على التبويب
             if (tabId === 'course-codes' && typeof loadCourseCodes === 'function') {
