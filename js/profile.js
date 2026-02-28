@@ -297,8 +297,9 @@ function initTabs() {
                 const scrollTarget = profileMain || targetTab;
                 setTimeout(() => {
                     scrollTarget.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    const scrollOffset = window.innerWidth >= 968 ? -350 : -200; // كمبيوتر: فوق أكتر | موبايل: زي ما هو
                     setTimeout(() => {
-                        window.scrollBy(0, -100);
+                        window.scrollBy(0, scrollOffset);
                     }, 400);
                 }, 50);
             }

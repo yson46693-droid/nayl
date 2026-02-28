@@ -4138,7 +4138,7 @@ body {
 .profile-main {
     background: var(--bg-card);
     border-radius: var(--radius-lg);
-    padding: var(--spacing-xl);
+    /* padding: var(--spacing-xl); */
     box-shadow: var(--shadow-sm);
 }
 
