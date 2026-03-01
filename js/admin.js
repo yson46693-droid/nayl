@@ -2087,7 +2087,7 @@ async function editCourse(courseId) {
                         </div>
                     </div>
                     <p style="color: var(--text-gray); font-size: 0.9rem; margin: 0;">${escapeHtml(video.description)}</p>
-                    ${video.video_url ? `<div style="margin-top: 8px;"><video src="../api/admin/proxy-video.php?video_id=${video.id}" controls style="max-width: 100%; max-height: 220px; border-radius: 8px; background: #1a2332;"></video></div>` : '<p style="color: var(--text-gray); font-size: 0.85rem; margin-top: 6px;">لا يوجد رابط فيديو</p>'}
+                    ${video.video_url ? `<div style="margin-top: 8px; width: 100%; max-width: 100%; height: 220px; border-radius: 8px; overflow: hidden; background: #1a2332;"><iframe src="${escapeHtml(video.video_url)}" style="width: 100%; height: 100%; border: none; border-radius: 8px;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen title="معاينة الفيديو"></iframe></div>` : '<p style="color: var(--text-gray); font-size: 0.85rem; margin-top: 6px;">لا يوجد رابط فيديو</p>'}
                 </div>
             `;
         });
@@ -2522,7 +2522,7 @@ async function editCoursePage(courseId) {
                                 ${thumbDisplay}
                             </div>
                         </div>
-                        ${video.video_url ? `<div class="admin-form-group" style="grid-column: 1 / -1;"><label>مشاهدة الفيديو</label><video src="../api/admin/proxy-video.php?video_id=${video.id}" controls style="max-width: 100%; max-height: 320px; border-radius: 8px; background: #1a2332;"></video></div>` : ''}
+                        ${video.video_url ? `<div class="admin-form-group" style="grid-column: 1 / -1;"><label>مشاهدة الفيديو</label><div style="width: 100%; max-width: 100%; height: 320px; border-radius: 8px; overflow: hidden; background: #1a2332;"><iframe src="${escapeHtml(video.video_url)}" style="width: 100%; height: 100%; border: none; border-radius: 8px;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen title="معاينة الفيديو"></iframe></div></div>` : ''}
                         <div class="admin-form-group">
                             <label>تحديث صورة الواجهة (اختياري)</label>
                             <input type="file" class="edit-video-thumbnail" data-video-id="${video.id}" accept="image/*">
