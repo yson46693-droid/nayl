@@ -90,7 +90,7 @@ body::-webkit-scrollbar-thumb:hover {
     background: #3a7bc8;
 }
 
-.container {
+.container-app {
     max-width: 1200px;
     margin: 0 auto;
     padding: 0 var(--spacing-md);
@@ -7087,7 +7087,7 @@ body {
     z-index: 0;
 }
 
-.my-courses-section .container {
+.my-courses-section .container-app {
     position: relative;
     z-index: 2;
 }
@@ -7135,7 +7135,7 @@ body {
     z-index: 0;
 }
 
-.courses-section .container {
+.courses-section .container-app {
     position: relative;
     z-index: 2;
 }

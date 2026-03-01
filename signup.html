@@ -1,334 +1,558 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ar" dir="rtl">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+  <head>
+    <meta charset="UTF-8" />
+    <meta
+      name="viewport"
+      content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes"
+    />
     <title>AmrNayl academy - إنشاء حساب جديد</title>
-    <link rel="stylesheet" href="css/style.css">
-    <link rel="shortcut icon" href="fav.ico" type="image/x-icon">
-    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
-</head>
+    <link rel="stylesheet" href="css/style.css?v=1" />
+    <link rel="shortcut icon" href="fav.ico" type="image/x-icon" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;900&display=swap"
+      rel="stylesheet"
+    />
+  </head>
 
-<body class="login-page">
+  <body class="login-page">
     <!-- توجيه مستخدمي الهواتف إلى النسخة المخصصة -->
     <script>
-        (function() {
-            var w = window.innerWidth || document.documentElement.clientWidth;
-            if (w <= 768 && !sessionStorage.getItem('signup_desktop')) {
-                window.location.replace('signup-mobile.html');
-            }
-        })();
+      (function () {
+        var w = window.innerWidth || document.documentElement.clientWidth;
+        if (w <= 768 && !sessionStorage.getItem("signup_desktop")) {
+          window.location.replace("signup-mobile.html");
+        }
+      })();
     </script>
     <div class="signup-full-container">
-        <!-- Info Panel (Right Side in RTL) -->
-        <div class="signup-info-panel-new">
-            <div class="overlay-grad"></div>
-            <div class="image-bg">
-                <img src="pics/signup_bg.png" alt="Academy Background">
-            </div>
-            <div class="curved-divider">
-                <svg preserveAspectRatio="none" viewBox="0 0 100 100" class="curve">
-                    <path d="M100 0 C 70 20, 30 80, 0 100 L 100 100 Z" fill="#1e2129"></path>
-                </svg>
-            </div>
-
-            <div class="info-overlay-content">
-                <div class="welcome-text-overlay">
-                    <h2 class="welcome-title">انضم إلينا</h2>
-                    <p class="welcome-subtitle">أنشئ حسابك الآن وابدأ رحلتك التعليمية مع أكاديمية م/ عمرو نايل</p>
-                </div>
-
-            </div>
+      <!-- Info Panel (Right Side in RTL) -->
+      <div class="signup-info-panel-new">
+        <div class="overlay-grad"></div>
+        <div class="image-bg">
+          <img src="pics/signup_bg.png" alt="Academy Background" />
+        </div>
+        <div class="curved-divider">
+          <svg preserveAspectRatio="none" viewBox="0 0 100 100" class="curve">
+            <path
+              d="M100 0 C 70 20, 30 80, 0 100 L 100 100 Z"
+              fill="#1e2129"
+            ></path>
+          </svg>
         </div>
 
-        <!-- Form Panel (Left Side in RTL) -->
-        <div class="signup-form-panel">
-            <div class="form-content-wrapper">
-                <div class="form-header-modern">
-                    <span class="subtitle">ابدأ مجاناً</span>
-                    <h1>إنشاء حساب جديد<span class="dot">.</span></h1>
-                    <p class="login-prompt">لديك حساب بالفعل؟ <a href="index.html">تسجيل الدخول</a></p>
-                </div>
-
-                <div class="registration-container" id="registrationContainer">
-                    <div class="form-group">
-                        <div class="block-style full-width">
-                            <label for="fullname">الاسم بالكامل</label>
-                            <div class="input-wrapper">
-                                <input type="text" id="fullname" placeholder="ادخل اسمك بالكامل"
-                                    required>
-                                <div class="block-icon">
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                        stroke-width="2">
-                                        <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path>
-                                        <circle cx="12" cy="7" r="4"></circle>
-                                    </svg>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="field-hint" id="fullnameHint">الاسم يجب أن يكون ثلاثياً على الأقل</div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group block-style">
-                            <label for="country">الدولة</label>
-                            <div class="input-wrapper">
-                                <select id="country" required>
-                                    <option value="">اختر الدولة</option>
-                                    <option value="مصر">مصر</option>
-                                    <option value="السعودية">السعودية</option>
-                                    <option value="الإمارات">الإمارات</option>
-                                    <option value="الكويت">الكويت</option>
-                                    <option value="قطر">قطر</option>
-                                    <option value="البحرين">البحرين</option>
-                                    <option value="عمان">عمان</option>
-                                    <option value="الأردن">الأردن</option>
-                                    <option value="فلسطين">فلسطين</option>
-                                    <option value="لبنان">لبنان</option>
-                                    <option value="سوريا">سوريا</option>
-                                    <option value="العراق">العراق</option>
-                                    <option value="اليمن">اليمن</option>
-                                    <option value="ليبيا">ليبيا</option>
-                                    <option value="تونس">تونس</option>
-                                    <option value="الجزائر">الجزائر</option>
-                                    <option value="المغرب">المغرب</option>
-                                    <option value="السودان">السودان</option>
-                                    <option value="أخرى">أخرى</option>
-                                </select>
-                                <div class="block-icon">
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                        stroke-width="2">
-                                        <circle cx="12" cy="12" r="10"></circle>
-                                        <line x1="2" y1="12" x2="22" y2="12"></line>
-                                        <path
-                                            d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z">
-                                        </path>
-                                    </svg>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="form-group block-style">
-                            <label for="city">المدينة</label>
-                            <div class="input-wrapper">
-                                <select id="city" required>
-                                    <option value="">اختر المدينة</option>
-                                </select>
-                                <div class="block-icon">
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
-                                        stroke-width="2">
-                                        <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-                                        <circle cx="12" cy="10" r="3"></circle>
-                                    </svg>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="form-row">
-                        <div class="form-group">
-                            <div class="block-style">
-                                <label for="phone">رقم الهاتف</label>
-                                <div class="phone-input-wrapper">
-                                    <input type="tel" id="phone" placeholder="ادخل رقم الهاتف" required>
-                                    <div class="country-code-select" id="countryCodeSelect">
-                                        <div class="selected-country" id="selectedCountry">
-                                            <span class="flag-icon">🇪🇬</span>
-                                            <span class="country-code">+20</span>
-                                        </div>
-                                        <div class="country-dropdown" id="countryDropdown">
-                                            <div class="country-search">
-                                                <input type="text" id="countrySearch" placeholder="ابحث...">
-                                            </div>
-                                            <div class="country-list" id="countryList">
-                                                <div class="country-option" data-code="+20" data-country="مصر"><span
-                                                        class="flag-icon">🇪🇬</span> مصر +20</div>
-                                                <div class="country-option" data-code="+966" data-country="السعودية">
-                                                    <span class="flag-icon">🇸🇦</span> السعودية +966
-                                                </div>
-                                                <div class="country-option" data-code="+971" data-country="الإمارات">
-                                                    <span class="flag-icon">🇦🇪</span> الإمارات +971
-                                                </div>
-                                                <div class="country-option" data-code="+965" data-country="الكويت"><span
-                                                        class="flag-icon">🇰🇼</span> الكويت +965</div>
-                                                <div class="country-option" data-code="+974" data-country="قطر"><span
-                                                        class="flag-icon">🇶🇦</span> قطر +974</div>
-                                                <div class="country-option" data-code="+973" data-country="البحرين">
-                                                    <span class="flag-icon">🇧🇭</span> البحرين +973
-                                                </div>
-                                                <div class="country-option" data-code="+968" data-country="عمان"><span
-                                                        class="flag-icon">🇴🇲</span> عمان +968</div>
-                                                <div class="country-option" data-code="+962" data-country="الأردن"><span
-                                                        class="flag-icon">🇯🇴</span> الأردن +962</div>
-                                                <div class="country-option" data-code="+970" data-country="فلسطين"><span
-                                                        class="flag-icon">🇵🇸</span> فلسطين +970</div>
-                                                <div class="country-option" data-code="+961" data-country="لبنان"><span
-                                                        class="flag-icon">🇱🇧</span> لبنان +961</div>
-                                                <div class="country-option" data-code="+963" data-country="سوريا"><span
-                                                        class="flag-icon">🇸🇾</span> سوريا +963</div>
-                                                <div class="country-option" data-code="+964" data-country="العراق"><span
-                                                        class="flag-icon">🇮🇶</span> العراق +964</div>
-                                                <div class="country-option" data-code="+967" data-country="اليمن"><span
-                                                        class="flag-icon">🇾🇪</span> اليمن +967</div>
-                                                <div class="country-option" data-code="+218" data-country="ليبيا"><span
-                                                        class="flag-icon">🇱🇾</span> ليبيا +218</div>
-                                                <div class="country-option" data-code="+216" data-country="تونس"><span
-                                                        class="flag-icon">🇹🇳</span> تونس +216</div>
-                                                <div class="country-option" data-code="+213" data-country="الجزائر">
-                                                    <span class="flag-icon">🇩🇿</span> الجزائر +213
-                                                </div>
-                                                <div class="country-option" data-code="+212" data-country="المغرب"><span
-                                                        class="flag-icon">🇲🇦</span> المغرب +212</div>
-                                                <div class="country-option" data-code="+249" data-country="السودان">
-                                                    <span class="flag-icon">🇸🇩</span> السودان +249
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                                <input type="hidden" id="selectedCountryCode" value="+20">
-                            </div>
-                            <div class="field-hint" id="phoneHint">7 أرقام على الأقل</div>
-                        </div>
-
-                        <div class="form-group">
-                            <div class="block-style">
-                                <label for="email">البريد الإلكتروني</label>
-                                <div class="input-wrapper">
-                                    <input type="email" id="email" placeholder="ادخل البريد الإلكتروني" required>
-                                    <div class="block-icon">
-                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
-                                            stroke="currentColor" stroke-width="2">
-                                            <path
-                                                d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z">
-                                            </path>
-                                            <polyline points="22,6 12,13 2,6"></polyline>
-                                        </svg>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="field-hint" id="emailHint">مثال: name@example.com</div>
-                        </div>
-                    </div>
-
-                    <div class="form-row">
-                        <div class="form-group">
-                            <div class="block-style">
-                                <label for="password">كلمة المرور</label>
-                                <div class="input-wrapper">
-                                    <input type="password" id="password" placeholder="اختر كلمة مرور قوية" required
-                                        minlength="6">
-                                    <button type="button" class="toggle-password" id="togglePassword">
-                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
-                                            stroke="currentColor" stroke-width="2">
-                                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                                            <circle cx="12" cy="12" r="3"></circle>
-                                        </svg>
-                                    </button>
-                                </div>
-                            </div>
-                            <div class="field-hint" id="passwordHint">6 أحرف على الأقل</div>
-                        </div>
-
-                        <div class="form-group">
-                            <div class="block-style">
-                                <label for="confirmPassword">تأكيد كلمة المرور</label>
-                                <div class="input-wrapper">
-                                    <input type="password" id="confirmPassword" placeholder="اعد كتابة كلمة المرور"
-                                        required>
-                                    <button type="button" class="toggle-password" id="toggleConfirmPassword">
-                                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none"
-                                            stroke="currentColor" stroke-width="2">
-                                            <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"></path>
-                                            <circle cx="12" cy="12" r="3"></circle>
-                                        </svg>
-                                    </button>
-                                </div>
-                            </div>
-                            <div class="field-hint" id="confirmPasswordHint">يجب أن تطابق كلمة المرور</div>
-                        </div>
-                    </div>
-                    <div class="checkbox-group-modern">
-                        <label class="checkbox-container">
-                            <input type="checkbox" id="terms" required>
-                            <span class="checkmark"></span>
-                            <span class="label-text">أوافق على <a href="#" class="terms-link">الشروط والأحكام</a></span>
-                        </label>
-                    </div>
-
-                    <div class="form-actions">
-                        <button type="button" class="btn-primary-modern" id="submitBtn" disabled>إنشاء الحساب</button>
-                    </div>
-                </div>
-            </div>
-
-            <div class="form-footer">
-                <a href="home.html" class="footer-logo"
-                    style="text-decoration: none; color: inherit; display: flex; align-items: center; gap: 0.5rem;">
-                    <img src="pics/logo.png" alt="AMR NAYL ACADEMY" width="40" height="40" style="border-radius: 6px;">
-                    <span>AmrNayl Academy</span>
-                </a>
-            </div>
-
+        <div class="info-overlay-content">
+          <div class="welcome-text-overlay">
+            <h2 class="welcome-title">انضم إلينا</h2>
+            <p class="welcome-subtitle">
+              أنشئ حسابك الآن وابدأ رحلتك التعليمية مع أكاديمية م/ عمرو نايل
+            </p>
+          </div>
         </div>
+      </div>
+
+      <!-- Form Panel (Left Side in RTL) -->
+      <div class="signup-form-panel">
+        <div class="form-content-wrapper">
+          <div class="form-header-modern">
+            <span class="subtitle">ابدأ مجاناً</span>
+            <h1>إنشاء حساب جديد<span class="dot">.</span></h1>
+            <p class="login-prompt">
+              لديك حساب بالفعل؟ <a href="index.html">تسجيل الدخول</a>
+            </p>
+          </div>
+
+          <div class="registration-container" id="registrationContainer">
+            <div class="form-group">
+              <div class="block-style full-width">
+                <label for="fullname">الاسم بالكامل</label>
+                <div class="input-wrapper">
+                  <input
+                    type="text"
+                    id="fullname"
+                    placeholder="ادخل اسمك بالكامل"
+                    required
+                  />
+                  <div class="block-icon">
+                    <svg
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <path
+                        d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"
+                      ></path>
+                      <circle cx="12" cy="7" r="4"></circle>
+                    </svg>
+                  </div>
+                </div>
+              </div>
+              <div class="field-hint" id="fullnameHint">
+                الاسم يجب أن يكون ثلاثياً على الأقل
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group block-style">
+                <label for="country">الدولة</label>
+                <div class="input-wrapper">
+                  <select id="country" required>
+                    <option value="">اختر الدولة</option>
+                    <option value="مصر">مصر</option>
+                    <option value="السعودية">السعودية</option>
+                    <option value="الإمارات">الإمارات</option>
+                    <option value="الكويت">الكويت</option>
+                    <option value="قطر">قطر</option>
+                    <option value="البحرين">البحرين</option>
+                    <option value="عمان">عمان</option>
+                    <option value="الأردن">الأردن</option>
+                    <option value="فلسطين">فلسطين</option>
+                    <option value="لبنان">لبنان</option>
+                    <option value="سوريا">سوريا</option>
+                    <option value="العراق">العراق</option>
+                    <option value="اليمن">اليمن</option>
+                    <option value="ليبيا">ليبيا</option>
+                    <option value="تونس">تونس</option>
+                    <option value="الجزائر">الجزائر</option>
+                    <option value="المغرب">المغرب</option>
+                    <option value="السودان">السودان</option>
+                    <option value="أخرى">أخرى</option>
+                  </select>
+                  <div class="block-icon">
+                    <svg
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <line x1="2" y1="12" x2="22" y2="12"></line>
+                      <path
+                        d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"
+                      ></path>
+                    </svg>
+                  </div>
+                </div>
+              </div>
+              <div class="form-group block-style">
+                <label for="city">المدينة</label>
+                <div class="input-wrapper">
+                  <select id="city" required>
+                    <option value="">اختر المدينة</option>
+                  </select>
+                  <div class="block-icon">
+                    <svg
+                      width="20"
+                      height="20"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="2"
+                    >
+                      <path
+                        d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"
+                      ></path>
+                      <circle cx="12" cy="10" r="3"></circle>
+                    </svg>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <div class="form-row">
+              <div class="form-group">
+                <div class="block-style">
+                  <label for="phone">رقم الهاتف</label>
+                  <div class="phone-input-wrapper">
+                    <input
+                      type="tel"
+                      id="phone"
+                      placeholder="ادخل رقم الهاتف"
+                      required
+                    />
+                    <div class="country-code-select" id="countryCodeSelect">
+                      <div class="selected-country" id="selectedCountry">
+                        <span class="flag-icon">🇪🇬</span>
+                        <span class="country-code">+20</span>
+                      </div>
+                      <div class="country-dropdown" id="countryDropdown">
+                        <div class="country-search">
+                          <input
+                            type="text"
+                            id="countrySearch"
+                            placeholder="ابحث..."
+                          />
+                        </div>
+                        <div class="country-list" id="countryList">
+                          <div
+                            class="country-option"
+                            data-code="+20"
+                            data-country="مصر"
+                          >
+                            <span class="flag-icon">🇪🇬</span> مصر +20
+                          </div>
+                          <div
+                            class="country-option"
+                            data-code="+966"
+                            data-country="السعودية"
+                          >
+                            <span class="flag-icon">🇸🇦</span> السعودية +966
+                          </div>
+                          <div
+                            class="country-option"
+                            data-code="+971"
+                            data-country="الإمارات"
+                          >
+                            <span class="flag-icon">🇦🇪</span> الإمارات +971
+                          </div>
+                          <div
+                            class="country-option"
+                            data-code="+965"
+                            data-country="الكويت"
+                          >
+                            <span class="flag-icon">🇰🇼</span> الكويت +965
+                          </div>
+                          <div
+                            class="country-option"
+                            data-code="+974"
+                            data-country="قطر"
+                          >
+                            <span class="flag-icon">🇶🇦</span> قطر +974
+                          </div>
+                          <div
+                            class="country-option"
+                            data-code="+973"
+                            data-country="البحرين"
+                          >
+                            <span class="flag-icon">🇧🇭</span> البحرين +973
+                          </div>
+                          <div
+                            class="country-option"
+                            data-code="+968"
+                            data-country="عمان"
+                          >
+                            <span class="flag-icon">🇴🇲</span> عمان +968
+                          </div>
+                          <div
+                            class="country-option"
+                            data-code="+962"
+                            data-country="الأردن"
+                          >
+                            <span class="flag-icon">🇯🇴</span> الأردن +962
+                          </div>
+                          <div
+                            class="country-option"
+                            data-code="+970"
+                            data-country="فلسطين"
+                          >
+                            <span class="flag-icon">🇵🇸</span> فلسطين +970
+                          </div>
+                          <div
+                            class="country-option"
+                            data-code="+961"
+                            data-country="لبنان"
+                          >
+                            <span class="flag-icon">🇱🇧</span> لبنان +961
+                          </div>
+                          <div
+                            class="country-option"
+                            data-code="+963"
+                            data-country="سوريا"
+                          >
+                            <span class="flag-icon">🇸🇾</span> سوريا +963
+                          </div>
+                          <div
+                            class="country-option"
+                            data-code="+964"
+                            data-country="العراق"
+                          >
+                            <span class="flag-icon">🇮🇶</span> العراق +964
+                          </div>
+                          <div
+                            class="country-option"
+                            data-code="+967"
+                            data-country="اليمن"
+                          >
+                            <span class="flag-icon">🇾🇪</span> اليمن +967
+                          </div>
+                          <div
+                            class="country-option"
+                            data-code="+218"
+                            data-country="ليبيا"
+                          >
+                            <span class="flag-icon">🇱🇾</span> ليبيا +218
+                          </div>
+                          <div
+                            class="country-option"
+                            data-code="+216"
+                            data-country="تونس"
+                          >
+                            <span class="flag-icon">🇹🇳</span> تونس +216
+                          </div>
+                          <div
+                            class="country-option"
+                            data-code="+213"
+                            data-country="الجزائر"
+                          >
+                            <span class="flag-icon">🇩🇿</span> الجزائر +213
+                          </div>
+                          <div
+                            class="country-option"
+                            data-code="+212"
+                            data-country="المغرب"
+                          >
+                            <span class="flag-icon">🇲🇦</span> المغرب +212
+                          </div>
+                          <div
+                            class="country-option"
+                            data-code="+249"
+                            data-country="السودان"
+                          >
+                            <span class="flag-icon">🇸🇩</span> السودان +249
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                  <input type="hidden" id="selectedCountryCode" value="+20" />
+                </div>
+                <div class="field-hint" id="phoneHint">7 أرقام على الأقل</div>
+              </div>
+
+              <div class="form-group">
+                <div class="block-style">
+                  <label for="email">البريد الإلكتروني</label>
+                  <div class="input-wrapper">
+                    <input
+                      type="email"
+                      id="email"
+                      placeholder="ادخل البريد الإلكتروني"
+                      required
+                    />
+                    <div class="block-icon">
+                      <svg
+                        width="20"
+                        height="20"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                      >
+                        <path
+                          d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"
+                        ></path>
+                        <polyline points="22,6 12,13 2,6"></polyline>
+                      </svg>
+                    </div>
+                  </div>
+                </div>
+                <div class="field-hint" id="emailHint">
+                  مثال: name@example.com
+                </div>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <div class="block-style">
+                  <label for="password">كلمة المرور</label>
+                  <div class="input-wrapper">
+                    <input
+                      type="password"
+                      id="password"
+                      placeholder="اختر كلمة مرور قوية"
+                      required
+                      minlength="6"
+                    />
+                    <button
+                      type="button"
+                      class="toggle-password"
+                      id="togglePassword"
+                    >
+                      <svg
+                        width="20"
+                        height="20"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                      >
+                        <path
+                          d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"
+                        ></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+                <div class="field-hint" id="passwordHint">6 أحرف على الأقل</div>
+              </div>
+
+              <div class="form-group">
+                <div class="block-style">
+                  <label for="confirmPassword">تأكيد كلمة المرور</label>
+                  <div class="input-wrapper">
+                    <input
+                      type="password"
+                      id="confirmPassword"
+                      placeholder="اعد كتابة كلمة المرور"
+                      required
+                    />
+                    <button
+                      type="button"
+                      class="toggle-password"
+                      id="toggleConfirmPassword"
+                    >
+                      <svg
+                        width="20"
+                        height="20"
+                        viewBox="0 0 24 24"
+                        fill="none"
+                        stroke="currentColor"
+                        stroke-width="2"
+                      >
+                        <path
+                          d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"
+                        ></path>
+                        <circle cx="12" cy="12" r="3"></circle>
+                      </svg>
+                    </button>
+                  </div>
+                </div>
+                <div class="field-hint" id="confirmPasswordHint">
+                  يجب أن تطابق كلمة المرور
+                </div>
+              </div>
+            </div>
+            <div class="checkbox-group-modern">
+              <label class="checkbox-container">
+                <input type="checkbox" id="terms" required />
+                <span class="checkmark"></span>
+                <span class="label-text"
+                  >أوافق على
+                  <a href="#" class="terms-link">الشروط والأحكام</a></span
+                >
+              </label>
+            </div>
+
+            <div class="form-actions">
+              <button
+                type="button"
+                class="btn-primary-modern"
+                id="submitBtn"
+                disabled
+              >
+                إنشاء الحساب
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <div class="form-footer">
+          <a
+            href="home.html"
+            class="footer-logo"
+            style="
+              text-decoration: none;
+              color: inherit;
+              display: flex;
+              align-items: center;
+              gap: 0.5rem;
+            "
+          >
+            <img
+              src="pics/logo.png"
+              alt="AMR NAYL ACADEMY"
+              width="40"
+              height="40"
+              style="border-radius: 6px"
+            />
+            <span>AmrNayl Academy</span>
+          </a>
+        </div>
+      </div>
     </div>
 
     <!-- Terms and Conditions Modal -->
     <div id="termsModal" class="modal">
-        <div class="modal-content">
-            <span class="close-modal">&times;</span>
-            <div class="modal-header">
-                <h2>الشروط والأحكام</h2>
-            </div>
-            <div class="modal-body">
-                <div class="term-section warning">
-                    <h3>⚠️ تحذير قانوني هام</h3>
-                    <p>جميع الفيديوهات والمحتوى التعليمي الموجود على منصة AmrNayl Academy محمي بموجب حقوق الملكية
-                        الفكرية. يُحظر تماماً تسجيل، أو نسخ، أو إعادة توزيع، أو بيع أي جزء من المحتوى بأي شكل من
-                        الأشكال.</p>
-                    <p class="highlight">أي شخص يقوم بتسريب الكورسات أو بيعها بطريقة غير رسمية يعرض نفسه للمساءلة
-                        القانونية والحظر النهائي من المنصة والملاحقة القضائية.</p>
-                </div>
-
-                <div class="term-section">
-                    <h3>1. الملكية الفكرية</h3>
-                    <p>جميع الحقوق محفوظة للمهندس عمرو نايل. تتضمن الملكية الفكرية الفيديوهات، الملفات، النصوص،
-                        والشروحات. الاشتراك في الكورس يمنحك رخصة مشاهدة شخصية فقط ولا يجوز مشاركة الحساب مع أشخاص
-                        آخرين.
-                    </p>
-                </div>
-
-                <div class="term-section">
-                    <h3>2. سياسة الاستخدام</h3>
-                    <p>يجب استخدام المنصة لأغراض تعليمية فقط. يُمنع استخدام أي أدوات آلية لجمع البيانات أو محاولة
-                        اختراق
-                        الموقع. إدارة المنصة تحتفظ بالحق في إيقاف حساب أي مستخدم يخالف هذه السياسات دون استرداد
-                        المبلغ
-                        المدفوع.</p>
-                </div>
-
-                <div class="term-section">
-                    <h3>3. سياسة الاسترداد</h3>
-                    <p>نظراً لطبيعة المحتوى الرقمي، لا يمكن استرداد المبلغ المدفوع بعد تفعيل الكورس وبدء المشاهدة،
-                        إلا
-                        في حالات استثنائية تقررها إدارة المنصة.</p>
-                </div>
-
-                <div class="term-section warning">
-                    <h3>4. سياسة الجهاز الواحد ومشاهدة المحتوى</h3>
-                    <p>يُمنع منعاً باتاً مشاهدة الكورس بعد الشراء على جهازين مختلفين. نظام الحماية سيتعرف على أي استخدام متعدد الأجهزة وسيقوم بتعليق حسابك فوراً. في هذه الحالة لن تتمكن من استخدام الحساب على المنصة ولا من استرداد أموالك مرة أخرى.</p>
-                    <p class="highlight">أي محاولة تحايل أو خرق لسياسة الخصوصية أو لشروط الاستخدام تعرّض جهازك للحظر النهائي من استخدام المنصة.</p>
-                </div>
-
-                <div class="term-section">
-                    <h3>5. التحديثات والتعديلات</h3>
-                    <p>نحتفظ بالحق في تحديث هذه الشروط في أي وقت. استمرارك في استخدام المنصة يعني موافقتك على أحدث
-                        نسخة
-                        من الشروط والأحكام.</p>
-                </div>
-            </div>
-            <div class="modal-footer">
-                <button id="acceptTermsBtn" class="btn btn-primary">أوافق على الشروط</button>
-            </div>
+      <div class="modal-content">
+        <span class="close-modal">&times;</span>
+        <div class="modal-header">
+          <h2>الشروط والأحكام</h2>
         </div>
+        <div class="modal-body">
+          <div class="term-section warning">
+            <h3>⚠️ تحذير قانوني هام</h3>
+            <p>
+              جميع الفيديوهات والمحتوى التعليمي الموجود على منصة AmrNayl Academy
+              محمي بموجب حقوق الملكية الفكرية. يُحظر تماماً تسجيل، أو نسخ، أو
+              إعادة توزيع، أو بيع أي جزء من المحتوى بأي شكل من الأشكال.
+            </p>
+            <p class="highlight">
+              أي شخص يقوم بتسريب الكورسات أو بيعها بطريقة غير رسمية يعرض نفسه
+              للمساءلة القانونية والحظر النهائي من المنصة والملاحقة القضائية.
+            </p>
+          </div>
+
+          <div class="term-section">
+            <h3>1. الملكية الفكرية</h3>
+            <p>
+              جميع الحقوق محفوظة للمهندس عمرو نايل. تتضمن الملكية الفكرية
+              الفيديوهات، الملفات، النصوص، والشروحات. الاشتراك في الكورس يمنحك
+              رخصة مشاهدة شخصية فقط ولا يجوز مشاركة الحساب مع أشخاص آخرين.
+            </p>
+          </div>
+
+          <div class="term-section">
+            <h3>2. سياسة الاستخدام</h3>
+            <p>
+              يجب استخدام المنصة لأغراض تعليمية فقط. يُمنع استخدام أي أدوات آلية
+              لجمع البيانات أو محاولة اختراق الموقع. إدارة المنصة تحتفظ بالحق في
+              إيقاف حساب أي مستخدم يخالف هذه السياسات دون استرداد المبلغ
+              المدفوع.
+            </p>
+          </div>
+
+          <div class="term-section">
+            <h3>3. سياسة الاسترداد</h3>
+            <p>
+              نظراً لطبيعة المحتوى الرقمي، لا يمكن استرداد المبلغ المدفوع بعد
+              تفعيل الكورس وبدء المشاهدة، إلا في حالات استثنائية تقررها إدارة
+              المنصة.
+            </p>
+          </div>
+
+          <div class="term-section warning">
+            <h3>4. سياسة الجهاز الواحد ومشاهدة المحتوى</h3>
+            <p>
+              يُمنع منعاً باتاً مشاهدة الكورس بعد الشراء على جهازين مختلفين.
+              نظام الحماية سيتعرف على أي استخدام متعدد الأجهزة وسيقوم بتعليق
+              حسابك فوراً. في هذه الحالة لن تتمكن من استخدام الحساب على المنصة
+              ولا من استرداد أموالك مرة أخرى.
+            </p>
+            <p class="highlight">
+              أي محاولة تحايل أو خرق لسياسة الخصوصية أو لشروط الاستخدام تعرّض
+              جهازك للحظر النهائي من استخدام المنصة.
+            </p>
+          </div>
+
+          <div class="term-section">
+            <h3>5. التحديثات والتعديلات</h3>
+            <p>
+              نحتفظ بالحق في تحديث هذه الشروط في أي وقت. استمرارك في استخدام
+              المنصة يعني موافقتك على أحدث نسخة من الشروط والأحكام.
+            </p>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button id="acceptTermsBtn" class="btn btn-primary">
+            أوافق على الشروط
+          </button>
+        </div>
+      </div>
     </div>
 
     <script src="js/deviceUUID.js"></script>
@@ -336,32 +560,31 @@
     <script src="js/tracking.js"></script>
     <script type="module" src="js/signup.js"></script>
     <script>
-        // Ensure page starts from top on mobile devices
-        (function() {
-            // Scroll to top immediately on page load
-            if (window.scrollY > 0) {
-                window.scrollTo(0, 0);
-            }
-            
-            // Also scroll to top after page is fully loaded
-            window.addEventListener('load', function() {
-                setTimeout(function() {
-                    window.scrollTo(0, 0);
-                    document.body.scrollTop = 0;
-                    document.documentElement.scrollTop = 0;
-                }, 0);
-            });
-            
-            // Handle orientation change on mobile
-            window.addEventListener('orientationchange', function() {
-                setTimeout(function() {
-                    window.scrollTo(0, 0);
-                    document.body.scrollTop = 0;
-                    document.documentElement.scrollTop = 0;
-                }, 100);
-            });
-        })();
-    </script>
-</body>
+      // Ensure page starts from top on mobile devices
+      (function () {
+        // Scroll to top immediately on page load
+        if (window.scrollY > 0) {
+          window.scrollTo(0, 0);
+        }
 
+        // Also scroll to top after page is fully loaded
+        window.addEventListener("load", function () {
+          setTimeout(function () {
+            window.scrollTo(0, 0);
+            document.body.scrollTop = 0;
+            document.documentElement.scrollTop = 0;
+          }, 0);
+        });
+
+        // Handle orientation change on mobile
+        window.addEventListener("orientationchange", function () {
+          setTimeout(function () {
+            window.scrollTo(0, 0);
+            document.body.scrollTop = 0;
+            document.documentElement.scrollTop = 0;
+          }, 100);
+        });
+      })();
+    </script>
+  </body>
 </html>

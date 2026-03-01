@@ -5,7 +5,7 @@
  */
 
 function showPurchasePageError(message) {
-    const container = document.querySelector('.purchase-section .container');
+    const container = document.querySelector('.purchase-section .container-app');
     const layout = document.querySelector('.purchase-section .purchase-layout');
     if (layout) layout.style.display = 'none';
     let errorEl = document.getElementById('purchase-page-error');

@@ -30,7 +30,7 @@ function sendPasswordResetEmail($to, $resetLink, $userName = '') {
     <meta name='viewport' content='width=device-width, initial-scale=1.0'>
     <style>
         body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f5f7fa; margin: 0; padding: 20px; }
-        .container { max-width: 500px; margin: 0 auto; background: #fff; border-radius: 12px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
+        .container-app { max-width: 500px; margin: 0 auto; background: #fff; border-radius: 12px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
         .logo { font-size: 1.5rem; font-weight: bold; color: #4a90e2; margin-bottom: 20px; }
         h1 { color: #1a2332; font-size: 1.25rem; margin: 0 0 15px; }
         p { color: #2c3e50; line-height: 1.7; margin: 0 0 15px; font-size: 0.95rem; }
@@ -41,7 +41,7 @@ function sendPasswordResetEmail($to, $resetLink, $userName = '') {
     </style>
 </head>
 <body>
-    <div class='container'>
+    <div class='container-app'>
         <div class='logo'>{$appName}</div>
         <h1>استعادة كلمة المرور</h1>
         <p>{$greeting}</p>
