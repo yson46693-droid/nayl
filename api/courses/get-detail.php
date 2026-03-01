@@ -107,9 +107,9 @@ try {
         sendJsonResponse(false, null, 'الكورس غير موجود أو غير متاح', 404);
     }
 
-    // جلب قائمة الفيديوهات (بدون video_url للأمان - التشغيل عبر proxy)
+    // جلب قائمة الفيديوهات (مع video_url لعرض Bunny iframe)
     $videosStmt = $pdo->prepare("
-        SELECT id, title, description, video_order, duration, thumbnail_url
+        SELECT id, title, description, video_order, duration, thumbnail_url, video_url
         FROM course_videos
         WHERE course_id = :course_id AND status = 'ready'
         ORDER BY video_order ASC, id ASC
@@ -125,7 +125,8 @@ try {
             'description' => $v['description'] ?: '',
             'order' => (int) $v['video_order'],
             'duration' => (int) ($v['duration'] ?? 0),
-            'thumbnail_url' => !empty($v['thumbnail_url']) ? $v['thumbnail_url'] : null
+            'thumbnail_url' => !empty($v['thumbnail_url']) ? $v['thumbnail_url'] : null,
+            'video_url' => !empty($v['video_url']) ? $v['video_url'] : null
         ];
     }
 

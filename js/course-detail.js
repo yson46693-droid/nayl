@@ -230,17 +230,13 @@
 
     function renderVideoPlayer(videoId, title) {
         if (!videoSectionEl) return;
-        var fp = getFingerprint();
-        var videoUrl = 'api/courses/proxy-video.php?video_id=' + videoId;
-        if (fp) {
-            videoUrl += '&fp=' + encodeURIComponent(fp);
-        }
+        var course = window.__courseDetailData;
+        var video = course && course.videos ? course.videos.find(function (v) { return v.id === videoId; }) : null;
+        var videoUrl = (video && video.video_url) ? video.video_url : '';
         videoSectionEl.innerHTML =
             '<div class="video-player-wrapper">' +
-            '<video id="course-video-player" class="course-video-player" controls controlsList="nodownload" playsinline crossorigin="use-credentials">' +
-            '<source src="' + escapeHtml(videoUrl) + '" type="video/mp4">' +
-            'متصفحك لا يدعم تشغيل الفيديو.' +
-            '</video>' +
+            '<iframe id="course-video-player" class="course-video-player" src="' + escapeHtml(videoUrl) + '" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy">' +
+            '</iframe>' +
             '</div>';
     }
 
@@ -255,15 +251,7 @@
                 el.classList.toggle('active', parseInt(el.getAttribute('data-video-id'), 10) === videoId);
             });
         }
-        const videoEl = document.getElementById('course-video-player');
-        if (videoEl) {
-            videoEl.play().catch(function (err) {
-                // تجاهل AbortError - يحدث عند تغيير الدرس بسرعة (إزالة الفيديو من DOM)
-                if (err.name !== 'AbortError') {
-                    console.error('Video play error:', err);
-                }
-            });
-        }
+        // iframe يحمّل الفيديو تلقائياً عند تعيين src في renderVideoPlayer
     }
 
     function init() {
