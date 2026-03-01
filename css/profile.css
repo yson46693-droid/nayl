@@ -600,6 +600,11 @@ body.recharge-page {
         font-size: 2rem !important;
     }
 
+    .profile-section .btn-wallet-digital i{
+        font-size: 1rem !important;
+    }
+    
+
     .profile-section .wallet-card-content-digital .btn-wallet-digital{
         padding: 5px 30px !important;
     }
@@ -616,5 +621,67 @@ body.recharge-page {
         padding-top: 0px !important;
     }
 
-    
+    /* نموذج الملف الشخصي (ID، الاسم، الهاتف، البريد، المدينة، الدولة) - مضغوط للموبايل */
+    .profile-section .profile-form {
+        margin-top: 10px !important;
+    }
+
+    .profile-section .profile-form .form-grid {
+        grid-template-columns: 1fr !important;
+        gap: 8px !important;
+        margin-bottom: 1rem !important;
+    }
+
+    .profile-section .profile-form .form-group {
+        margin-bottom: 0;
+    }
+
+    .profile-section .profile-form .form-group label {
+        font-size: 0.85rem !important;
+        margin-bottom: 4px !important;
+    }
+
+    .profile-section .profile-form .form-input {
+        padding: 8px 10px !important;
+        font-size: 0.9rem !important;
+    }
+
+    /* قسم تغيير كلمة المرور - مضغوط للموبايل */
+    .profile-section .security-section {
+        padding: 12px 14px !important;
+        margin-bottom: 1rem;
+    }
+
+    .profile-section .security-heading {
+        font-size: 1rem !important;
+        margin-bottom: 10px !important;
+        gap: 6px;
+    }
+
+    .profile-section .security-heading i {
+        font-size: 1.1rem !important;
+    }
+
+    .profile-section .security-form {
+        max-width: 100%;
+    }
+
+    .profile-section .security-form .form-group {
+        margin-bottom: 8px !important;
+    }
+
+    .profile-section .security-form .form-group label {
+        font-size: 0.85rem;
+    }
+
+    .profile-section .security-form .form-input {
+        padding: 8px 10px !important;
+        font-size: 0.9rem !important;
+    }
+
+    .profile-section .security-form .btn {
+        padding: 8px 16px !important;
+        font-size: 0.9rem !important;
+        width: 100%;
+    }
 }
