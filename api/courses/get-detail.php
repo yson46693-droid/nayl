@@ -13,6 +13,7 @@ require_once __DIR__ . '/../config/env.php';
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../config/auth.php';
 require_once __DIR__ . '/../config/security.php';
+require_once __DIR__ . '/../config/bunny-cdn.php';
 
 loadEnv(__DIR__ . '/../.env');
 
@@ -119,6 +120,13 @@ try {
 
     $videos = [];
     foreach ($videoRows as $v) {
+        $videoUrl = null;
+        if (!empty($v['video_url'])) {
+            $path = parse_url($v['video_url'], PHP_URL_PATH);
+            $videoId = $path !== null && $path !== '' ? basename($path) : '';
+            $signedUrl = $videoId !== '' ? getBunnySignedEmbedUrl($videoId) : null;
+            $videoUrl = $signedUrl !== null ? $signedUrl : $v['video_url'];
+        }
         $videos[] = [
             'id' => (int) $v['id'],
             'title' => $v['title'],
@@ -126,7 +134,7 @@ try {
             'order' => (int) $v['video_order'],
             'duration' => (int) ($v['duration'] ?? 0),
             'thumbnail_url' => !empty($v['thumbnail_url']) ? $v['thumbnail_url'] : null,
-            'video_url' => !empty($v['video_url']) ? $v['video_url'] : null
+            'video_url' => $videoUrl
         ];
     }
 

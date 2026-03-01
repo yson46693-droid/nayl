@@ -24,6 +24,7 @@ if (!file_exists($envFile)) {
 $libraryId = env('BUNNY_LIBRARY_ID', '');
 $apiKey = env('BUNNY_API_KEY', '');
 $accountApiKey = env('BUNNY_ACCOUNT_API_KEY', '');
+$tokenKey = env('BUNNY_TOKEN_KEY', '4f727ec7-15bd-4bf7-93cf-9cc2f182f511');
 $cdnUrl = env('BUNNY_CDN_URL', 'https://video.bunnycdn.com');
 
 // تسجيل للتحقق (بدون عرض القيم الحساسة)
@@ -32,6 +33,7 @@ error_log("Bunny CDN Config Loaded - Library ID: " . (!empty($libraryId) ? 'SET'
 define('BUNNY_LIBRARY_ID', $libraryId);
 define('BUNNY_API_KEY', $apiKey);
 define('BUNNY_ACCOUNT_API_KEY', $accountApiKey);
+define('BUNNY_TOKEN_KEY', $tokenKey);
 define('BUNNY_CDN_URL', $cdnUrl);
 
 // التحقق من SSL: استخدم false فقط في بيئة تطوير خلف بروكسي/شهادة ذاتية (مثل خطأ cURL 60)
@@ -304,6 +306,23 @@ function getBunnyVideoInfo($videoId, $libraryId = null, $libraryApiKey = null) {
     }
     
     return json_decode($response, true);
+}
+
+/**
+ * توليد Bunny signed embed URL (Token Authentication)
+ * الصيغة: SHA256(BUNNY_TOKEN_KEY + videoId + expires)
+ * @param string $videoId - معرف الفيديو (GUID) في Bunny CDN
+ * @return string|null - رابط الـ embed الموقّع أو null إذا لم تُضبط BUNNY_TOKEN_KEY أو BUNNY_LIBRARY_ID
+ */
+function getBunnySignedEmbedUrl($videoId) {
+    $tokenKey = defined('BUNNY_TOKEN_KEY') ? (string) BUNNY_TOKEN_KEY : '';
+    $libraryId = defined('BUNNY_LIBRARY_ID') ? (string) BUNNY_LIBRARY_ID : '';
+    if ($tokenKey === '' || $libraryId === '' || trim($videoId) === '') {
+        return null;
+    }
+    $expires = (string) (time() + 7200);
+    $token = hash('sha256', $tokenKey . $videoId . $expires);
+    return 'https://iframe.mediadelivery.net/embed/' . $libraryId . '/' . $videoId . '?token=' . $token . '&expires=' . $expires;
 }
 
 /**
