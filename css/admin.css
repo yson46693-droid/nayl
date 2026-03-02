@@ -1694,6 +1694,15 @@ tr:hover td {
     #createDiscountCodeForm [style*="grid-template-columns"] {
         grid-template-columns: 1fr !important;
     }
+    .user-picker-wrapper {
+        min-width: 0;
+    }
+    .user-picker-search {
+        min-width: 0;
+    }
+    .user-picker-dropdown {
+        max-height: 180px;
+    }
     .image-controls {
         flex-wrap: wrap;
         gap: var(--spacing-sm);
@@ -1755,6 +1764,122 @@ tr:hover td {
     background: #e53e3e;
     color: #fff;
 }
+
+/* User Picker (searchable dropdown for discount codes) */
+.user-picker-wrapper {
+    position: relative;
+    width: 100%;
+}
+.user-picker-display {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 8px;
+    min-height: 42px;
+    padding: 6px 12px;
+    border: 1px solid #e0e6ed;
+    border-radius: var(--radius-sm, 6px);
+    background: #fff;
+}
+.user-picker-display:focus-within {
+    border-color: var(--primary-blue, #4a90e2);
+    outline: none;
+    box-shadow: 0 0 0 2px rgba(74, 144, 226, 0.2);
+}
+.user-picker-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    background: var(--primary-blue, #4a90e2);
+    color: #fff;
+    border-radius: 999px;
+    font-size: 0.9rem;
+    font-weight: 600;
+}
+.user-picker-badge .user-picker-clear {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 18px;
+    height: 18px;
+    padding: 0;
+    background: rgba(255, 255, 255, 0.3);
+    border: none;
+    border-radius: 50%;
+    color: #fff;
+    cursor: pointer;
+    font-size: 14px;
+    line-height: 1;
+    transition: background 0.2s;
+}
+.user-picker-badge .user-picker-clear:hover {
+    background: rgba(255, 255, 255, 0.5);
+}
+.user-picker-search {
+    flex: 1;
+    min-width: 120px;
+    border: none;
+    padding: 4px 0;
+    font-size: 1rem;
+    background: transparent;
+    color: var(--text-dark, #1a2332);
+}
+.user-picker-search::placeholder {
+    color: var(--text-gray, #8b95a5);
+}
+.user-picker-search:focus {
+    outline: none;
+}
+.user-picker-dropdown {
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    margin-top: 4px;
+    max-height: 220px;
+    overflow-y: auto;
+    background: #fff;
+    border: 1px solid #e0e6ed;
+    border-radius: var(--radius-sm, 6px);
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.12);
+    z-index: 1000;
+}
+.user-picker-dropdown-item {
+    display: block;
+    width: 100%;
+    padding: 10px 14px;
+    text-align: right;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-size: 0.95rem;
+    color: var(--text-dark, #1a2332);
+    transition: background 0.15s;
+}
+.user-picker-dropdown-item:hover,
+.user-picker-dropdown-item:focus {
+    background: #f5f7fa;
+    outline: none;
+}
+.user-picker-dropdown-item strong {
+    display: block;
+    margin-bottom: 2px;
+}
+.user-picker-dropdown-item span {
+    font-size: 0.85rem;
+    color: var(--text-gray, #8b95a5);
+}
+.discount-user-detail-link {
+    color: var(--primary-blue, #4a90e2);
+    cursor: pointer;
+    text-decoration: underline;
+    font-weight: 600;
+}
+.discount-user-detail-link:hover {
+    color: var(--secondary-orange, #ff9f43);
+}
+
 @media (min-width: 768px) {
     .admin-toast {
         right: 24px;

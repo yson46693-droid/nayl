@@ -888,6 +888,150 @@ function changeCodesPage(page) {
 }
 
 // ——— أكواد الخصم ———
+// Fetch users for searchable picker (uses existing get-all-users API with search)
+async function fetchUsersForPicker(search) {
+    const token = localStorage.getItem('admin_session_token') || getCookie('admin_session_token');
+    const url = '../api/admin/get-all-users.php?page=1&limit=50' + (search ? '&search=' + encodeURIComponent(search) : '');
+    const response = await fetch(url, { headers: { 'Authorization': 'Bearer ' + token } });
+    if (!checkAdminResponse(response)) return [];
+    const result = await response.json();
+    return (result.success && result.data && Array.isArray(result.data.users)) ? result.data.users : [];
+}
+
+const DISCOUNT_PICKER_DEFAULT_LABEL = 'الكل - متاح لجميع المستخدمين';
+
+function initDiscountUserPicker(config) {
+    const { searchInputId, dropdownId, badgeId, hiddenInputId } = config;
+    const searchInput = document.getElementById(searchInputId);
+    const dropdown = document.getElementById(dropdownId);
+    const badgeEl = document.getElementById(badgeId);
+    const hiddenInput = document.getElementById(hiddenInputId);
+    if (!searchInput || !dropdown || !badgeEl || !hiddenInput) return;
+
+    let searchDebounceTimer;
+
+    function setSelectedUser(userId, displayName) {
+        hiddenInput.value = userId ? String(userId) : '';
+        if (userId && displayName) {
+            badgeEl.innerHTML = escapeHtml(displayName) + ' <button type="button" class="user-picker-clear" aria-label="إزالة">×</button>';
+            badgeEl.style.display = 'inline-flex';
+            searchInput.style.display = 'none';
+            searchInput.value = '';
+        } else {
+            badgeEl.innerHTML = '';
+            badgeEl.style.display = 'none';
+            searchInput.style.display = 'block';
+            searchInput.value = '';
+        }
+        dropdown.style.display = 'none';
+    }
+
+    function showSearchInput() {
+        badgeEl.style.display = 'none';
+        searchInput.style.display = 'block';
+        searchInput.focus();
+    }
+
+    function renderDropdownItems(users) {
+        dropdown.innerHTML = '';
+        const defaultOpt = document.createElement('button');
+        defaultOpt.type = 'button';
+        defaultOpt.className = 'user-picker-dropdown-item';
+        defaultOpt.innerHTML = '<strong>' + DISCOUNT_PICKER_DEFAULT_LABEL + '</strong>';
+        defaultOpt.addEventListener('click', function () {
+            hiddenInput.value = '';
+            badgeEl.innerHTML = '';
+            badgeEl.style.display = 'none';
+            searchInput.style.display = 'block';
+            searchInput.value = '';
+            dropdown.style.display = 'none';
+        });
+        dropdown.appendChild(defaultOpt);
+        (users || []).forEach(function (u) {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'user-picker-dropdown-item';
+            btn.innerHTML = '<strong>' + escapeHtml(u.name || 'غير متوفر') + '</strong><span>' + escapeHtml(u.phone || '') + '</span>';
+            btn.addEventListener('click', function () {
+                setSelectedUser(u.id, (u.name || 'غير متوفر') + (u.phone ? ' — ' + u.phone : ''));
+            });
+            dropdown.appendChild(btn);
+        });
+    }
+
+    badgeEl.addEventListener('click', function (e) {
+        if (e.target.classList.contains('user-picker-clear')) {
+            setSelectedUser(null, null);
+            badgeEl.style.display = 'none';
+            badgeEl.innerHTML = '';
+            searchInput.style.display = 'block';
+            searchInput.value = '';
+            hiddenInput.value = '';
+        }
+    });
+
+    searchInput.addEventListener('focus', function () {
+        dropdown.style.display = 'block';
+        if (dropdown.children.length === 0) {
+            fetchUsersForPicker('').then(function (users) { renderDropdownItems(users); });
+        }
+    });
+
+    searchInput.addEventListener('input', function () {
+        const q = searchInput.value.trim();
+        clearTimeout(searchDebounceTimer);
+        searchDebounceTimer = setTimeout(function () {
+            fetchUsersForPicker(q).then(function (users) {
+                renderDropdownItems(users);
+                dropdown.style.display = 'block';
+            });
+        }, 300);
+    });
+
+    searchInput.addEventListener('blur', function () {
+        setTimeout(function () {
+            if (!dropdown.contains(document.activeElement) && document.activeElement !== searchInput && !badgeEl.contains(document.activeElement)) {
+                dropdown.style.display = 'none';
+            }
+        }, 150);
+    });
+
+    dropdown.addEventListener('mousedown', function (e) {
+        e.preventDefault();
+    });
+
+    document.addEventListener('click', function (e) {
+        const wrapper = searchInput.closest('.user-picker-wrapper');
+        if (wrapper && !wrapper.contains(e.target)) dropdown.style.display = 'none';
+    });
+
+    return {
+        setSelected: function (userId, displayName) {
+            if (!userId || !displayName) {
+                hiddenInput.value = '';
+                badgeEl.innerHTML = '';
+                badgeEl.style.display = 'none';
+                searchInput.style.display = 'block';
+                searchInput.value = '';
+            } else {
+                setSelectedUser(userId, displayName);
+            }
+        },
+        reset: function () {
+            hiddenInput.value = '';
+            badgeEl.innerHTML = '';
+            badgeEl.style.display = 'none';
+            searchInput.style.display = 'block';
+            searchInput.value = '';
+            dropdown.innerHTML = '';
+            dropdown.style.display = 'none';
+        }
+    };
+}
+
+let createDiscountUserPickerInstance;
+let editDiscountUserPickerInstance;
+
 async function loadDiscountCodes() {
     const tbody = document.getElementById('discountCodesTableBody');
     const emptyEl = document.getElementById('discountCodesEmpty');
@@ -912,8 +1056,15 @@ async function loadDiscountCodes() {
                 const row = document.createElement('tr');
                 row.setAttribute('data-discount-id', d.id);
                 const statusBadge = d.status === 'used' ? '<span class="badge badge-pending">مُستخدم</span>' : '<span class="badge badge-active">نشط</span>';
-                const assignedTo = (d.assigned_to_name || d.assigned_to_email) ? escapeHtml(d.assigned_to_name || d.assigned_to_email) + (d.assigned_to_email && d.assigned_to_name ? ' (' + escapeHtml(d.assigned_to_email) + ')' : '') : '—';
-                const usedBy = d.used_by_name ? escapeHtml(d.used_by_name) + (d.used_by_email ? ' (' + escapeHtml(d.used_by_email) + ')' : '') : '—';
+                const assignedToDisplay = (d.assigned_to_name || d.assigned_to_email) ? escapeHtml(d.assigned_to_name || d.assigned_to_email) + (d.assigned_to_email && d.assigned_to_name ? ' (' + escapeHtml(d.assigned_to_email) + ')' : '') : '—';
+                const assignedTo = d.assigned_to_user_id
+                    ? '<span class="discount-user-detail-link" data-user-id="' + d.assigned_to_user_id + '" onclick="showViewDiscountCodeUserModalFromEvent(event)" title="عرض التفاصيل">' + assignedToDisplay + '</span>'
+                    : assignedToDisplay;
+                const usedByDisplay = d.used_by_name ? escapeHtml(d.used_by_name) + (d.used_by_email ? ' (' + escapeHtml(d.used_by_email) + ')' : '') : '—';
+                const usedAtAttr = (d.used_at || '').replace(/"/g, '&quot;');
+                const usedBy = d.used_by
+                    ? '<span class="discount-user-detail-link" data-user-id="' + d.used_by + '" data-used-at="' + usedAtAttr + '" onclick="showViewDiscountCodeUserModalFromEvent(event)" title="عرض التفاصيل">' + usedByDisplay + '</span>'
+                    : usedByDisplay;
                 const usedAt = d.used_at ? d.used_at : '—';
                 const canEdit = d.status !== 'used';
                 const editBtn = canEdit ? '<button class="action-btn btn-edit" title="تعديل" onclick="editDiscountCode(' + d.id + ')"><i class="bi bi-pencil-fill"></i></button>' : '';
@@ -943,8 +1094,12 @@ function openEditDiscountCodeModalWithData(data) {
     document.getElementById('editDiscountCodeCode').value = data.code || '';
     document.getElementById('editDiscountCodeAmount').value = data.discount_amount != null ? parseFloat(data.discount_amount).toFixed(2) : '';
     document.getElementById('editDiscountCodeCourseId').value = data.course_id || '';
-    const assignedInput = document.getElementById('editDiscountCodeAssignedUserId');
-    assignedInput.value = (data.assigned_to_user_id && data.assigned_to_user_id > 0) ? data.assigned_to_user_id : '';
+    const assignedUserId = (data.assigned_to_user_id && data.assigned_to_user_id > 0) ? data.assigned_to_user_id : null;
+    const assignedDisplayName = (data.assigned_to_name || data.assigned_to_email) ? (data.assigned_to_name || '') + (data.assigned_to_email ? (data.assigned_to_name ? ' — ' + data.assigned_to_email : data.assigned_to_email) : '') : '';
+    if (editDiscountUserPickerInstance) editDiscountUserPickerInstance.setSelected(assignedUserId, assignedDisplayName);
+    else {
+        document.getElementById('editDiscountCodeAssignedUserId').value = assignedUserId ? String(assignedUserId) : '';
+    }
     loadCoursesIntoEditDiscountCodeSelect(data.course_id);
     openModal('editDiscountCodeModal');
 }
@@ -1003,13 +1158,55 @@ function closeEditDiscountCodeModal() {
     closeModal('editDiscountCodeModal');
 }
 
+function showViewDiscountCodeUserModalFromEvent(event) {
+    const el = event && event.currentTarget;
+    if (!el) return;
+    const userId = el.getAttribute('data-user-id');
+    const usedAt = el.getAttribute('data-used-at') || '';
+    if (userId) showViewDiscountCodeUserModal(parseInt(userId, 10), usedAt);
+}
+
+function showViewDiscountCodeUserModal(userId, usedAt) {
+    const contentEl = document.getElementById('viewDiscountCodeUserModalContent');
+    if (!contentEl) return;
+    contentEl.innerHTML = '<p style="text-align: center; color: var(--text-gray);">جاري التحميل...</p>';
+    openModal('viewDiscountCodeUserModal');
+    const token = localStorage.getItem('admin_session_token') || getCookie('admin_session_token');
+    if (!token) {
+        contentEl.innerHTML = '<p class="text-danger">انتهت صلاحية الجلسة.</p>';
+        return;
+    }
+    fetch('../api/admin/get-user-details.php?user_id=' + userId, { headers: { 'Authorization': 'Bearer ' + token } })
+        .then(function (res) { return res.json(); })
+        .then(function (json) {
+            if (!json.success || !json.data || !json.data.user) {
+                contentEl.innerHTML = '<p class="text-danger">' + escapeHtml(json.message || 'فشل جلب بيانات المستخدم') + '</p>';
+                return;
+            }
+            const u = json.data.user;
+            let html = '<div style="display: grid; gap: 12px;">';
+            html += '<p style="margin: 0;"><strong>الاسم:</strong> ' + escapeHtml(u.name || '—') + '</p>';
+            html += '<p style="margin: 0;"><strong>رقم الهاتف:</strong> ' + escapeHtml(u.phone || '—') + '</p>';
+            if (usedAt) html += '<p style="margin: 0;"><strong>تاريخ ووقت الاستخدام:</strong> ' + escapeHtml(usedAt) + '</p>';
+            html += '</div>';
+            contentEl.innerHTML = html;
+        })
+        .catch(function () {
+            contentEl.innerHTML = '<p class="text-danger">حدث خطأ أثناء جلب البيانات.</p>';
+        });
+}
+
+function closeViewDiscountCodeUserModal() {
+    closeModal('viewDiscountCodeUserModal');
+}
+
 async function submitEditDiscountCode() {
     const id = parseInt(document.getElementById('editDiscountCodeId').value, 10);
     const code = (document.getElementById('editDiscountCodeCode').value || '').trim();
     const amount = parseFloat(document.getElementById('editDiscountCodeAmount').value);
     const courseId = parseInt(document.getElementById('editDiscountCodeCourseId').value, 10);
     const assignedInput = document.getElementById('editDiscountCodeAssignedUserId');
-    const assignedUserId = assignedInput && assignedInput.value.trim() ? parseInt(assignedInput.value.trim(), 10) : 0;
+    const assignedUserId = (assignedInput && assignedInput.value.trim()) ? parseInt(assignedInput.value.trim(), 10) : 0;
     if (!id || !code || isNaN(amount) || amount <= 0 || !courseId) {
         showAdminToast('يرجى تعبئة الحقول بشكل صحيح', 'error');
         return;
@@ -1095,6 +1292,7 @@ function openCreateDiscountCodeModal() {
     card.scrollIntoView({ behavior: 'smooth', block: 'start' });
     loadCoursesForDiscountCodeForm();
     document.getElementById('discountCodeFormError').style.display = 'none';
+    if (createDiscountUserPickerInstance) createDiscountUserPickerInstance.reset();
 }
 
 function closeCreateDiscountCodeModal() {
@@ -1102,6 +1300,7 @@ function closeCreateDiscountCodeModal() {
     if (card) card.style.display = 'none';
     const form = document.getElementById('createDiscountCodeForm');
     if (form) form.reset();
+    if (createDiscountUserPickerInstance) createDiscountUserPickerInstance.reset();
 }
 
 async function loadCoursesForDiscountCodeForm() {
@@ -1130,6 +1329,19 @@ async function loadCoursesForDiscountCodeForm() {
 }
 
 document.addEventListener('DOMContentLoaded', function () {
+    createDiscountUserPickerInstance = initDiscountUserPicker({
+        searchInputId: 'createDiscountUserPickerSearch',
+        dropdownId: 'createDiscountUserPickerDropdown',
+        badgeId: 'createDiscountUserPickerBadge',
+        hiddenInputId: 'discountAssignedUserId'
+    });
+    editDiscountUserPickerInstance = initDiscountUserPicker({
+        searchInputId: 'editDiscountUserPickerSearch',
+        dropdownId: 'editDiscountUserPickerDropdown',
+        badgeId: 'editDiscountUserPickerBadge',
+        hiddenInputId: 'editDiscountCodeAssignedUserId'
+    });
+
     const form = document.getElementById('createDiscountCodeForm');
     if (form) {
         form.addEventListener('submit', async function (e) {

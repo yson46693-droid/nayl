@@ -6,7 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>لوحة التحكم | AmrNayl academy</title>
     <link rel="stylesheet" href="../css/style.css">
-    <link rel="stylesheet" href="../css/admin.css?v=5">
+    <link rel="stylesheet" href="../css/admin.css?v=6">
     <link rel="stylesheet" href="../css/transfer-modal.css">
 
     <!-- PWA Settings -->
@@ -575,8 +575,15 @@
                                 </div>
                                 <div class="admin-form-group">
                                     <label><i class="bi bi-person-fill"></i> إضافة لمستخدم (اختياري)</label>
-                                    <input type="number" id="discountAssignedUserId" min="1" placeholder="معرف المستخدم (ID)" dir="ltr">
-                                    <small style="color: var(--text-gray); font-size: 0.85rem;">اتركه فارغاً ليكون الكود متاحاً لأي مستخدم. أو أدخل معرف المستخدم من قسم الحسابات.</small>
+                                    <input type="hidden" id="discountAssignedUserId" value="">
+                                    <div id="createDiscountUserPicker" class="user-picker-wrapper">
+                                        <div class="user-picker-display">
+                                            <span id="createDiscountUserPickerBadge" class="user-picker-badge" style="display: none;"></span>
+                                            <input type="text" id="createDiscountUserPickerSearch" class="user-picker-search" placeholder="بحث بالاسم أو رقم الهاتف..." dir="auto" autocomplete="off">
+                                        </div>
+                                        <div id="createDiscountUserPickerDropdown" class="user-picker-dropdown" style="display: none;"></div>
+                                    </div>
+                                    <small style="color: var(--text-gray); font-size: 0.85rem;">اختر "الكل" ليكون الكود متاحاً لأي مستخدم، أو ابحث واختر مستخدماً محدداً.</small>
                                 </div>
                             </div>
                             <p id="discountCodeFormError" class="text-danger" style="display: none;"></p>
@@ -1535,7 +1542,14 @@
                     </div>
                     <div class="admin-form-group">
                         <label><i class="bi bi-person-fill"></i> مخصص لمستخدم (اختياري)</label>
-                        <input type="number" id="editDiscountCodeAssignedUserId" min="0" placeholder="معرف المستخدم أو اترك 0 للجميع" dir="ltr">
+                        <input type="hidden" id="editDiscountCodeAssignedUserId" value="">
+                        <div id="editDiscountUserPicker" class="user-picker-wrapper">
+                            <div class="user-picker-display">
+                                <span id="editDiscountUserPickerBadge" class="user-picker-badge" style="display: none;"></span>
+                                <input type="text" id="editDiscountUserPickerSearch" class="user-picker-search" placeholder="بحث بالاسم أو رقم الهاتف..." dir="auto" autocomplete="off">
+                            </div>
+                            <div id="editDiscountUserPickerDropdown" class="user-picker-dropdown" style="display: none;"></div>
+                        </div>
                     </div>
                 </form>
             </div>
@@ -1545,6 +1559,28 @@
                 </button>
                 <button type="button" class="btn btn-primary" onclick="submitEditDiscountCode()">
                     <i class="bi bi-check-circle"></i> حفظ التعديلات
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- View Discount Code User Details Modal (مخصص لـ / المستخدم إن وُجد) -->
+    <div class="modal-overlay" id="viewDiscountCodeUserModal">
+        <div class="modal" style="max-width: 400px;">
+            <div class="modal-header">
+                <h3 style="font-weight: 800;">
+                    <i class="bi bi-person-fill" style="color: var(--primary-blue); margin-left: 8px;"></i>
+                    تفاصيل المستخدم
+                </h3>
+                <button onclick="closeViewDiscountCodeUserModal()"
+                    style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-gray);">&times;</button>
+            </div>
+            <div class="modal-content" id="viewDiscountCodeUserModalContent">
+                <p style="text-align: center; color: var(--text-gray);">جاري التحميل...</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeViewDiscountCodeUserModal()">
+                    <i class="bi bi-x-lg"></i> إغلاق
                 </button>
             </div>
         </div>
@@ -1658,7 +1694,7 @@
     </style>
 
     </div>
-    <script src="../js/admin.js?v=1.8"></script>
+    <script src="../js/admin.js?v=1.9"></script>
     <!-- تم إيقاف سكربت mock القديم لطلبات الشحن واعتماد منطق الـ API الحقيقي في admin.js -->
     <!-- <script src="../js/recharge-requests.js"></script> -->
     <script src="../js/complaints-admin.js"></script>
