@@ -600,6 +600,7 @@
                                     <th>الحالة</th>
                                     <th>المستخدم (إن وُجد)</th>
                                     <th>تاريخ الاستخدام</th>
+                                    <th style="text-align: center;">الإجراءات</th>
                                 </tr>
                             </thead>
                             <tbody id="discountCodesTableBody">
@@ -1498,6 +1499,51 @@
                     <i class="bi bi-x-circle"></i> إلغاء
                 </button>
                 <button type="button" class="btn btn-primary" onclick="submitEditUser()">
+                    <i class="bi bi-check-circle"></i> حفظ التعديلات
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Discount Code Modal -->
+    <div class="modal-overlay" id="editDiscountCodeModal">
+        <div class="modal" style="max-width: 520px;">
+            <div class="modal-header">
+                <h3 style="font-weight: 800;">
+                    <i class="bi bi-pencil-fill" style="color: var(--primary-blue); margin-left: 8px;"></i>
+                    تعديل كود الخصم
+                </h3>
+                <button onclick="closeEditDiscountCodeModal()"
+                    style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-gray);">&times;</button>
+            </div>
+            <div class="modal-content">
+                <form id="editDiscountCodeForm">
+                    <input type="hidden" id="editDiscountCodeId">
+                    <div class="admin-form-group">
+                        <label><i class="bi bi-upc-scan"></i> كود الخصم</label>
+                        <input type="text" id="editDiscountCodeCode" placeholder="مثال: SAVE50" dir="ltr" maxlength="50" required>
+                    </div>
+                    <div class="admin-form-group">
+                        <label><i class="bi bi-currency-exchange"></i> مبلغ الخصم (ج.م)</label>
+                        <input type="number" id="editDiscountCodeAmount" min="0.01" step="0.01" required>
+                    </div>
+                    <div class="admin-form-group">
+                        <label><i class="bi bi-book"></i> الكورس</label>
+                        <select id="editDiscountCodeCourseId" required>
+                            <option value="">اختر الكورس</option>
+                        </select>
+                    </div>
+                    <div class="admin-form-group">
+                        <label><i class="bi bi-person-fill"></i> مخصص لمستخدم (اختياري)</label>
+                        <input type="number" id="editDiscountCodeAssignedUserId" min="0" placeholder="معرف المستخدم أو اترك 0 للجميع" dir="ltr">
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeEditDiscountCodeModal()">
+                    <i class="bi bi-x-circle"></i> إلغاء
+                </button>
+                <button type="button" class="btn btn-primary" onclick="submitEditDiscountCode()">
                     <i class="bi bi-check-circle"></i> حفظ التعديلات
                 </button>
             </div>

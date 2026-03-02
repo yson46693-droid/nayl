@@ -1723,3 +1723,42 @@ tr:hover td {
         padding: 10px 18px;
     }
 }
+
+/* Admin Toast - إشعارات النجاح والخطأ */
+.admin-toast {
+    position: fixed;
+    bottom: 24px;
+    right: 24px;
+    left: 24px;
+    max-width: 400px;
+    margin: 0 auto;
+    padding: 14px 20px;
+    border-radius: var(--radius-md, 8px);
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-align: center;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.15);
+    z-index: 10000;
+    transform: translateY(80px);
+    opacity: 0;
+    transition: transform 0.3s ease, opacity 0.3s ease;
+}
+.admin-toast--show {
+    transform: translateY(0);
+    opacity: 1;
+}
+.admin-toast--success {
+    background: #4CAF50;
+    color: #fff;
+}
+.admin-toast--error {
+    background: #e53e3e;
+    color: #fff;
+}
+@media (min-width: 768px) {
+    .admin-toast {
+        right: 24px;
+        left: auto;
+        margin: 0;
+    }
+}

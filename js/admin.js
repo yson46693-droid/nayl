@@ -66,6 +66,25 @@ function escapeHtml(text) {
         .replace(/'/g, '&#039;');
 }
 
+/**
+ * عرض إشعار toast (نجاح أو خطأ) - متوافق مع RTL
+ * @param {string} message - النص
+ * @param {'success'|'error'} type
+ */
+function showAdminToast(message, type) {
+    const toast = document.createElement('div');
+    toast.className = 'admin-toast admin-toast--' + (type || 'success');
+    toast.setAttribute('role', 'alert');
+    toast.textContent = message;
+    document.body.appendChild(toast);
+    requestAnimationFrame(() => toast.classList.add('admin-toast--show'));
+    const t = setTimeout(() => {
+        toast.classList.remove('admin-toast--show');
+        setTimeout(() => { if (toast.parentNode) toast.parentNode.removeChild(toast); }, 300);
+    }, 3500);
+    toast.addEventListener('click', () => clearTimeout(t));
+}
+
 // تهيئة بيانات الأدمن (بدون بيانات ثابتة للأكواد)
 function initAdminData() {
     try { localStorage.removeItem('nayl_codes'); } catch (e) { /* ignore */ }
@@ -873,7 +892,7 @@ async function loadDiscountCodes() {
     const tbody = document.getElementById('discountCodesTableBody');
     const emptyEl = document.getElementById('discountCodesEmpty');
     if (!tbody) return;
-    tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding: 2rem;">جاري التحميل...</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding: 2rem;">جاري التحميل...</td></tr>';
     if (emptyEl) emptyEl.style.display = 'none';
     try {
         const token = localStorage.getItem('admin_session_token') || getCookie('admin_session_token');
@@ -891,10 +910,14 @@ async function loadDiscountCodes() {
             }
             list.forEach(function (d) {
                 const row = document.createElement('tr');
+                row.setAttribute('data-discount-id', d.id);
                 const statusBadge = d.status === 'used' ? '<span class="badge badge-pending">مُستخدم</span>' : '<span class="badge badge-active">نشط</span>';
                 const assignedTo = (d.assigned_to_name || d.assigned_to_email) ? escapeHtml(d.assigned_to_name || d.assigned_to_email) + (d.assigned_to_email && d.assigned_to_name ? ' (' + escapeHtml(d.assigned_to_email) + ')' : '') : '—';
                 const usedBy = d.used_by_name ? escapeHtml(d.used_by_name) + (d.used_by_email ? ' (' + escapeHtml(d.used_by_email) + ')' : '') : '—';
                 const usedAt = d.used_at ? d.used_at : '—';
+                const canEdit = d.status !== 'used';
+                const editBtn = canEdit ? '<button class="action-btn btn-edit" title="تعديل" onclick="editDiscountCode(' + d.id + ')"><i class="bi bi-pencil-fill"></i></button>' : '';
+                const deleteBtn = '<button class="action-btn btn-delete" title="حذف" onclick="deleteDiscountCode(' + d.id + ')"><i class="bi bi-trash-fill"></i></button>';
                 row.innerHTML =
                     '<td style="font-family: monospace; font-weight: bold;">' + escapeHtml(d.code) + '</td>' +
                     '<td>' + parseFloat(d.discount_amount).toFixed(2) + ' ج.م</td>' +
@@ -902,15 +925,166 @@ async function loadDiscountCodes() {
                     '<td>' + assignedTo + '</td>' +
                     '<td>' + statusBadge + '</td>' +
                     '<td>' + usedBy + '</td>' +
-                    '<td>' + escapeHtml(usedAt) + '</td>';
+                    '<td>' + escapeHtml(usedAt) + '</td>' +
+                    '<td><div class="actions-cell" style="justify-content: center;">' + editBtn + deleteBtn + '</div></td>';
                 tbody.appendChild(row);
             });
         } else {
-            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding: 2rem; color: red;">خطأ في جلب البيانات.</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding: 2rem; color: red;">خطأ في جلب البيانات.</td></tr>';
         }
     } catch (err) {
         console.error('Load discount codes error:', err);
-        tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding: 2rem; color: red;">خطأ في الاتصال بالخادم.</td></tr>';
+        tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding: 2rem; color: red;">خطأ في الاتصال بالخادم.</td></tr>';
+    }
+}
+
+function openEditDiscountCodeModalWithData(data) {
+    document.getElementById('editDiscountCodeId').value = data.id;
+    document.getElementById('editDiscountCodeCode').value = data.code || '';
+    document.getElementById('editDiscountCodeAmount').value = data.discount_amount != null ? parseFloat(data.discount_amount).toFixed(2) : '';
+    document.getElementById('editDiscountCodeCourseId').value = data.course_id || '';
+    const assignedInput = document.getElementById('editDiscountCodeAssignedUserId');
+    assignedInput.value = (data.assigned_to_user_id && data.assigned_to_user_id > 0) ? data.assigned_to_user_id : '';
+    loadCoursesIntoEditDiscountCodeSelect(data.course_id);
+    openModal('editDiscountCodeModal');
+}
+
+function loadCoursesIntoEditDiscountCodeSelect(selectedCourseId) {
+    const select = document.getElementById('editDiscountCodeCourseId');
+    if (!select) return;
+    const currentVal = select.value;
+    select.innerHTML = '<option value="">اختر الكورس</option>';
+    fetch('../api/admin/get-courses.php', { headers: { 'Authorization': 'Bearer ' + (localStorage.getItem('admin_session_token') || getCookie('admin_session_token')) } })
+        .then(function (res) { return res.json(); })
+        .then(function (result) {
+            if (result.success && result.data && Array.isArray(result.data.courses)) {
+                result.data.courses.forEach(function (c) {
+                    if (c.statusRaw === 'published' || c.status === 'منشور') {
+                        const opt = document.createElement('option');
+                        opt.value = c.id;
+                        opt.textContent = c.title || '';
+                        select.appendChild(opt);
+                    }
+                });
+                select.value = selectedCourseId || currentVal || '';
+            }
+        })
+        .catch(function () { select.value = selectedCourseId || ''; });
+}
+
+function editDiscountCode(id) {
+    const token = localStorage.getItem('admin_session_token') || getCookie('admin_session_token');
+    if (!token) {
+        showAdminToast('انتهت صلاحية الجلسة، يرجى تسجيل الدخول.', 'error');
+        return;
+    }
+    fetch('../api/admin/get-discount-codes.php', { headers: { 'Authorization': 'Bearer ' + token } })
+        .then(function (res) { return res.json(); })
+        .then(function (result) {
+            if (!result.success || !result.data || !Array.isArray(result.data.discount_codes)) {
+                showAdminToast('فشل جلب بيانات الأكواد', 'error');
+                return;
+            }
+            const d = result.data.discount_codes.find(function (x) { return x.id === id; });
+            if (!d) {
+                showAdminToast('كود الخصم غير موجود', 'error');
+                return;
+            }
+            if (d.status === 'used') {
+                showAdminToast('لا يمكن تعديل كود خصم مُستخدم', 'error');
+                return;
+            }
+            openEditDiscountCodeModalWithData(d);
+        })
+        .catch(function () { showAdminToast('حدث خطأ أثناء جلب البيانات', 'error'); });
+}
+
+function closeEditDiscountCodeModal() {
+    closeModal('editDiscountCodeModal');
+}
+
+async function submitEditDiscountCode() {
+    const id = parseInt(document.getElementById('editDiscountCodeId').value, 10);
+    const code = (document.getElementById('editDiscountCodeCode').value || '').trim();
+    const amount = parseFloat(document.getElementById('editDiscountCodeAmount').value);
+    const courseId = parseInt(document.getElementById('editDiscountCodeCourseId').value, 10);
+    const assignedInput = document.getElementById('editDiscountCodeAssignedUserId');
+    const assignedUserId = assignedInput && assignedInput.value.trim() ? parseInt(assignedInput.value.trim(), 10) : 0;
+    if (!id || !code || isNaN(amount) || amount <= 0 || !courseId) {
+        showAdminToast('يرجى تعبئة الحقول بشكل صحيح', 'error');
+        return;
+    }
+    const token = localStorage.getItem('admin_session_token') || getCookie('admin_session_token');
+    if (!token) {
+        showAdminToast('انتهت صلاحية الجلسة.', 'error');
+        return;
+    }
+    const saveBtn = document.querySelector('#editDiscountCodeModal button[onclick="submitEditDiscountCode()"]');
+    if (saveBtn) {
+        saveBtn.disabled = true;
+        saveBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> جاري الحفظ...';
+    }
+    try {
+        const res = await fetch('../api/admin/update-discount-code.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+            body: JSON.stringify({
+                discount_code_id: id,
+                code: code,
+                discount_amount: amount,
+                course_id: courseId,
+                assigned_to_user_id: assignedUserId > 0 ? assignedUserId : null
+            })
+        });
+        const json = await res.json();
+        if (json.success) {
+            closeEditDiscountCodeModal();
+            loadDiscountCodes();
+            showAdminToast('تم تحديث كود الخصم بنجاح', 'success');
+        } else {
+            showAdminToast(json.error || 'فشل التحديث', 'error');
+        }
+    } catch (e) {
+        console.error('submitEditDiscountCode:', e);
+        showAdminToast('حدث خطأ أثناء الاتصال بالخادم', 'error');
+    } finally {
+        if (saveBtn) {
+            saveBtn.disabled = false;
+            saveBtn.innerHTML = '<i class="bi bi-check-circle"></i> حفظ التعديلات';
+        }
+    }
+}
+
+async function deleteDiscountCode(id) {
+    if (!confirm('هل أنت متأكد من حذف كود الخصم؟')) return;
+    try {
+        const token = localStorage.getItem('admin_session_token') || getCookie('admin_session_token');
+        const response = await fetch('../api/admin/delete-discount-code.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token },
+            body: JSON.stringify({ discount_code_id: id })
+        });
+        const result = await response.json();
+        if (result.success) {
+            const tbody = document.getElementById('discountCodesTableBody');
+            const row = tbody ? tbody.querySelector('tr[data-discount-id="' + id + '"]') : null;
+            if (row && row.parentNode) {
+                row.remove();
+                const emptyEl = document.getElementById('discountCodesEmpty');
+                if (emptyEl && tbody && tbody.querySelectorAll('tr').length === 0) {
+                    emptyEl.style.display = 'block';
+                    emptyEl.textContent = 'لا توجد أكواد خصم. أنشئ كوداً من الزر أعلاه.';
+                }
+            } else {
+                loadDiscountCodes();
+            }
+            showAdminToast('تم حذف كود الخصم بنجاح', 'success');
+        } else {
+            showAdminToast(result.error || 'فشل الحذف', 'error');
+        }
+    } catch (err) {
+        console.error('Error deleting discount code:', err);
+        showAdminToast('حدث خطأ أثناء الاتصال بالخادم', 'error');
     }
 }
 
@@ -1107,38 +1281,36 @@ async function generateCodes() {
 
 // Actions
 async function deleteUser(userId) {
-    if (confirm('هل أنت متأكد من حذف هذا المستخدم؟')) {
-        try {
-            const token = localStorage.getItem('admin_session_token') || getCookie('admin_session_token');
-            const response = await fetch('../api/admin/delete-user.php', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authorization': 'Bearer ' + token
-                },
-                body: JSON.stringify({ user_id: userId })
-            });
-
-            const result = await response.json();
-
-            if (result.success) {
-                // Refresh table
-                renderUsers(currentUsersPage);
-                alert('✓ تم حذف المستخدم بنجاح');
-            } else {
-                alert('❌ فشل الحذف: ' + result.message);
-            }
-        } catch (error) {
-            console.error('Error deleting user:', error);
-            alert('❌ حدث خطأ أثناء الاتصال بالخادم');
+    if (!confirm('هل أنت متأكد من حذف هذا المستخدم؟')) return;
+    const row = document.querySelector(`#usersTableBody tr button[onclick*="deleteUser(${userId})"]`)?.closest('tr');
+    try {
+        const token = localStorage.getItem('admin_session_token') || getCookie('admin_session_token');
+        const response = await fetch('../api/admin/delete-user.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + token
+            },
+            body: JSON.stringify({ user_id: userId })
+        });
+        const result = await response.json();
+        if (result.success) {
+            if (row && row.parentNode) row.remove();
+            else renderUsers(currentUsersPage);
+            showAdminToast('تم حذف المستخدم بنجاح', 'success');
+        } else {
+            showAdminToast('فشل الحذف: ' + (result.message || 'خطأ غير معروف'), 'error');
         }
+    } catch (error) {
+        console.error('Error deleting user:', error);
+        showAdminToast('حدث خطأ أثناء الاتصال بالخادم', 'error');
     }
 }
 
 async function editUser(userId) {
     const token = localStorage.getItem('admin_session_token') || getCookie('admin_session_token');
     if (!token) {
-        alert('انتهت صلاحية الجلسة، يرجى تسجيل الدخول.');
+        showAdminToast('انتهت صلاحية الجلسة، يرجى تسجيل الدخول.', 'error');
         return;
     }
     try {
@@ -1147,7 +1319,7 @@ async function editUser(userId) {
         });
         const json = await res.json();
         if (!json.success || !json.data || !json.data.user) {
-            alert(json.message || 'فشل جلب بيانات المستخدم');
+            showAdminToast(json.message || 'فشل جلب بيانات المستخدم', 'error');
             return;
         }
         const u = json.data.user;
@@ -1162,7 +1334,7 @@ async function editUser(userId) {
         openModal('editUserModal');
     } catch (e) {
         console.error('editUser:', e);
-        alert('حدث خطأ أثناء جلب البيانات');
+        showAdminToast('حدث خطأ أثناء جلب البيانات', 'error');
     }
 }
 
@@ -1180,13 +1352,18 @@ async function submitEditUser() {
     const status = document.getElementById('editUserStatus').value;
     const wallet = parseFloat(document.getElementById('editUserWallet').value) || 0;
     if (!name || !phone || !email) {
-        alert('الاسم، رقم الهاتف، والبريد الإلكتروني مطلوبة');
+        showAdminToast('الاسم، رقم الهاتف، والبريد الإلكتروني مطلوبة', 'error');
         return;
     }
     const token = localStorage.getItem('admin_session_token') || getCookie('admin_session_token');
     if (!token) {
-        alert('انتهت صلاحية الجلسة.');
+        showAdminToast('انتهت صلاحية الجلسة.', 'error');
         return;
+    }
+    const saveBtn = document.querySelector('#editUserModal button[onclick="submitEditUser()"]');
+    if (saveBtn) {
+        saveBtn.disabled = true;
+        saveBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> جاري الحفظ...';
     }
     try {
         const res = await fetch('../api/admin/update-user.php', {
@@ -1210,13 +1387,18 @@ async function submitEditUser() {
         if (json.success) {
             closeEditUserModal();
             renderUsers(currentUsersPage);
-            alert('✓ تم تحديث بيانات الحساب بنجاح');
+            showAdminToast('تم تحديث بيانات الحساب بنجاح', 'success');
         } else {
-            alert('❌ ' + (json.message || 'فشل التحديث'));
+            showAdminToast(json.message || 'فشل التحديث', 'error');
         }
     } catch (e) {
         console.error('submitEditUser:', e);
-        alert('حدث خطأ أثناء الاتصال بالخادم');
+        showAdminToast('حدث خطأ أثناء الاتصال بالخادم', 'error');
+    } finally {
+        if (saveBtn) {
+            saveBtn.disabled = false;
+            saveBtn.innerHTML = '<i class="bi bi-check-circle"></i> حفظ التعديلات';
+        }
     }
 }
 
@@ -1307,14 +1489,15 @@ async function deleteCode(codeId) {
         });
         const result = await response.json();
         if (result.success) {
-            await loadCodes();
-            alert('تم حذف الكود بنجاح');
+            adminCodesData = adminCodesData.filter(c => c.id !== codeId);
+            renderCodes(currentCodesPage);
+            showAdminToast('تم حذف الكود بنجاح', 'success');
         } else {
-            alert('فشل الحذف: ' + (result.error || 'خطأ غير معروف'));
+            showAdminToast('فشل الحذف: ' + (result.error || 'خطأ غير معروف'), 'error');
         }
     } catch (err) {
         console.error('Error deleting code:', err);
-        alert('حدث خطأ أثناء الاتصال بالخادم');
+        showAdminToast('حدث خطأ أثناء الاتصال بالخادم', 'error');
     }
 }
 
@@ -2117,7 +2300,7 @@ async function saveCourseChanges() {
     const courseIdFromModal = parseInt(document.getElementById('courseEditModal')?.dataset?.courseId, 10);
     const courseIdToSave = currentCourseId || courseIdFromPage || courseIdFromModal || 0;
     if (!courseIdToSave) {
-        alert('لم يتم تحديد الكورس. يرجى فتح صفحة التعديل مرة أخرى.');
+        showAdminToast('لم يتم تحديد الكورس. يرجى فتح صفحة التعديل مرة أخرى.', 'error');
         return;
     }
 
@@ -2126,7 +2309,7 @@ async function saveCourseChanges() {
     const statusEl = document.getElementById('editCourseStatus');
     const priceEl = document.getElementById('editCoursePrice');
     if (!titleEl || !descriptionEl || !statusEl || !priceEl) {
-        alert('لم يتم العثور على حقول التعديل. تأكد من فتح نافذة التعديل.');
+        showAdminToast('لم يتم العثور على حقول التعديل. تأكد من فتح نافذة التعديل.', 'error');
         return;
     }
 
@@ -2135,10 +2318,15 @@ async function saveCourseChanges() {
     const status = statusEl.value;
     const price = parseFloat(priceEl.value);
     if (isNaN(price) || price < 0) {
-        alert('أدخل سعراً صحيحاً (رقم أكبر من أو يساوي 0).');
+        showAdminToast('أدخل سعراً صحيحاً (رقم أكبر من أو يساوي 0).', 'error');
         return;
     }
 
+    let saveBtn = document.querySelector('#courseEditModal .btn-primary[onclick="saveCourseChanges()"], #courseEditPage .btn-primary[onclick="saveCourseChanges()"]');
+    if (saveBtn) {
+        saveBtn.disabled = true;
+        saveBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> جاري الحفظ...';
+    }
     const token = localStorage.getItem('admin_session_token') || getCookie('admin_session_token');
     try {
         const response = await fetch('../api/admin/update-course.php', {
@@ -2158,7 +2346,7 @@ async function saveCourseChanges() {
         });
         const result = await response.json();
         if (!result.success) {
-            alert(result.error || 'فشل تحديث الكورس');
+            showAdminToast(result.error || 'فشل تحديث الكورس', 'error');
             return;
         }
 
@@ -2180,18 +2368,21 @@ async function saveCourseChanges() {
         }
         currentCourseId = courseIdToSave;
         renderCourses(currentCoursesPage);
-        alert('تم حفظ التعديلات بنجاح');
+        showAdminToast('تم حفظ التعديلات بنجاح', 'success');
     } catch (err) {
         console.error('Error saving course:', err);
-        alert('حدث خطأ في الاتصال. تحقق من الاتصال وأعد المحاولة.');
+        showAdminToast('حدث خطأ في الاتصال. تحقق من الاتصال وأعد المحاولة.', 'error');
+    } finally {
+        saveBtn = document.querySelector('#courseEditModal .btn-primary[onclick="saveCourseChanges()"], #courseEditPage .btn-primary[onclick="saveCourseChanges()"]');
+        if (saveBtn) {
+            saveBtn.disabled = false;
+            saveBtn.innerHTML = '<i class="bi bi-save-fill"></i><span>حفظ التعديلات</span>';
+        }
     }
 }
 
 async function deleteCourse(courseId) {
-    if (!confirm('هل أنت متأكد من حذف هذا الكورس؟ سيتم حذف جميع الفيديوهات المرتبطة به.')) {
-        return;
-    }
-
+    if (!confirm('هل أنت متأكد من حذف هذا الكورس؟ سيتم حذف جميع الفيديوهات المرتبطة به.')) return;
     try {
         const token = localStorage.getItem('admin_session_token') || getCookie('admin_session_token');
         const response = await fetch('../api/admin/delete-course.php', {
@@ -2203,18 +2394,19 @@ async function deleteCourse(courseId) {
             credentials: 'include',
             body: JSON.stringify({ course_id: courseId })
         });
-
         const result = await response.json();
-
         if (result.success) {
-            await loadAdminCourses();
-            alert('تم حذف الكورس بنجاح');
+            const courses = JSON.parse(localStorage.getItem('nayl_courses')) || [];
+            const updated = courses.filter(c => c.id !== courseId);
+            localStorage.setItem('nayl_courses', JSON.stringify(updated));
+            renderCourses(currentCoursesPage);
+            showAdminToast('تم حذف الكورس بنجاح', 'success');
         } else {
-            alert('فشل الحذف: ' + (result.error || 'حدث خطأ'));
+            showAdminToast('فشل الحذف: ' + (result.error || 'حدث خطأ'), 'error');
         }
     } catch (err) {
         console.error('Error deleting course:', err);
-        alert('حدث خطأ أثناء الاتصال بالخادم');
+        showAdminToast('حدث خطأ أثناء الاتصال بالخادم', 'error');
     }
 }
 
