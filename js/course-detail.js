@@ -7,6 +7,10 @@
     const courseId = urlParams.get('id') ? parseInt(urlParams.get('id'), 10) : null;
 
     const STORAGE_KEY_PREFIX = 'course_unlocked_';
+    const VERIFIED_AT_KEY_PREFIX = 'course_verified_at_';
+    /** صلاحية التحقق بالساعات — بعدها يُطلب الكود مرة أخرى */
+    const VERIFY_VALID_HOURS = 2;
+    const VERIFY_VALID_MS = VERIFY_VALID_HOURS * 60 * 60 * 1000;
     const sessionToken = localStorage.getItem('sessionToken') || sessionStorage.getItem('sessionToken');
 
     const codeModal = document.getElementById('code-verify-modal');
@@ -24,14 +28,39 @@
         return courseId ? STORAGE_KEY_PREFIX + courseId : null;
     }
 
+    function getVerifiedAtKey() {
+        return courseId ? VERIFIED_AT_KEY_PREFIX + courseId : null;
+    }
+
     function isUnlocked() {
         const key = getUnlockKey();
         return key ? sessionStorage.getItem(key) === '1' : false;
     }
 
+    /** هل التحقق لا يزال ضمن المدة المسموحة (مثلاً ساعتين)؟ */
+    function isVerificationStillValid() {
+        if (!isUnlocked()) return false;
+        const key = getVerifiedAtKey();
+        if (!key) return false;
+        const at = sessionStorage.getItem(key);
+        if (!at) return false;
+        const ts = parseInt(at, 10);
+        if (isNaN(ts)) return false;
+        return (Date.now() - ts) < VERIFY_VALID_MS;
+    }
+
     function setUnlocked() {
         const key = getUnlockKey();
+        const atKey = getVerifiedAtKey();
         if (key) sessionStorage.setItem(key, '1');
+        if (atKey) sessionStorage.setItem(atKey, String(Date.now()));
+    }
+
+    function clearUnlockAndTimestamp() {
+        const key = getUnlockKey();
+        const atKey = getVerifiedAtKey();
+        if (key) sessionStorage.removeItem(key);
+        if (atKey) sessionStorage.removeItem(atKey);
     }
 
     function escapeHtml(text) {
@@ -164,8 +193,7 @@
 
             if (!response.ok || !result.success || !result.data || !result.data.course) {
                 if (response.status === 403) {
-                    const key = getUnlockKey();
-                    if (key) sessionStorage.removeItem(key);
+                    clearUnlockAndTimestamp();
                     showCodeModal();
                     if (result.message && codeErrorEl) {
                         codeErrorEl.textContent = result.message;
@@ -291,8 +319,16 @@
             window.location.href = 'profile.html?tab=course-codes';
         });
 
-        // مطلوب دائماً: إظهار مودال إدخال كود المشاهدة أولاً (حتى للمشترين)
-        // لا ندخل للمشاهدة إلا بعد إدخال الكود هنا → verify-access يربط الجهاز بـ bound_device_hash
+        // إذا كان المستخدم قد تحقق خلال المدة المسموحة (مثلاً ساعتين) لا نطلب الكود عند الريفرش
+        if (isVerificationStillValid()) {
+            if (codeModal) codeModal.style.display = 'none';
+            if (courseContentEl) courseContentEl.style.display = 'block';
+            document.body.style.overflow = '';
+            loadCourseContent();
+            return;
+        }
+
+        // غير ذلك: إظهار مودال إدخال كود المشاهدة
         if (courseContentEl) courseContentEl.style.display = 'none';
         if (codeModal) codeModal.style.display = 'flex';
         document.body.style.overflow = 'hidden';
