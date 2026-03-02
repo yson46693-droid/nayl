@@ -1769,6 +1769,7 @@ tr:hover td {
 .user-picker-wrapper {
     position: relative;
     width: 100%;
+    overflow: visible;
 }
 .user-picker-display {
     display: flex;
@@ -1888,6 +1889,14 @@ tr:hover td {
 }
 .discount-user-detail-link:hover {
     color: var(--secondary-orange, #ff9f43);
+}
+
+/* منع قصّ قائمة البحث في أكواد الخصم */
+#addDiscountCodeCard {
+    overflow: visible;
+}
+#addDiscountCodeCard .admin-form-group:has(.user-picker-wrapper) {
+    overflow: visible;
 }
 
 @media (min-width: 768px) {

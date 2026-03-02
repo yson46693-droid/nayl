@@ -888,14 +888,27 @@ function changeCodesPage(page) {
 }
 
 // ——— أكواد الخصم ———
+// Base URL for admin API (يعمل مع أي مسار للموقع: /admin أو /nayl/admin)
+function getAdminApiBaseUrl() {
+    const path = window.location.pathname || '';
+    const adminIdx = path.indexOf('/admin');
+    const basePath = adminIdx !== -1 ? path.substring(0, adminIdx) : '';
+    return window.location.origin + basePath + '/api/admin';
+}
 // Fetch users for searchable picker (uses existing get-all-users API with search)
 async function fetchUsersForPicker(search) {
     const token = localStorage.getItem('admin_session_token') || getCookie('admin_session_token');
-    const url = '../api/admin/get-all-users.php?page=1&limit=50' + (search ? '&search=' + encodeURIComponent(search) : '');
-    const response = await fetch(url, { headers: { 'Authorization': 'Bearer ' + token } });
-    if (!checkAdminResponse(response)) return [];
-    const result = await response.json();
-    return (result.success && result.data && Array.isArray(result.data.users)) ? result.data.users : [];
+    const base = getAdminApiBaseUrl();
+    const url = base + '/get-all-users.php?page=1&limit=50' + (search ? '&search=' + encodeURIComponent(search) : '');
+    try {
+        const response = await fetch(url, { headers: { 'Authorization': 'Bearer ' + token }, credentials: 'same-origin' });
+        if (!checkAdminResponse(response)) return [];
+        const result = await response.json();
+        return (result.success && result.data && Array.isArray(result.data.users)) ? result.data.users : [];
+    } catch (err) {
+        console.error('fetchUsersForPicker error:', err);
+        return [];
+    }
 }
 
 const DISCOUNT_PICKER_DEFAULT_LABEL = 'الكل - متاح لجميع المستخدمين';
@@ -1066,10 +1079,10 @@ async function loadDiscountCodes() {
                 const row = document.createElement('tr');
                 row.setAttribute('data-discount-id', d.id);
                 const statusBadge = d.status === 'used' ? '<span class="badge badge-pending">مُستخدم</span>' : '<span class="badge badge-active">نشط</span>';
-                const assignedToDisplay = (d.assigned_to_name || d.assigned_to_email) ? escapeHtml(d.assigned_to_name || d.assigned_to_email) + (d.assigned_to_email && d.assigned_to_name ? ' (' + escapeHtml(d.assigned_to_email) + ')' : '') : '—';
+                const assignedToDisplay = (d.assigned_to_name || d.assigned_to_email) ? escapeHtml(d.assigned_to_name || d.assigned_to_email) + (d.assigned_to_email && d.assigned_to_name ? ' (' + escapeHtml(d.assigned_to_email) + ')' : '') : DISCOUNT_PICKER_DEFAULT_LABEL;
                 const assignedTo = d.assigned_to_user_id
                     ? '<span class="discount-user-detail-link" data-user-id="' + d.assigned_to_user_id + '" onclick="showViewDiscountCodeUserModalFromEvent(event)" title="عرض التفاصيل">' + assignedToDisplay + '</span>'
-                    : assignedToDisplay;
+                    : escapeHtml(assignedToDisplay);
                 const usedByDisplay = d.used_by_name ? escapeHtml(d.used_by_name) + (d.used_by_email ? ' (' + escapeHtml(d.used_by_email) + ')' : '') : '—';
                 const usedAtAttr = (d.used_at || '').replace(/"/g, '&quot;');
                 const usedBy = d.used_by
