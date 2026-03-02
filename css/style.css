@@ -1106,6 +1106,14 @@ body::-webkit-scrollbar-thumb:hover {
     border-radius: 12px;
     overflow: hidden;
     box-shadow: var(--shadow-lg);
+    max-width: 100%;
+}
+@supports (aspect-ratio: 16 / 9) {
+    .video-player-wrapper {
+        height: auto;
+        padding-bottom: 0;
+        aspect-ratio: 16 / 9;
+    }
 }
 
 .course-video-player {
@@ -1117,6 +1125,8 @@ body::-webkit-scrollbar-thumb:hover {
     display: block;
     object-fit: contain;
     accent-color: #4a90e2;
+    border: none;
+    max-width: 100%;
 }
 
 .video-title-display {
@@ -3134,6 +3144,45 @@ body::-webkit-scrollbar-thumb:hover {
 .course-detail-section .course-content .video-section {
     grid-column: 2;
     min-width: 200px;
+}
+
+/* صفحة تفاصيل الكورس - تابلت: عمود واحد، الفيديو بعرض كامل */
+@media (max-width: 900px) {
+    .course-detail-section .course-content {
+        grid-template-columns: 1fr !important;
+        grid-template-rows: auto auto !important;
+    }
+    .course-detail-section .course-content .schedule-section {
+        grid-column: 1;
+        max-width: 100%;
+    }
+    .course-detail-section .course-content .video-section {
+        grid-column: 1;
+        grid-row: 2;
+        min-width: 0;
+        width: 100%;
+    }
+    .course-detail-section .video-player-wrapper {
+        min-height: 200px;
+    }
+}
+
+/* صفحة تفاصيل الكورس - موبايل: فيديو أوضح مع هوامش أقل */
+@media (max-width: 640px) {
+    .course-detail-section .course-content {
+        gap: var(--spacing-md);
+    }
+    .course-detail-section .video-section {
+        border-radius: var(--radius-md);
+    }
+    .course-detail-section .video-player-wrapper {
+        min-height: 180px;
+        border-radius: 8px;
+    }
+    .course-detail-section .course-video-player {
+        width: 100%;
+        height: 100%;
+    }
 }
 
 /* Mobile devices */
