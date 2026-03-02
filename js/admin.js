@@ -918,9 +918,10 @@ function initDiscountUserPicker(config) {
             searchInput.style.display = 'none';
             searchInput.value = '';
         } else {
-            badgeEl.innerHTML = '';
-            badgeEl.style.display = 'none';
-            searchInput.style.display = 'block';
+            // "الكل" selected — show badge with default label
+            badgeEl.innerHTML = escapeHtml(DISCOUNT_PICKER_DEFAULT_LABEL) + ' <button type="button" class="user-picker-clear" aria-label="إزالة">×</button>';
+            badgeEl.style.display = 'inline-flex';
+            searchInput.style.display = 'none';
             searchInput.value = '';
         }
         dropdown.style.display = 'none';
@@ -932,6 +933,11 @@ function initDiscountUserPicker(config) {
         searchInput.focus();
     }
 
+    function showDropdownLoading() {
+        dropdown.innerHTML = '<div class="user-picker-dropdown-loading">جاري التحميل...</div>';
+        dropdown.style.display = 'block';
+    }
+
     function renderDropdownItems(users) {
         dropdown.innerHTML = '';
         const defaultOpt = document.createElement('button');
@@ -940,14 +946,11 @@ function initDiscountUserPicker(config) {
         defaultOpt.innerHTML = '<strong>' + DISCOUNT_PICKER_DEFAULT_LABEL + '</strong>';
         defaultOpt.addEventListener('click', function () {
             hiddenInput.value = '';
-            badgeEl.innerHTML = '';
-            badgeEl.style.display = 'none';
-            searchInput.style.display = 'block';
-            searchInput.value = '';
-            dropdown.style.display = 'none';
+            setSelectedUser(null, null);
         });
         dropdown.appendChild(defaultOpt);
-        (users || []).forEach(function (u) {
+        const list = users || [];
+        list.forEach(function (u) {
             const btn = document.createElement('button');
             btn.type = 'button';
             btn.className = 'user-picker-dropdown-item';
@@ -957,23 +960,32 @@ function initDiscountUserPicker(config) {
             });
             dropdown.appendChild(btn);
         });
+        if (list.length === 0) {
+            const empty = document.createElement('div');
+            empty.className = 'user-picker-dropdown-empty';
+            empty.textContent = 'لا توجد نتائج. جرّب كلمة بحث أخرى.';
+            dropdown.appendChild(empty);
+        }
+        dropdown.style.display = 'block';
     }
 
     badgeEl.addEventListener('click', function (e) {
         if (e.target.classList.contains('user-picker-clear')) {
-            setSelectedUser(null, null);
-            badgeEl.style.display = 'none';
+            hiddenInput.value = '';
             badgeEl.innerHTML = '';
+            badgeEl.style.display = 'none';
             searchInput.style.display = 'block';
             searchInput.value = '';
-            hiddenInput.value = '';
+            dropdown.style.display = 'none';
         }
     });
 
     searchInput.addEventListener('focus', function () {
-        dropdown.style.display = 'block';
         if (dropdown.children.length === 0) {
+            showDropdownLoading();
             fetchUsersForPicker('').then(function (users) { renderDropdownItems(users); });
+        } else {
+            dropdown.style.display = 'block';
         }
     });
 
@@ -981,9 +993,11 @@ function initDiscountUserPicker(config) {
         const q = searchInput.value.trim();
         clearTimeout(searchDebounceTimer);
         searchDebounceTimer = setTimeout(function () {
+            showDropdownLoading();
             fetchUsersForPicker(q).then(function (users) {
                 renderDropdownItems(users);
-                dropdown.style.display = 'block';
+            }).catch(function () {
+                renderDropdownItems([]);
             });
         }, 300);
     });
@@ -1007,14 +1021,10 @@ function initDiscountUserPicker(config) {
 
     return {
         setSelected: function (userId, displayName) {
-            if (!userId || !displayName) {
-                hiddenInput.value = '';
-                badgeEl.innerHTML = '';
-                badgeEl.style.display = 'none';
-                searchInput.style.display = 'block';
-                searchInput.value = '';
-            } else {
+            if (userId && displayName) {
                 setSelectedUser(userId, displayName);
+            } else {
+                setSelectedUser(null, null);
             }
         },
         reset: function () {

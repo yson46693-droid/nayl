@@ -1870,6 +1870,16 @@ tr:hover td {
     font-size: 0.85rem;
     color: var(--text-gray, #8b95a5);
 }
+.user-picker-dropdown-loading,
+.user-picker-dropdown-empty {
+    padding: 12px 14px;
+    text-align: center;
+    color: var(--text-gray, #8b95a5);
+    font-size: 0.9rem;
+}
+.user-picker-dropdown-empty {
+    border-top: 1px solid #edf2f7;
+}
 .discount-user-detail-link {
     color: var(--primary-blue, #4a90e2);
     cursor: pointer;
