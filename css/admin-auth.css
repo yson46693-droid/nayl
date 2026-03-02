@@ -181,6 +181,18 @@ body {
     box-shadow: none;
 }
 
+.login-btn-outline {
+    background: transparent !important;
+    color: var(--primary-color, #4a90e2);
+    border: 2px solid var(--primary-color, #4a90e2);
+    box-shadow: none !important;
+}
+
+.login-btn-outline:hover {
+    background: rgba(74, 144, 226, 0.08) !important;
+    box-shadow: none !important;
+}
+
 /* Alert Styling */
 .alert {
     padding: 16px;

@@ -49,10 +49,12 @@
 
     /**
      * مسار الـ API (نسبي من الصفحة الحالية - يعمل مع php -S و XAMPP)
-     * من index.html أو profile.html يُصبح نفس المجلد ثم api/auth/webauthn/...
+     * من index.html أو profile.html: api/auth/webauthn/
+     * من admin/login.html: يمكن تعيين window.WEB_AUTHN_API_BASE = '../api/admin/auth/webauthn/' لتسجيل دخول الأدمن بالبصمة
      */
     function getWebAuthnApiPath(path) {
-        return 'api/auth/webauthn/' + path;
+        var base = (typeof window !== 'undefined' && window.WEB_AUTHN_API_BASE) ? window.WEB_AUTHN_API_BASE : 'api/auth/webauthn/';
+        return base + path;
     }
 
     /**

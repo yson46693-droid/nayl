@@ -138,6 +138,24 @@ CREATE TABLE IF NOT EXISTS webauthn_credentials (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci 
 COMMENT='بيانات WebAuthn لتسجيل الدخول بالبصمة';
 
+-- جدول بيانات WebAuthn للمشرفين (تسجيل الدخول بالبصمة)
+CREATE TABLE IF NOT EXISTS webauthn_admin_credentials (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    admin_id INT UNSIGNED NOT NULL COMMENT 'معرف المشرف',
+    credential_id VARCHAR(512) NOT NULL COMMENT 'معرف البصمة (base64url)',
+    public_key_x VARCHAR(256) NULL COMMENT 'مفتاح عام X (P-256)',
+    public_key_y VARCHAR(256) NULL COMMENT 'مفتاح عام Y (P-256)',
+    sign_count INT UNSIGNED NOT NULL DEFAULT 0 COMMENT 'عداد التوقيع',
+    device_name VARCHAR(255) NULL COMMENT 'اسم الجهاز',
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+
+    UNIQUE KEY uk_admin_credential_id (credential_id(255)),
+    FOREIGN KEY (admin_id) REFERENCES admins(id) ON DELETE CASCADE,
+    INDEX idx_admin_id (admin_id)
+
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+COMMENT='بيانات WebAuthn لتسجيل دخول المشرفين بالبصمة';
+
 -- ============================================
 -- جداول المحفظة
 -- ============================================

@@ -7,7 +7,7 @@
     <title>تسجيل دخول المشرفين | AmrNayl Academy</title>
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
-    <link rel="stylesheet" href="../css/admin-auth.css">
+    <link rel="stylesheet" href="../css/admin-auth.css?v=1.1">
 </head>
 
 <body>
@@ -47,6 +47,11 @@
                 <button type="submit" class="login-btn" id="submitBtn">
                     <span>تسجيل الدخول</span>
                     <i class="bi bi-box-arrow-in-left"></i>
+                </button>
+
+                <button type="button" class="login-btn login-btn-outline" id="fingerprintLoginBtn" style="display: none; margin-top: 10px; align-items: center; justify-content: center; gap: 8px;">
+                    <i class="bi bi-fingerprint" style="font-size: 1.1rem;"></i>
+                    <span>تسجيل الدخول بالبصمة</span>
                 </button>
             </form>
 
@@ -138,6 +143,56 @@
                 submitBtn.innerHTML = originalBtnContent;
             }
         }
+    </script>
+    <script src="../js/webauthn.js"></script>
+    <script>
+        // تسجيل الدخول بالبصمة (WebAuthn) للمشرفين — يُنفّذ بعد تحميل webauthn.js
+        (function () {
+            window.WEB_AUTHN_API_BASE = '../api/admin/auth/webauthn/';
+            var fingerprintLoginBtn = document.getElementById('fingerprintLoginBtn');
+            if (fingerprintLoginBtn && typeof window.WebAuthn !== 'undefined') {
+                if (window.WebAuthn.isSupported()) {
+                    fingerprintLoginBtn.style.display = 'flex';
+                }
+                fingerprintLoginBtn.addEventListener('click', function () {
+                    fingerprintLoginBtn.disabled = true;
+                    fingerprintLoginBtn.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> جاري التحقق...';
+                    var alertBox = document.getElementById('alertBox');
+                    alertBox.style.display = 'none';
+
+                    window.WebAuthn.login(
+                        '',
+                        true,
+                        function (userData, sessionData) {
+                            var token = (sessionData && sessionData.token) ? sessionData.token : null;
+                            if (token) {
+                                localStorage.setItem('admin_info', JSON.stringify(userData));
+                                localStorage.setItem('admin_session_token', token);
+                                alertBox.textContent = 'تم تسجيل الدخول بنجاح! جاري التوجيه...';
+                                alertBox.className = 'alert alert-success';
+                                alertBox.style.display = 'block';
+                                setTimeout(function () {
+                                    window.location.href = 'index.html';
+                                }, 800);
+                            } else {
+                                fingerprintLoginBtn.disabled = false;
+                                fingerprintLoginBtn.innerHTML = '<i class="bi bi-fingerprint" style="font-size: 1.1rem;"></i><span>تسجيل الدخول بالبصمة</span>';
+                                alertBox.textContent = 'فشل تسجيل الدخول';
+                                alertBox.className = 'alert alert-danger';
+                                alertBox.style.display = 'block';
+                            }
+                        },
+                        function (err) {
+                            fingerprintLoginBtn.disabled = false;
+                            fingerprintLoginBtn.innerHTML = '<i class="bi bi-fingerprint" style="font-size: 1.1rem;"></i><span>تسجيل الدخول بالبصمة</span>';
+                            alertBox.textContent = err || 'فشل تسجيل الدخول بالبصمة';
+                            alertBox.className = 'alert alert-danger';
+                            alertBox.style.display = 'block';
+                        }
+                    );
+                });
+            }
+        })();
     </script>
 </body>
 

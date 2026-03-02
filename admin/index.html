@@ -996,6 +996,24 @@
                         </form>
                     </div>
                 </div>
+                <!-- تسجيل الدخول بالبصمة -->
+                <div class="data-card" style="margin-top: var(--spacing-lg);">
+                    <div class="section-header" style="padding: 24px; border-bottom: 1px solid #edf2f7;">
+                        <h3 style="font-weight: 800; margin: 0;">
+                            <i class="bi bi-fingerprint" style="color: var(--primary-blue); margin-left: 8px;"></i>
+                            تسجيل الدخول بالبصمة
+                        </h3>
+                    </div>
+                    <div style="padding: 24px;">
+                        <p style="color: var(--text-muted); margin-bottom: 16px;">بعد تسجيل البصمة يمكنك الدخول من صفحة تسجيل الدخول بالبصمة دون إدخال كلمة المرور.</p>
+                        <div id="adminWebAuthnStatus" style="margin-bottom: 12px;"></div>
+                        <button type="button" class="btn btn-primary" id="adminRegisterFingerprintBtn" style="display: none;">
+                            <i class="bi bi-fingerprint"></i>
+                            تسجيل البصمة
+                        </button>
+                        <p id="adminWebAuthnNotSupported" style="display: none; color: var(--text-muted); font-size: 0.9rem;">المتصفح أو الجهاز لا يدعم تسجيل الدخول بالبصمة.</p>
+                    </div>
+                </div>
             </section>
 
             <!-- Admin Accounts Section -->
@@ -1695,6 +1713,7 @@
 
     </div>
     <script src="../js/admin.js?v=2.0"></script>
+    <script src="../js/webauthn.js"></script>
     <!-- تم إيقاف سكربت mock القديم لطلبات الشحن واعتماد منطق الـ API الحقيقي في admin.js -->
     <!-- <script src="../js/recharge-requests.js"></script> -->
     <script src="../js/complaints-admin.js"></script>
@@ -1713,6 +1732,35 @@
                 }
                 if (adminAvatarEl && admin.full_name) {
                     adminAvatarEl.textContent = admin.full_name.charAt(0).toUpperCase();
+                }
+            }
+
+            // تسجيل البصمة للأدمن (من الملف الشخصي)
+            window.WEB_AUTHN_API_BASE = '../api/admin/auth/webauthn/';
+            var registerBtn = document.getElementById('adminRegisterFingerprintBtn');
+            var statusEl = document.getElementById('adminWebAuthnStatus');
+            var notSupportedEl = document.getElementById('adminWebAuthnNotSupported');
+            if (registerBtn && typeof window.WebAuthn !== 'undefined') {
+                if (window.WebAuthn.isSupported()) {
+                    registerBtn.style.display = 'inline-flex';
+                    registerBtn.addEventListener('click', function () {
+                        registerBtn.disabled = true;
+                        if (statusEl) statusEl.textContent = 'جاري التحقق من البصمة...';
+                        window.WebAuthn.register(
+                            function () {
+                                if (statusEl) {
+                                    statusEl.innerHTML = '<span style="color: var(--primary-green, #4CAF50);"><i class="bi bi-check-circle"></i> تم تسجيل البصمة بنجاح. يمكنك الآن الدخول من صفحة تسجيل الدخول بالبصمة.</span>';
+                                }
+                                registerBtn.disabled = false;
+                            },
+                            function (err) {
+                                if (statusEl) statusEl.innerHTML = '<span style="color: var(--danger, #dc3545);"><i class="bi bi-exclamation-circle"></i> ' + (err || 'فشل تسجيل البصمة') + '</span>';
+                                registerBtn.disabled = false;
+                            }
+                        );
+                    });
+                } else if (notSupportedEl) {
+                    notSupportedEl.style.display = 'block';
                 }
             }
         });
