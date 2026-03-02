@@ -64,8 +64,10 @@ try {
     $params = [];
     
     if (!empty($search)) {
-        $whereClause .= " AND (u.full_name LIKE :search OR u.phone LIKE :search OR u.email LIKE :search)";
-        $params['search'] = "%$search%";
+        $whereClause .= " AND (u.full_name LIKE :search1 OR u.phone LIKE :search2 OR u.email LIKE :search3)";
+        $params['search1'] = "%$search%";
+        $params['search2'] = "%$search%";
+        $params['search3'] = "%$search%";
     }
     
     // الحصول على العدد الكلي للسجلات
