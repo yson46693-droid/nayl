@@ -3127,47 +3127,25 @@ body::-webkit-scrollbar-thumb:hover {
     }
 }
 
-/* صفحة تفاصيل الكورس: الفيديو بجوار الجدول دائماً - استخدام Grid للتخطيط الثابت */
+/* صفحة تفاصيل الكورس: الجدول فوق، الفيديو تحته بعرض كامل */
 .course-detail-section .course-content {
-    display: grid !important;
-    grid-template-columns: minmax(260px, 360px) 1fr !important;
-    grid-template-rows: auto !important;
+    display: flex !important;
+    flex-direction: column !important;
     gap: var(--spacing-xl);
-    align-items: start;
-    direction: ltr;
+    align-items: stretch;
     width: 100%;
 }
 .course-detail-section .course-content .schedule-section {
-    grid-column: 1;
+    width: 100%;
+    max-width: 100%;
     min-width: 0;
 }
 .course-detail-section .course-content .video-section {
-    grid-column: 2;
-    min-width: 200px;
+    width: 100%;
+    min-width: 0;
 }
 
-/* صفحة تفاصيل الكورس - تابلت: عمود واحد، الفيديو بعرض كامل */
-@media (max-width: 900px) {
-    .course-detail-section .course-content {
-        grid-template-columns: 1fr !important;
-        grid-template-rows: auto auto !important;
-    }
-    .course-detail-section .course-content .schedule-section {
-        grid-column: 1;
-        max-width: 100%;
-    }
-    .course-detail-section .course-content .video-section {
-        grid-column: 1;
-        grid-row: 2;
-        min-width: 0;
-        width: 100%;
-    }
-    .course-detail-section .video-player-wrapper {
-        min-height: 200px;
-    }
-}
-
-/* صفحة تفاصيل الكورس - موبايل: فيديو أوضح مع هوامش أقل */
+/* موبايل: هوامش أقل */
 @media (max-width: 640px) {
     .course-detail-section .course-content {
         gap: var(--spacing-md);
