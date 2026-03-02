@@ -44,19 +44,19 @@ try {
     }
 
     $stmt = $pdo->prepare("
-        SELECT
-            d.id,
-            d.code,
-            d.discount_amount,
-            d.course_id,
-            d.used_at,
-            c.title AS course_title
-        FROM discount_codes d
-        LEFT JOIN courses c ON c.id = d.course_id
-        WHERE d.used_by = :user_id
-        ORDER BY d.used_at DESC
+        (SELECT d.id, d.code, d.discount_amount, d.course_id, d.used_at, c.title AS course_title
+         FROM discount_codes d
+         LEFT JOIN courses c ON c.id = d.course_id
+         WHERE d.used_by = :user_id)
+        UNION ALL
+        (SELECT d.id, d.code, d.discount_amount, d.course_id, dcu.used_at, c.title AS course_title
+         FROM discount_code_usages dcu
+         JOIN discount_codes d ON d.id = dcu.discount_code_id
+         LEFT JOIN courses c ON c.id = d.course_id
+         WHERE dcu.user_id = :user_id2)
+        ORDER BY used_at DESC
     ");
-    $stmt->execute(['user_id' => $userId]);
+    $stmt->execute(['user_id' => $userId, 'user_id2' => $userId]);
     $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
     $list = [];

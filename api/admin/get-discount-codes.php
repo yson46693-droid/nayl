@@ -65,7 +65,8 @@ try {
             u.full_name AS used_by_name,
             u.email AS used_by_email,
             au.full_name AS assigned_to_name,
-            au.email AS assigned_to_email
+            au.email AS assigned_to_email,
+            (SELECT COUNT(*) FROM discount_code_usages dcu WHERE dcu.discount_code_id = d.id) AS usage_count
         FROM discount_codes d
         LEFT JOIN courses c ON c.id = d.course_id
         LEFT JOIN users u ON u.id = d.used_by
@@ -76,13 +77,17 @@ try {
 
     $list = [];
     foreach ($rows as $row) {
+        $assignedToId = isset($row['assigned_to_user_id']) && $row['assigned_to_user_id'] ? (int) $row['assigned_to_user_id'] : null;
+        $isGlobal = ($assignedToId === null || $assignedToId === 0);
+        $usageCount = isset($row['usage_count']) ? (int) $row['usage_count'] : 0;
+        $status = $isGlobal ? 'active' : ($row['used_by'] ? 'used' : 'active');
         $list[] = [
             'id' => (int) $row['id'],
             'code' => $row['code'],
             'discount_amount' => (float) $row['discount_amount'],
             'course_id' => (int) $row['course_id'],
             'course_title' => $row['course_title'] ?: '—',
-            'assigned_to_user_id' => isset($row['assigned_to_user_id']) && $row['assigned_to_user_id'] ? (int) $row['assigned_to_user_id'] : null,
+            'assigned_to_user_id' => $assignedToId ?: null,
             'assigned_to_name' => $row['assigned_to_name'] ?: null,
             'assigned_to_email' => $row['assigned_to_email'] ?: null,
             'used_by' => $row['used_by'] ? (int) $row['used_by'] : null,
@@ -90,7 +95,8 @@ try {
             'used_by_email' => $row['used_by_email'] ?: null,
             'used_at' => $row['used_at'] ?: null,
             'created_at' => $row['created_at'],
-            'status' => $row['used_by'] ? 'used' : 'active'
+            'status' => $status,
+            'usage_count' => $usageCount
         ];
     }
 

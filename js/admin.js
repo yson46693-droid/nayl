@@ -1078,16 +1078,20 @@ async function loadDiscountCodes() {
             list.forEach(function (d) {
                 const row = document.createElement('tr');
                 row.setAttribute('data-discount-id', d.id);
+                const isGlobal = !d.assigned_to_user_id;
                 const statusBadge = d.status === 'used' ? '<span class="badge badge-pending">مُستخدم</span>' : '<span class="badge badge-active">نشط</span>';
                 const assignedToDisplay = (d.assigned_to_name || d.assigned_to_email) ? escapeHtml(d.assigned_to_name || d.assigned_to_email) + (d.assigned_to_email && d.assigned_to_name ? ' (' + escapeHtml(d.assigned_to_email) + ')' : '') : DISCOUNT_PICKER_DEFAULT_LABEL;
                 const assignedTo = d.assigned_to_user_id
                     ? '<span class="discount-user-detail-link" data-user-id="' + d.assigned_to_user_id + '" onclick="showViewDiscountCodeUserModalFromEvent(event)" title="عرض التفاصيل">' + assignedToDisplay + '</span>'
                     : escapeHtml(assignedToDisplay);
-                const usedByDisplay = d.used_by_name ? escapeHtml(d.used_by_name) + (d.used_by_email ? ' (' + escapeHtml(d.used_by_email) + ')' : '') : '—';
+                const usageCount = (d.usage_count != null && d.usage_count !== undefined) ? parseInt(d.usage_count, 10) : 0;
+                const usedByDisplay = isGlobal
+                    ? (usageCount > 0 ? usageCount + ' مستخدم' : 'لم يُستخدم بعد')
+                    : (d.used_by_name ? escapeHtml(d.used_by_name) + (d.used_by_email ? ' (' + escapeHtml(d.used_by_email) + ')' : '') : '—');
                 const usedAtAttr = (d.used_at || '').replace(/"/g, '&quot;');
-                const usedBy = d.used_by
+                const usedBy = !isGlobal && d.used_by
                     ? '<span class="discount-user-detail-link" data-user-id="' + d.used_by + '" data-used-at="' + usedAtAttr + '" onclick="showViewDiscountCodeUserModalFromEvent(event)" title="عرض التفاصيل">' + usedByDisplay + '</span>'
-                    : usedByDisplay;
+                    : escapeHtml(usedByDisplay);
                 const usedAt = d.used_at ? d.used_at : '—';
                 const canEdit = d.status !== 'used';
                 const editBtn = canEdit ? '<button class="action-btn btn-edit" title="تعديل" onclick="editDiscountCode(' + d.id + ')"><i class="bi bi-pencil-fill"></i></button>' : '';

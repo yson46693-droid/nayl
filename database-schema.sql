@@ -491,6 +491,20 @@ CREATE TABLE IF NOT EXISTS discount_codes (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci 
 COMMENT='أكواد الخصم - استخدام واحد لكل كود، ويمكن تخصيص كود لمستخدم محدد';
 
+-- تتبع استخدام أكواد الخصم العامة (assigned_to_user_id = NULL): كل مستخدم يستخدم مرة واحدة
+CREATE TABLE IF NOT EXISTS discount_code_usages (
+    id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+    discount_code_id INT UNSIGNED NOT NULL,
+    user_id INT UNSIGNED NOT NULL,
+    used_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    UNIQUE KEY unique_usage (discount_code_id, user_id),
+    FOREIGN KEY (discount_code_id) REFERENCES discount_codes(id) ON DELETE CASCADE,
+    FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+    INDEX idx_discount_code_id (discount_code_id),
+    INDEX idx_user_id (user_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci
+COMMENT='استخدامات أكواد الخصم العامة (كل مستخدم مرة واحدة لكل كود)';
+
 -- جدول اشتراكات المستخدمين في الكورسات
 CREATE TABLE IF NOT EXISTS user_course_subscriptions (
     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
@@ -552,4 +566,17 @@ CREATE TABLE IF NOT EXISTS user_course_subscriptions (
 -- ALTER TABLE discount_codes ADD COLUMN assigned_to_user_id INT UNSIGNED NULL COMMENT 'معرف المستخدم المخصص له الكود (NULL = أي مستخدم)' AFTER course_id;
 -- ALTER TABLE discount_codes ADD FOREIGN KEY (assigned_to_user_id) REFERENCES users(id) ON DELETE SET NULL;
 -- CREATE INDEX idx_assigned_to_user_id ON discount_codes (assigned_to_user_id);
+--
+-- جدول تتبع استخدام أكواد الخصم العامة (شغّل مرة واحدة إذا لم يكن الجدول موجوداً):
+-- CREATE TABLE IF NOT EXISTS discount_code_usages (
+--     id INT UNSIGNED AUTO_INCREMENT PRIMARY KEY,
+--     discount_code_id INT UNSIGNED NOT NULL,
+--     user_id INT UNSIGNED NOT NULL,
+--     used_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+--     UNIQUE KEY unique_usage (discount_code_id, user_id),
+--     FOREIGN KEY (discount_code_id) REFERENCES discount_codes(id) ON DELETE CASCADE,
+--     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE,
+--     INDEX idx_discount_code_id (discount_code_id),
+--     INDEX idx_user_id (user_id)
+-- ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 

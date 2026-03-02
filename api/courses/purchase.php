@@ -68,18 +68,35 @@ try {
     $discountAmount = 0.0;
     $discountCodeId = null;
 
+    $discountCodeId = null;
+    $discountIsGlobal = false;
     if ($discountCodeInput !== '') {
         $discountStmt = $pdo->prepare("
-            SELECT id, discount_amount
+            SELECT id, discount_amount, assigned_to_user_id, used_by
             FROM discount_codes
-            WHERE code = :code AND course_id = :course_id AND used_by IS NULL
-            AND (assigned_to_user_id IS NULL OR assigned_to_user_id = :user_id)
+            WHERE code = :code AND course_id = :course_id
             LIMIT 1
         ");
-        $discountStmt->execute(['code' => $discountCodeInput, 'course_id' => $courseId, 'user_id' => $userId]);
+        $discountStmt->execute(['code' => $discountCodeInput, 'course_id' => $courseId]);
         $discountRow = $discountStmt->fetch(PDO::FETCH_ASSOC);
         if (!$discountRow) {
-            sendJsonResponse(false, null, 'كود الخصم غير صحيح أو مستخدم أو غير مرتبط بهذا الكورس أو مخصص لمستخدم آخر', 400);
+            sendJsonResponse(false, null, 'كود الخصم غير صحيح أو غير مرتبط بهذا الكورس', 400);
+        }
+        $assignedTo = isset($discountRow['assigned_to_user_id']) && $discountRow['assigned_to_user_id'] !== '' ? (int) $discountRow['assigned_to_user_id'] : null;
+        if ($assignedTo !== null && $assignedTo > 0) {
+            if ($assignedTo !== $userId) {
+                sendJsonResponse(false, null, 'كود الخصم مخصص لمستخدم آخر', 400);
+            }
+            if ($discountRow['used_by'] !== null && (int) $discountRow['used_by'] > 0) {
+                sendJsonResponse(false, null, 'كود الخصم مستخدم من قبل', 400);
+            }
+        } else {
+            $usageStmt = $pdo->prepare("SELECT 1 FROM discount_code_usages WHERE discount_code_id = :dcid AND user_id = :uid LIMIT 1");
+            $usageStmt->execute(['dcid' => (int) $discountRow['id'], 'uid' => $userId]);
+            if ($usageStmt->fetch()) {
+                sendJsonResponse(false, null, 'لقد استخدمت هذا الكود من قبل', 400);
+            }
+            $discountIsGlobal = true;
         }
         $discountAmount = (float) $discountRow['discount_amount'];
         $discountCodeId = (int) $discountRow['id'];
@@ -196,14 +213,22 @@ try {
             'bal_after' => $balanceAfter
         ]);
 
-        // تعليم كود الخصم كمُستخدم (مرة واحدة لمستخدم واحد)
+        // تسجيل استخدام كود الخصم: مخصص → تحديث used_by؛ عام → إدراج في discount_code_usages
         if ($discountCodeId !== null) {
-            $markUsedStmt = $pdo->prepare("
-                UPDATE discount_codes SET used_by = :user_id, used_at = NOW() WHERE id = :id AND used_by IS NULL
-            ");
-            $markUsedStmt->execute(['user_id' => $userId, 'id' => $discountCodeId]);
-            if ($markUsedStmt->rowCount() === 0) {
-                throw new Exception('كود الخصم تم استخدامه من قبل مستخدم آخر');
+            if ($discountIsGlobal) {
+                $usageInsert = $pdo->prepare("INSERT INTO discount_code_usages (discount_code_id, user_id) VALUES (:dcid, :uid)");
+                $usageInsert->execute(['dcid' => $discountCodeId, 'uid' => $userId]);
+                if ($usageInsert->rowCount() === 0) {
+                    throw new Exception('لقد استخدمت هذا الكود من قبل');
+                }
+            } else {
+                $markUsedStmt = $pdo->prepare("
+                    UPDATE discount_codes SET used_by = :user_id, used_at = NOW() WHERE id = :id AND used_by IS NULL
+                ");
+                $markUsedStmt->execute(['user_id' => $userId, 'id' => $discountCodeId]);
+                if ($markUsedStmt->rowCount() === 0) {
+                    throw new Exception('كود الخصم تم استخدامه من قبل مستخدم آخر');
+                }
             }
         }
 

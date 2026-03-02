@@ -59,25 +59,39 @@ try {
     $coursePrice = (float) $course['price'];
 
     $discountStmt = $pdo->prepare("
-        SELECT id, discount_amount, assigned_to_user_id
+        SELECT id, discount_amount, assigned_to_user_id, used_by
         FROM discount_codes
-        WHERE code = :code AND course_id = :course_id AND used_by IS NULL
+        WHERE code = :code AND course_id = :course_id
         LIMIT 1
     ");
     $discountStmt->execute(['code' => $code, 'course_id' => $courseId]);
     $discount = $discountStmt->fetch(PDO::FETCH_ASSOC);
 
     if (!$discount) {
-        sendJsonResponse(false, null, 'كود الخصم غير صحيح أو مستخدم أو غير مرتبط بهذا الكورس', 400);
+        sendJsonResponse(false, null, 'كود الخصم غير صحيح أو غير مرتبط بهذا الكورس', 400);
     }
 
-    $assignedToUserId = isset($discount['assigned_to_user_id']) ? (int) $discount['assigned_to_user_id'] : null;
+    $assignedToUserId = isset($discount['assigned_to_user_id']) && $discount['assigned_to_user_id'] !== '' ? (int) $discount['assigned_to_user_id'] : null;
+    $discountId = (int) $discount['id'];
+
     if ($assignedToUserId !== null && $assignedToUserId > 0) {
         if ($currentUserId === null) {
             sendJsonResponse(false, null, 'يجب تسجيل الدخول لاستخدام هذا الكود', 401);
         }
         if ($currentUserId !== $assignedToUserId) {
             sendJsonResponse(false, null, 'هذا الكود مخصص لمستخدم آخر', 403);
+        }
+        if ($discount['used_by'] !== null && (int) $discount['used_by'] > 0) {
+            sendJsonResponse(false, null, 'كود الخصم غير صحيح أو مستخدم أو غير مرتبط بهذا الكورس', 400);
+        }
+    } else {
+        if ($currentUserId === null) {
+            sendJsonResponse(false, null, 'يجب تسجيل الدخول لاستخدام هذا الكود', 401);
+        }
+        $usageCheck = $pdo->prepare("SELECT 1 FROM discount_code_usages WHERE discount_code_id = :dcid AND user_id = :uid LIMIT 1");
+        $usageCheck->execute(['dcid' => $discountId, 'uid' => $currentUserId]);
+        if ($usageCheck->fetch()) {
+            sendJsonResponse(false, null, 'لقد استخدمت هذا الكود من قبل', 400);
         }
     }
 
