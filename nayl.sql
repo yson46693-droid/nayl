@@ -162,8 +162,6 @@ CREATE TABLE `courses` (
   `price` decimal(10,2) NOT NULL DEFAULT 500.00 COMMENT 'سعر الكورس بالجنية',
   `status` enum('draft','published','archived') DEFAULT 'draft' COMMENT 'الحالة',
   `created_by` int(10) UNSIGNED DEFAULT NULL COMMENT 'معرف المشرف الذي أنشأ الكورس',
-  `bunny_library_id` int(10) UNSIGNED DEFAULT NULL COMMENT 'معرف مكتبة Bunny CDN الخاصة بهذا الكورس',
-  `bunny_library_api_key` varchar(255) DEFAULT NULL COMMENT 'مفتاح API لمكتبة Bunny CDN الخاصة بهذا الكورس',
   `created_at` timestamp NOT NULL DEFAULT current_timestamp(),
   `updated_at` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci COMMENT='الكورسات';
@@ -172,8 +170,8 @@ CREATE TABLE `courses` (
 -- Dumping data for table `courses`
 --
 
-INSERT INTO `courses` (`id`, `title`, `description`, `cover_image_url`, `price`, `status`, `created_by`, `bunny_library_id`, `bunny_library_api_key`, `created_at`, `updated_at`) VALUES
-(17, 'الكورس التاني', 'احسن كورس صيانه', '/uploads/covers/course_17_698503f33affe.jpg', 5000.00, 'published', 1, 593559, 'f8f3cf9d-6182-4918-b4f66fc1f361-a4d9-4bbd', '2026-02-05 20:56:18', '2026-02-05 20:56:19');
+INSERT INTO `courses` (`id`, `title`, `description`, `cover_image_url`, `price`, `status`, `created_by`, `created_at`, `updated_at`) VALUES
+(17, 'الكورس التاني', 'احسن كورس صيانه', '/uploads/covers/course_17_698503f33affe.jpg', 5000.00, 'published', 1, '2026-02-05 20:56:18', '2026-02-05 20:56:19');
 
 -- --------------------------------------------------------
 

@@ -205,27 +205,14 @@ try {
         
         $courseId = $pdo->lastInsertId();
         
-        // 2. إنشاء مكتبة Bunny CDN جديدة لهذا الكورس (اسمها: رقم الكورس + ترتيب الكورس)
-        $libraryName = $courseId . ' ترتيب الكورس';
-        $bunnyLibrary = createBunnyLibrary($libraryName);
-        if (isset($bunnyLibrary['error']) || empty($bunnyLibrary['Id']) || empty($bunnyLibrary['ApiKey'])) {
-            $libError = $bunnyLibrary['error'] ?? 'لم يتم إرجاع معرف المكتبة أو المفتاح';
-            error_log("Failed to create Bunny library for course {$courseId}: " . $libError);
-            throw new Exception('فشل إنشاء مكتبة الفيديوهات في Bunny CDN: ' . $libError);
+        $courseLibraryId = defined('BUNNY_LIBRARY_ID') ? (int) BUNNY_LIBRARY_ID : 0;
+        if ($courseLibraryId <= 0) {
+            $courseLibraryId = 602302;
         }
-        $courseLibraryId = (int) $bunnyLibrary['Id'];
-        $courseLibraryApiKey = $bunnyLibrary['ApiKey'];
-        
-        $updateCourseStmt = $pdo->prepare("
-            UPDATE courses
-            SET bunny_library_id = :lib_id, bunny_library_api_key = :lib_key
-            WHERE id = :course_id
-        ");
-        $updateCourseStmt->execute([
-            'lib_id' => $courseLibraryId,
-            'lib_key' => $courseLibraryApiKey,
-            'course_id' => $courseId
-        ]);
+        $courseLibraryApiKey = defined('BUNNY_API_KEY') ? (string) BUNNY_API_KEY : '';
+        if ($courseLibraryApiKey === '') {
+            throw new Exception('مفتاح Bunny API مفقود. أضف BUNNY_API_KEY في ملف .env');
+        }
 
         // حفظ صورة واجهة الكورس (البطاقة) إن وُجدت
         if (!empty($courseCoverFileBase64)) {

@@ -409,8 +409,6 @@ CREATE TABLE IF NOT EXISTS courses (
     price DECIMAL(10, 2) NOT NULL DEFAULT 500.00 COMMENT 'سعر الكورس بالجنية',
     status ENUM('draft', 'published', 'archived') DEFAULT 'draft' COMMENT 'الحالة',
     created_by INT UNSIGNED NULL COMMENT 'معرف المشرف الذي أنشأ الكورس',
-    bunny_library_id INT UNSIGNED NULL COMMENT 'معرف مكتبة Bunny CDN الخاصة بهذا الكورس',
-    bunny_library_api_key VARCHAR(255) NULL COMMENT 'مفتاح API لمكتبة Bunny CDN الخاصة بهذا الكورس',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     
