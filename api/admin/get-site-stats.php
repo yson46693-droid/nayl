@@ -58,15 +58,22 @@ try {
     $stmt = $pdo->query("SELECT COUNT(*) FROM site_visits");
     $visitorCount = $stmt->fetchColumn();
 
-    // إجمالي المبالغ المرسلة للمستخدمين من خلال الموافقة على طلبات الشحن خلال الشهر الحالي
+    // إجمالي مبالغ الشحن (المبالغ الفعلية المضافة للمحافظ من طلبات الشحن المعتمدة) خلال الشهر الحالي
+    // نعتمد على wallet_transactions لأنها تسجل المبلغ المضاف فعلياً عند الموافقة
+    $firstDayOfMonth = date('Y-m-01 00:00:00');
+    $firstDayNextMonth = date('Y-m-d 00:00:00', strtotime('+1 month', strtotime($firstDayOfMonth)));
     $monthlyRechargeStmt = $pdo->prepare("
         SELECT COALESCE(SUM(amount), 0) AS total
-        FROM recharge_requests
-        WHERE status = 'approved'
-          AND COALESCE(processed_at, updated_at) >= DATE_FORMAT(CURRENT_DATE, '%Y-%m-01 00:00:00')
-          AND COALESCE(processed_at, updated_at) < DATE_ADD(DATE_FORMAT(CURRENT_DATE, '%Y-%m-01'), INTERVAL 1 MONTH)
+        FROM wallet_transactions
+        WHERE reference_type = 'recharge'
+          AND type = 'credit'
+          AND created_at >= :start_month
+          AND created_at < :end_month
     ");
-    $monthlyRechargeStmt->execute();
+    $monthlyRechargeStmt->execute([
+        ':start_month' => $firstDayOfMonth,
+        ':end_month'  => $firstDayNextMonth
+    ]);
     $monthlyRechargeTotal = (float) $monthlyRechargeStmt->fetch(PDO::FETCH_ASSOC)['total'];
     
     sendJsonResponse(true, [
