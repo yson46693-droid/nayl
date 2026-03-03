@@ -326,6 +326,27 @@ function getBunnySignedEmbedUrl($videoId) {
 }
 
 /**
+ * توليد رابط HLS الموقّع للفيديو (للمشغل المدمج مع العلامة المائية)
+ * يستخدم نفس آلية Token الخاصة بالـ embed.
+ * @param string $videoId - معرف الفيديو (GUID) في Bunny CDN
+ * @param int|string|null $libraryId - معرف مكتبة الكورس (إن وُجد)، وإلا يُستخدم BUNNY_LIBRARY_ID
+ * @return string|null - رابط playlist.m3u8 الموقّع أو null
+ */
+function getBunnySignedHlsUrl($videoId, $libraryId = null) {
+    $tokenKey = defined('BUNNY_TOKEN_KEY') ? (string) BUNNY_TOKEN_KEY : '';
+    if ($tokenKey === '' || trim($videoId) === '') {
+        return null;
+    }
+    $baseUrl = getBunnyVideoUrl($videoId, $libraryId);
+    if ($baseUrl === null || $baseUrl === '') {
+        return null;
+    }
+    $expires = (string) (time() + 7200);
+    $token = hash('sha256', $tokenKey . $videoId . $expires);
+    return rtrim($baseUrl, '/') . '/playlist.m3u8?token=' . $token . '&expires=' . $expires;
+}
+
+/**
  * بناء رابط الفيديو للعرض (Pull Zone URL)
  * @param string $videoId - معرف الفيديو في Bunny CDN
  * @param int|null $libraryId - معرف المكتبة (إن وُجد نستخدمه لبناء الرابط)

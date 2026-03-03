@@ -91,15 +91,15 @@ try {
         }
     }
 
-    // جلب تفاصيل الكورس
+    // جلب تفاصيل الكورس (بما فيها bunny_library_id لبناء روابط HLS)
     $courseStmt = $pdo->prepare("
-        SELECT c.id, c.title, c.description, c.cover_image_url,
+        SELECT c.id, c.title, c.description, c.cover_image_url, c.bunny_library_id,
                COUNT(cv.id) AS videos_count,
                COALESCE(SUM(cv.duration), 0) AS total_duration_seconds
         FROM courses c
         LEFT JOIN course_videos cv ON cv.course_id = c.id AND cv.status = 'ready'
         WHERE c.id = :id AND c.status = 'published'
-        GROUP BY c.id, c.title, c.description, c.cover_image_url
+        GROUP BY c.id, c.title, c.description, c.cover_image_url, c.bunny_library_id
     ");
     $courseStmt->execute(['id' => $courseId]);
     $courseRow = $courseStmt->fetch(PDO::FETCH_ASSOC);
@@ -108,9 +108,9 @@ try {
         sendJsonResponse(false, null, 'الكورس غير موجود أو غير متاح', 404);
     }
 
-    // جلب قائمة الفيديوهات (مع video_url لعرض Bunny iframe)
+    // جلب قائمة الفيديوهات (video_url للـ embed، hls_url للمشغل المدمج + علامة مائية)
     $videosStmt = $pdo->prepare("
-        SELECT id, title, description, video_order, duration, thumbnail_url, video_url
+        SELECT id, title, description, video_order, duration, thumbnail_url, video_url, bunny_video_id
         FROM course_videos
         WHERE course_id = :course_id AND status = 'ready'
         ORDER BY video_order ASC, id ASC
@@ -118,14 +118,21 @@ try {
     $videosStmt->execute(['course_id' => $courseId]);
     $videoRows = $videosStmt->fetchAll(PDO::FETCH_ASSOC);
 
+    $courseLibraryId = isset($courseRow['bunny_library_id']) ? $courseRow['bunny_library_id'] : null;
+
     $videos = [];
     foreach ($videoRows as $v) {
         $videoUrl = null;
+        $hlsUrl = null;
+        $bunnyVideoId = !empty($v['bunny_video_id']) ? trim($v['bunny_video_id']) : null;
         if (!empty($v['video_url'])) {
             $path = parse_url($v['video_url'], PHP_URL_PATH);
-            $videoId = $path !== null && $path !== '' ? basename($path) : '';
+            $videoId = $path !== null && $path !== '' ? basename($path) : ($bunnyVideoId ?: '');
             $signedUrl = $videoId !== '' ? getBunnySignedEmbedUrl($videoId) : null;
             $videoUrl = $signedUrl !== null ? $signedUrl : $v['video_url'];
+        }
+        if ($bunnyVideoId !== null && $bunnyVideoId !== '') {
+            $hlsUrl = getBunnySignedHlsUrl($bunnyVideoId, $courseLibraryId);
         }
         $videos[] = [
             'id' => (int) $v['id'],
@@ -134,7 +141,8 @@ try {
             'order' => (int) $v['video_order'],
             'duration' => (int) ($v['duration'] ?? 0),
             'thumbnail_url' => !empty($v['thumbnail_url']) ? $v['thumbnail_url'] : null,
-            'video_url' => $videoUrl
+            'video_url' => $videoUrl,
+            'hls_url' => $hlsUrl
         ];
     }
 

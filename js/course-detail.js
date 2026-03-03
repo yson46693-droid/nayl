@@ -256,16 +256,87 @@
         }
     }
 
+    var currentHlsInstance = null;
+    var watermarkIntervalId = null;
+
+    function getUserIdForWatermark() {
+        try {
+            var userDataStr = localStorage.getItem('userData') || sessionStorage.getItem('userData');
+            if (userDataStr) {
+                var user = JSON.parse(userDataStr);
+                return user.id || user.user_id || '';
+            }
+        } catch (e) { /* ignore */ }
+        return '';
+    }
+
+    function moveWatermark() {
+        var watermark = document.getElementById('course-video-watermark');
+        var container = document.getElementById('course-video-container');
+        if (!watermark || !container) return;
+        var maxX = container.offsetWidth - watermark.offsetWidth;
+        var maxY = container.offsetHeight - watermark.offsetHeight;
+        if (maxX < 0) maxX = 0;
+        if (maxY < 0) maxY = 0;
+        var randomX = Math.floor(Math.random() * (maxX + 1));
+        var randomY = Math.floor(Math.random() * (maxY + 1));
+        watermark.style.left = randomX + 'px';
+        watermark.style.top = randomY + 'px';
+    }
+
     function renderVideoPlayer(videoId, title) {
         if (!videoSectionEl) return;
+        if (watermarkIntervalId) {
+            clearInterval(watermarkIntervalId);
+            watermarkIntervalId = null;
+        }
+        if (currentHlsInstance) {
+            try { currentHlsInstance.destroy(); } catch (e) { /* ignore */ }
+            currentHlsInstance = null;
+        }
+
         var course = window.__courseDetailData;
         var video = course && course.videos ? course.videos.find(function (v) { return v.id === videoId; }) : null;
         var videoUrl = (video && video.video_url) ? video.video_url : '';
-        videoSectionEl.innerHTML =
-            '<div class="video-player-wrapper">' +
-            '<iframe id="course-video-player" class="course-video-player" src="' + escapeHtml(videoUrl) + '" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy">' +
-            '</iframe>' +
-            '</div>';
+        var hlsUrl = (video && video.hls_url) ? video.hls_url : '';
+        var userId = getUserIdForWatermark();
+
+        if (hlsUrl) {
+            videoSectionEl.innerHTML =
+                '<div class="video-player-wrapper">' +
+                '<div id="course-video-container" class="course-video-container">' +
+                '<video id="course-video-player" class="course-video-player" controls playsinline>' +
+                '<source src="' + escapeHtml(hlsUrl) + '" type="application/x-mpegURL">' +
+                '</video>' +
+                '<div id="course-video-watermark" class="course-video-watermark" aria-hidden="true">' + escapeHtml(String(userId)) + '</div>' +
+                '</div>' +
+                '</div>';
+
+            var videoEl = document.getElementById('course-video-player');
+            var src = hlsUrl;
+
+            if (videoEl && src) {
+                if (typeof Hls !== 'undefined' && Hls.isSupported()) {
+                    currentHlsInstance = new Hls({ enableWorker: true });
+                    currentHlsInstance.loadSource(src);
+                    currentHlsInstance.attachMedia(videoEl);
+                } else if (videoEl.canPlayType && videoEl.canPlayType('application/vnd.apple.mpegurl')) {
+                    videoEl.src = src;
+                } else {
+                    var source = videoEl.querySelector('source');
+                    if (source) source.src = src;
+                }
+            }
+
+            moveWatermark();
+            watermarkIntervalId = setInterval(moveWatermark, 3000);
+        } else {
+            videoSectionEl.innerHTML =
+                '<div class="video-player-wrapper">' +
+                '<iframe id="course-video-player" class="course-video-player" src="' + escapeHtml(videoUrl) + '" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy">' +
+                '</iframe>' +
+                '</div>';
+        }
     }
 
     function playVideo(videoId) {
