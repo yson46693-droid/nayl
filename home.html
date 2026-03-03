@@ -212,6 +212,7 @@
                 style="font-size: 1.5rem; color: #2196f3"
               ></i>
               <div
+                id="stat-courses-count-hero"
                 style="
                   font-size: 1.5rem;
                   font-weight: 800;
@@ -219,7 +220,7 @@
                   margin: 5px 0;
                 "
               >
-                50+
+                —
               </div>
               <div style="font-size: 0.8rem; color: #64748b">دورة تدريبية</div>
             </div>
@@ -656,57 +657,17 @@
                 ></i>
               </div>
               <div
+                id="stat-courses-count"
                 class="stat-number"
                 style="font-size: 2.5rem; font-weight: 800; color: white"
               >
-                50+
+                —
               </div>
               <div
                 class="stat-label"
                 style="color: rgba(255, 255, 255, 0.8); font-size: 1rem"
               >
                 دورة تدريبية
-              </div>
-            </div>
-            <div
-              class="stat-card"
-              style="
-                background: rgba(255, 255, 255, 0.1);
-                backdrop-filter: blur(10px);
-                border: 1px solid rgba(255, 255, 255, 0.2);
-                border-radius: 16px;
-                padding: 30px;
-                text-align: center;
-              "
-            >
-              <div
-                style="
-                  width: 60px;
-                  height: 60px;
-                  background: rgba(255, 255, 255, 0.2);
-                  border-radius: 50%;
-                  display: flex;
-                  align-items: center;
-                  justify-content: center;
-                  margin: 0 auto 15px;
-                "
-              >
-                <i
-                  class="bi bi-clock-fill"
-                  style="font-size: 1.8rem; color: white"
-                ></i>
-              </div>
-              <div
-                class="stat-number"
-                style="font-size: 2.5rem; font-weight: 800; color: white"
-              >
-                100+
-              </div>
-              <div
-                class="stat-label"
-                style="color: rgba(255, 255, 255, 0.8); font-size: 1rem"
-              >
-                ساعة محتوى
               </div>
             </div>
             <div
@@ -964,5 +925,24 @@
     <script src="js/deviceFingerprint.js"></script>
     <script src="js/tracking.js"></script>
     <script src="js/main.js"></script>
+    <script>
+      (function () {
+        var el = document.getElementById("stat-courses-count");
+        var elHero = document.getElementById("stat-courses-count-hero");
+        var setCount = function (text) {
+          if (el) el.textContent = text;
+          if (elHero) elHero.textContent = text;
+        };
+        fetch("api/courses/list.php", { credentials: "same-origin" })
+          .then(function (res) { return res.json(); })
+          .then(function (data) {
+            if (data && data.success && data.data && Array.isArray(data.data.courses)) {
+              var count = data.data.courses.length;
+              setCount(count >= 50 ? count + "+" : String(count));
+            }
+          })
+          .catch(function () { setCount("—"); });
+      })();
+    </script>
   </body>
 </html>
