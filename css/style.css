@@ -718,8 +718,10 @@ body::-webkit-scrollbar-thumb:hover {
 
 .stats-grid {
     display: grid;
-    grid-template-columns: repeat(4, 1fr);
+    grid-template-columns: repeat(3, 1fr);
     gap: var(--spacing-lg);
+    max-width: 960px;
+    margin: 0 auto;
 }
 
 .stat-card {
@@ -729,6 +731,7 @@ body::-webkit-scrollbar-thumb:hover {
     border-radius: var(--radius-lg);
     backdrop-filter: blur(10px);
     transition: all 0.3s ease;
+    min-width: 0;
 }
 
 .stat-card:hover {
@@ -3086,6 +3089,8 @@ body::-webkit-scrollbar-thumb:hover {
 
     .stats-grid {
         grid-template-columns: repeat(2, 1fr);
+        max-width: none;
+        gap: var(--spacing-md);
     }
 
     .footer-content {
@@ -3215,6 +3220,11 @@ body::-webkit-scrollbar-thumb:hover {
     .stats-grid {
         grid-template-columns: 1fr;
         gap: var(--spacing-md);
+        max-width: none;
+    }
+
+    .stat-card {
+        padding: var(--spacing-md);
     }
 
     .stat-number {

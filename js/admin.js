@@ -791,6 +791,74 @@ function formatDeviceLastSeen(dateStr) {
     return d.toLocaleDateString('ar-EG', { year: 'numeric', month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
 }
 
+// أجهزة: تخزين البيانات والترقيم
+let adminDevicesData = [];
+let currentDevicesPage = 1;
+const devicesPerPage = 10;
+
+function changeDevicesPage(page) {
+    const totalPages = Math.max(1, Math.ceil(adminDevicesData.length / devicesPerPage));
+    const p = Math.max(1, Math.min(page, totalPages));
+    renderDevices(p);
+}
+
+function renderDevices(page) {
+    const tbody = document.getElementById('devicesTableBody');
+    const pagination = document.getElementById('devicesPagination');
+    if (!tbody) return;
+
+    const devices = adminDevicesData.slice();
+    const totalPages = Math.max(1, Math.ceil(devices.length / devicesPerPage));
+    const startIndex = (page - 1) * devicesPerPage;
+    const endIndex = startIndex + devicesPerPage;
+    const pageDevices = devices.slice(startIndex, endIndex);
+
+    if (devices.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 2rem; color: var(--text-gray);">لا توجد أجهزة مسجّلة بعد.</td></tr>';
+        if (pagination) pagination.innerHTML = '';
+        return;
+    }
+
+    tbody.innerHTML = pageDevices.map((d, i) => {
+        const globalIndex = startIndex + i + 1;
+        const fullId = (d.v_id && String(d.v_id).trim()) ? d.v_id : '—';
+        const copyTitle = fullId !== '—' ? ' انقر للنسخ' : '';
+        return '<tr>' +
+            '<td>' + globalIndex + '</td>' +
+            '<td>' + escapeHtml(d.device_type) + '</td>' +
+            '<td class="device-vid-cell" title="' + escapeHtml(fullId) + copyTitle + '"><code class="device-vid-code">' + escapeHtml(fullId) + '</code></td>' +
+            '<td>' + (d.visit_count || 0) + '</td>' +
+            '<td>' + formatDeviceLastSeen(d.last_visit_at) + '</td>' +
+            '</tr>';
+    }).join('');
+
+    tbody.querySelectorAll('.device-vid-cell').forEach(function (cell) {
+        cell.style.cursor = 'pointer';
+        cell.addEventListener('click', function () {
+            const code = cell.querySelector('.device-vid-code');
+            const text = code ? code.textContent : '';
+            if (text && text !== '—') {
+                navigator.clipboard.writeText(text).then(function () {
+                    if (typeof cell._copyToast === 'undefined') {
+                        cell._copyToast = true;
+                        const msg = document.createElement('span');
+                        msg.textContent = 'تم النسخ';
+                        msg.style.cssText = 'position:absolute;background:#4CAF50;color:#fff;padding:2px 8px;border-radius:4px;font-size:0.75rem;';
+                        cell.style.position = 'relative';
+                        cell.appendChild(msg);
+                        setTimeout(function () { msg.remove(); cell._copyToast = false; }, 1500);
+                    }
+                }).catch(function () {});
+            }
+        });
+    });
+
+    if (pagination) {
+        renderPaginationGeneric(pagination, page, totalPages, devices.length, devicesPerPage, 'changeDevicesPage');
+        currentDevicesPage = page;
+    }
+}
+
 async function loadDevices() {
     const tbody = document.getElementById('devicesTableBody');
     if (!tbody) return;
@@ -810,53 +878,28 @@ async function loadDevices() {
             result = await response.json();
         } catch (_) {
             tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 2rem; color: red;">استجابة غير صالحة من الخادم (تحقق من مسار API).</td></tr>';
+            adminDevicesData = [];
+            const paginationEl = document.getElementById('devicesPagination');
+            if (paginationEl) paginationEl.innerHTML = '';
             return;
         }
         if (!response.ok) {
             const errMsg = (result && result.error) ? result.error : ('خطأ ' + response.status);
             tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 2rem; color: red;">' + escapeHtml(errMsg) + '</td></tr>';
+            adminDevicesData = [];
+            const pagination = document.getElementById('devicesPagination');
+            if (pagination) pagination.innerHTML = '';
             return;
         }
         const devices = (result && result.data && Array.isArray(result.data.devices)) ? result.data.devices : [];
-        if (devices.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 2rem; color: var(--text-gray);">لا توجد أجهزة مسجّلة بعد.</td></tr>';
-            return;
-        }
-        tbody.innerHTML = devices.map((d, i) => {
-            const fullId = (d.v_id && String(d.v_id).trim()) ? d.v_id : '—';
-            const copyTitle = fullId !== '—' ? ' انقر للنسخ' : '';
-            return '<tr>' +
-                '<td>' + (i + 1) + '</td>' +
-                '<td>' + escapeHtml(d.device_type) + '</td>' +
-                '<td class="device-vid-cell" title="' + escapeHtml(fullId) + copyTitle + '"><code class="device-vid-code">' + escapeHtml(fullId) + '</code></td>' +
-                '<td>' + (d.visit_count || 0) + '</td>' +
-                '<td>' + formatDeviceLastSeen(d.last_visit_at) + '</td>' +
-                '</tr>';
-        }).join('');
-        // نسخ معرف الجهاز عند النقر على الخلية
-        tbody.querySelectorAll('.device-vid-cell').forEach(function (cell) {
-            cell.style.cursor = 'pointer';
-            cell.addEventListener('click', function () {
-                const code = cell.querySelector('.device-vid-code');
-                const text = code ? code.textContent : '';
-                if (text && text !== '—') {
-                    navigator.clipboard.writeText(text).then(function () {
-                        if (typeof cell._copyToast === 'undefined') {
-                            cell._copyToast = true;
-                            const msg = document.createElement('span');
-                            msg.textContent = 'تم النسخ';
-                            msg.style.cssText = 'position:absolute;background:#4CAF50;color:#fff;padding:2px 8px;border-radius:4px;font-size:0.75rem;';
-                            cell.style.position = 'relative';
-                            cell.appendChild(msg);
-                            setTimeout(function () { msg.remove(); cell._copyToast = false; }, 1500);
-                        }
-                    }).catch(function () {});
-                }
-            });
-        });
+        adminDevicesData = devices;
+        renderDevices(1);
     } catch (err) {
         console.error('Error loading devices:', err);
         tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 2rem; color: red;">خطأ في الاتصال بالخادم. تأكد من تسجيل الدخول ومسار الـ API.</td></tr>';
+        adminDevicesData = [];
+        const pagination = document.getElementById('devicesPagination');
+        if (pagination) pagination.innerHTML = '';
     }
 }
 
