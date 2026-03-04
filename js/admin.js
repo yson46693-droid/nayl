@@ -3365,10 +3365,8 @@ async function editCoursePage(courseId) {
                             <i class="bi bi-pencil-square" style="margin-left: 6px; font-size: 1.1rem;"></i>
                             تعديل الفيديو #${index + 1}
                         </h4>
-                        <button type="button" class="remove-video-btn" onclick="deleteVideoFromCourse(${courseId}, ${video.id})">
-                            <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" style="display: inline-block; vertical-align: middle; margin-left: 4px;">
-                                <path d="M3 6h18m-2 0v14a2 2 0 01-2 2H7a2 2 0 01-2-2V6m3 0V4a2 2 0 012-2h4a2 2 0 012 2v2"/>
-                            </svg>
+                        <button type="button" class="remove-video-btn" onclick="deleteVideoFromCourse(${courseId}, ${video.id})" title="حذف الفيديو">
+                            <i class="bi bi-trash-fill" style="font-size: 1rem; margin-left: 6px;"></i>
                             حذف
                         </button>
                     </div>
@@ -3389,12 +3387,12 @@ async function editCoursePage(courseId) {
                             <div class="admin-form-group video-thumbnail-edit-wrap" style="margin-top: 10px; margin-bottom: 0;">
                                 <label>تعديل صورة الفيديو</label>
                                 <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px;">
-                                    <div class="file-upload-wrapper">
-                                        <input type="file" class="edit-video-thumbnail" data-video-id="${video.id}" accept="image/*">
-                                        <div class="file-upload-label">
+                                    <div class="file-upload-trigger-wrap">
+                                        <input type="file" class="edit-video-thumbnail" data-video-id="${video.id}" accept="image/*" style="position: absolute; width: 0; height: 0; opacity: 0; overflow: hidden;">
+                                        <button type="button" class="btn btn-secondary btn-with-icon file-trigger-btn" onclick="this.closest('.file-upload-trigger-wrap').querySelector('input[type=file]').click()">
                                             <i class="bi bi-image"></i>
                                             <span>اختر صورة جديدة</span>
-                                        </div>
+                                        </button>
                                     </div>
                                     <button type="button" class="btn btn-secondary restore-video-thumb-btn" style="display: none; font-size: 0.85rem;" data-video-id="${video.id}">استعادة الصورة الأصلية</button>
                                 </div>
@@ -3402,12 +3400,12 @@ async function editCoursePage(courseId) {
                         </div>
                         <div class="admin-form-group replace-video-wrap">
                             <label>استبدال ملف الفيديو</label>
-                            <div class="file-upload-wrapper">
-                                <input type="file" class="edit-video-file-replace" data-video-id="${video.id}" accept="video/mp4,video/webm,video/ogg">
-                                <div class="file-upload-label">
+                            <div class="file-upload-trigger-wrap">
+                                <input type="file" class="edit-video-file-replace" data-video-id="${video.id}" accept="video/mp4,video/webm,video/ogg" style="position: absolute; width: 0; height: 0; opacity: 0; overflow: hidden;">
+                                <button type="button" class="btn btn-secondary btn-with-icon file-trigger-btn" onclick="this.closest('.file-upload-trigger-wrap').querySelector('input[type=file]').click()">
                                     <i class="bi bi-film"></i>
                                     <span>اختر ملف فيديو جديد (يستبدل الحالي)</span>
-                                </div>
+                                </button>
                             </div>
                             <p style="color: var(--text-gray); font-size: 0.85rem; margin-top: 6px; margin-bottom: 0;">سيتم رفع الفيديو الجديد عند حفظ التعديلات.</p>
                         </div>

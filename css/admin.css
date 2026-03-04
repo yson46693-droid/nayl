@@ -964,6 +964,17 @@ tr:hover td {
     font-size: 0.9rem;
 }
 
+.file-upload-trigger-wrap {
+    position: relative;
+    display: inline-block;
+}
+
+.file-upload-trigger-wrap .file-trigger-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+}
+
 .course-cell {
     display: flex;
     align-items: center;
@@ -971,6 +982,9 @@ tr:hover td {
 }
 
 .remove-video-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
     background: rgba(255, 77, 77, 0.1);
     color: #ff4d4d;
     border: none;
