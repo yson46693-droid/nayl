@@ -68,10 +68,22 @@ try {
     ");
     $rechargeStmt->execute();
     $monthlyRechargeTotal = (float) $rechargeStmt->fetch(PDO::FETCH_ASSOC)['total'];
+
+    // إجمالي المستخدمين الحالي وعددهم نهاية الشهر الماضي (لحساب نسبة التغيير)
+    $usersStmt = $pdo->query("SELECT COUNT(*) FROM users WHERE deleted_at IS NULL");
+    $totalUsers = (int) $usersStmt->fetchColumn();
+    $usersLastMonthStmt = $pdo->prepare("
+        SELECT COUNT(*) FROM users
+        WHERE deleted_at IS NULL AND created_at < DATE_FORMAT(CURDATE(), '%Y-%m-01')
+    ");
+    $usersLastMonthStmt->execute();
+    $totalUsersLastMonth = (int) $usersLastMonthStmt->fetchColumn();
     
     sendJsonResponse(true, [
         'visitor_count' => (int)$visitorCount,
-        'monthly_sales_total' => $monthlyRechargeTotal
+        'monthly_sales_total' => $monthlyRechargeTotal,
+        'total_users' => $totalUsers,
+        'total_users_last_month' => $totalUsersLastMonth
     ]);
     
 } catch (PDOException $e) {

@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Load Data into Tables
     renderUsers();
-    renderCodes(); // يعرض جدول الأكواد (فارغ حتى يتم استدعاء loadCodes عند فتح التبويب)
+    loadCodes(); // جلب الأكواد فوراً لتحديث "الأكواد النشطة" في الداشبورد وعرض الجدول
 
     // Setup Search
     setupSearch();
@@ -3653,6 +3653,8 @@ function loadSiteVisitorStats() {
     if (!token) return;
 
     const monthlySalesEl = document.getElementById('monthlySalesTotal');
+    const totalUsersEl = document.getElementById('totalUsersCount');
+    const totalUsersTrendEl = document.getElementById('totalUsersTrend');
 
     fetch('../api/admin/get-site-stats.php', {
         headers: {
@@ -3666,6 +3668,33 @@ function loadSiteVisitorStats() {
                 if (monthlySalesEl) {
                     const total = Number(data.data.monthly_sales_total) || 0;
                     monthlySalesEl.textContent = 'EGP ' + total.toLocaleString('en-EG', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+                }
+                // إجمالي المستخدمين ونسبة التغيير من الشهر الماضي
+                if (totalUsersEl && typeof data.data.total_users === 'number') {
+                    totalUsersEl.textContent = data.data.total_users.toLocaleString('ar-EG');
+                }
+                if (totalUsersTrendEl && typeof data.data.total_users === 'number' && typeof data.data.total_users_last_month === 'number') {
+                    const current = data.data.total_users;
+                    const lastMonth = data.data.total_users_last_month;
+                    if (lastMonth === 0) {
+                        totalUsersTrendEl.textContent = current > 0 ? 'جديد هذا الشهر' : '—';
+                        totalUsersTrendEl.classList.remove('down');
+                        totalUsersTrendEl.classList.add('up');
+                    } else {
+                        const percent = Math.round((current - lastMonth) / lastMonth * 100);
+                        if (percent > 0) {
+                            totalUsersTrendEl.textContent = '↑ ' + percent + '% من الشهر الماضي';
+                            totalUsersTrendEl.classList.remove('down');
+                            totalUsersTrendEl.classList.add('up');
+                        } else if (percent < 0) {
+                            totalUsersTrendEl.textContent = '↓ ' + Math.abs(percent) + '% من الشهر الماضي';
+                            totalUsersTrendEl.classList.remove('up');
+                            totalUsersTrendEl.classList.add('down');
+                        } else {
+                            totalUsersTrendEl.textContent = 'بدون تغيير عن الشهر الماضي';
+                            totalUsersTrendEl.classList.remove('up', 'down');
+                        }
+                    }
                 }
             } else {
                 el.textContent = '-';
