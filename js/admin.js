@@ -2808,16 +2808,18 @@ async function saveCourseChanges() {
                 const orderEl = item.querySelector('.edit-video-order');
                 const descEl = item.querySelector('.edit-video-description');
                 const thumbEl = item.querySelector('.edit-video-thumbnail');
+                const replaceVideoEl = item.querySelector('.edit-video-file-replace');
                 const origVideo = course.videos.find(v => v.id === videoId || String(v.id) === String(videoId));
                 if (!origVideo) continue;
                 const newTitle = titleEl ? titleEl.value.trim() : origVideo.title;
                 const newOrder = orderEl ? (parseInt(orderEl.value, 10) || origVideo.order) : origVideo.order;
                 const newDesc = descEl ? descEl.value.trim() : (origVideo.description || '');
                 const hasThumbFile = thumbEl && thumbEl.files && thumbEl.files.length > 0;
+                const hasReplaceVideoFile = replaceVideoEl && replaceVideoEl.files && replaceVideoEl.files.length > 0;
                 const titleChanged = newTitle !== (origVideo.title || '');
                 const orderChanged = Number(newOrder) !== Number(origVideo.order);
                 const descChanged = newDesc !== (origVideo.description || '');
-                if (!titleChanged && !orderChanged && !descChanged && !hasThumbFile) continue;
+                if (!titleChanged && !orderChanged && !descChanged && !hasThumbFile && !hasReplaceVideoFile) continue;
                 let thumbnailBase64 = null;
                 if (hasThumbFile) {
                     try {
@@ -2831,6 +2833,19 @@ async function saveCourseChanges() {
                         showAdminToast('فشل تحميل صورة الفيديو.', 'error');
                     }
                 }
+                let videoBase64 = null;
+                if (hasReplaceVideoFile) {
+                    try {
+                        videoBase64 = await readFileAsBase64(replaceVideoEl.files[0]);
+                        if (!videoBase64 || videoBase64.length < 100) {
+                            showAdminToast('فيديو: فشل قراءة ملف الفيديو. جرّب ملفاً أصغر أو MP4.', 'error');
+                            videoBase64 = null;
+                        }
+                    } catch (e) {
+                        console.error('قراءة ملف الفيديو:', e);
+                        showAdminToast('فيديو: فشل تحميل ملف الفيديو.', 'error');
+                    }
+                }
                 const videoPayload = {
                     video_id: videoId,
                     title: newTitle,
@@ -2838,6 +2853,7 @@ async function saveCourseChanges() {
                     video_order: newOrder
                 };
                 if (thumbnailBase64) videoPayload.thumbnail_base64 = thumbnailBase64;
+                if (videoBase64) videoPayload.video_base64 = videoBase64;
                 const videoRes = await fetch('../api/admin/update-video.php', {
                     method: 'POST',
                     headers: {
@@ -2850,11 +2866,31 @@ async function saveCourseChanges() {
                 const videoResult = await videoRes.json();
                 if (videoResult.success && videoResult.data && videoResult.data.thumbnail_url) {
                     origVideo.thumbnail_url = videoResult.data.thumbnail_url;
+                    var displayEl = item.querySelector('.video-thumb-current-display');
+                    var thumbImgStyle = 'max-width: 120px; max-height: 68px; border-radius: 4px;';
+                    var newThumbUrl = videoResult.data.thumbnail_url;
+                    if (displayEl) {
+                        displayEl.setAttribute('data-original-thumb', newThumbUrl);
+                        displayEl.innerHTML = '<img src="' + escapeHtml(newThumbUrl) + '" alt="" style="' + thumbImgStyle + '">';
+                    }
+                    if (thumbEl) {
+                        thumbEl.value = '';
+                        var label = thumbEl.parentElement && thumbEl.parentElement.querySelector('.file-upload-label span');
+                        if (label) {
+                            label.textContent = 'اختر صورة جديدة';
+                            label.style.color = '';
+                        }
+                    }
+                    var restoreThumbBtn = item.querySelector('.restore-video-thumb-btn');
+                    if (restoreThumbBtn) restoreThumbBtn.style.display = 'none';
                 }
                 if (videoResult.success) {
                     origVideo.title = newTitle;
                     origVideo.order = newOrder;
                     origVideo.description = newDesc;
+                    if (videoResult.data && videoResult.data.video_url) {
+                        origVideo.video_url = videoResult.data.video_url;
+                    }
                 } else {
                     showAdminToast('فيديو: ' + (videoResult.error || 'فشل التحديث'), 'error');
                 }
@@ -3376,6 +3412,17 @@ async function editCoursePage(courseId) {
                                     <button type="button" class="btn btn-secondary restore-video-thumb-btn" style="display: none; font-size: 0.85rem;" data-video-id="${video.id}">استعادة الصورة الأصلية</button>
                                 </div>
                             </div>
+                        </div>
+                        <div class="admin-form-group replace-video-wrap">
+                            <label>استبدال ملف الفيديو</label>
+                            <div class="file-upload-wrapper">
+                                <input type="file" class="edit-video-file-replace" data-video-id="${video.id}" accept="video/mp4,video/webm,video/ogg">
+                                <div class="file-upload-label">
+                                    <i class="bi bi-film"></i>
+                                    <span>اختر ملف فيديو جديد (يستبدل الحالي)</span>
+                                </div>
+                            </div>
+                            <p style="color: var(--text-gray); font-size: 0.85rem; margin-top: 6px; margin-bottom: 0;">سيتم رفع الفيديو الجديد عند حفظ التعديلات.</p>
                         </div>
                         ${video.video_url ? `<div class="admin-form-group" style="grid-column: 1 / -1;"><label>مشاهدة الفيديو</label><div style="width: 100%; max-width: 100%; height: 320px; border-radius: 8px; overflow: hidden; background: #1a2332;"><iframe src="${escapeHtml(getEmbedUrlNoAutoplay(video.video_url))}" style="width: 100%; height: 100%; border: none; border-radius: 8px;" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen title="معاينة الفيديو"></iframe></div></div>` : ''}
                         <div class="admin-form-group" style="grid-column: 1 / -1;">
