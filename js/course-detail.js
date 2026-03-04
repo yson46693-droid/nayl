@@ -306,6 +306,7 @@
         var video = course && course.videos ? course.videos.find(function (v) { return v.id === videoId; }) : null;
         var videoUrl = (video && video.video_url) ? video.video_url : '';
         var hlsUrl = (video && video.hls_url) ? video.hls_url : '';
+        var thumbUrl = (video && video.thumbnail_url) ? video.thumbnail_url : '';
         var userId = getUserIdForWatermark();
         var videoTitle = (video && video.title) ? escapeHtml(video.title) : (title ? escapeHtml(title) : '');
         var videoDesc = (video && video.description) ? escapeHtml(video.description.trim()) : '';
@@ -317,11 +318,12 @@
             : '';
 
         if (hlsUrl) {
+            var posterAttr = thumbUrl ? (' poster="' + escapeHtml(thumbUrl) + '"') : '';
             videoSectionEl.innerHTML =
                 '<div class="video-player-wrapper">' +
                 titleBlock +
                 '<div id="course-video-container" class="course-video-container">' +
-                '<video id="course-video-player" class="course-video-player" controls playsinline>' +
+                '<video id="course-video-player" class="course-video-player" controls playsinline' + posterAttr + '>' +
                 '<source src="' + escapeHtml(hlsUrl) + '" type="application/x-mpegURL">' +
                 '</video>' +
                 '<div id="course-video-watermark" class="course-video-watermark" aria-hidden="true">' + escapeHtml(String(userId)) + '</div>' +
@@ -348,13 +350,20 @@
             moveWatermark();
             watermarkIntervalId = setInterval(moveWatermark, 3000);
         } else {
-            videoSectionEl.innerHTML =
-                '<div class="video-player-wrapper">' +
+            // لا iframe — نعرض صورة الواجهة مع رسالة أن التشغيل عبر HLS فقط
+            var noHlsHtml = '<div class="video-player-wrapper">' +
                 titleBlock +
-                '<iframe id="course-video-player" class="course-video-player" src="' + escapeHtml(videoUrl) + '" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy">' +
-                '</iframe>' +
+                '<div id="course-video-container" class="course-video-container course-video-no-hls">' +
+                (thumbUrl
+                    ? '<div class="video-thumb-overlay video-thumb-overlay-static">' +
+                      '<img class="video-thumb-overlay-img" src="' + escapeHtml(thumbUrl) + '" alt="">' +
+                      '<span class="course-video-no-hls-msg"><i class="bi bi-broadcast"></i> الفيديو غير متاح للتشغيل (يتطلب HLS)</span>' +
+                      '</div>'
+                    : '<div class="course-video-no-hls-msg only"><i class="bi bi-broadcast"></i> الفيديو غير متاح للتشغيل (يتطلب HLS)</div>') +
+                '</div>' +
                 descriptionBlock +
                 '</div>';
+            videoSectionEl.innerHTML = noHlsHtml;
         }
     }
 
