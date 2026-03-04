@@ -3389,7 +3389,7 @@ async function editCoursePage(courseId) {
                                 ${thumbDisplay}
                             </div>
                             <div class="admin-form-group video-thumbnail-edit-wrap label-with-btn-row" style="margin-top: 10px; margin-bottom: 0;">
-                                <label>تعديل صورة الفيديو</label>
+                                <label>تعديل صورة الواجهة</label>
                                 <div class="file-upload-trigger-wrap">
                                     <input type="file" class="edit-video-thumbnail" data-video-id="${video.id}" accept="image/*" style="position: absolute; width: 0; height: 0; opacity: 0; overflow: hidden;">
                                     <button type="button" class="btn btn-secondary btn-with-icon file-trigger-btn" onclick="this.closest('.file-upload-trigger-wrap').querySelector('input[type=file]').click()">
@@ -3399,7 +3399,7 @@ async function editCoursePage(courseId) {
                                 </div>
                             </div>
                         </div>
-                        <div class="admin-form-group replace-video-wrap label-with-btn-row">
+                        <div class="admin-form-group replace-video-wrap">
                             <label>استبدال ملف الفيديو</label>
                             <div class="file-upload-trigger-wrap">
                                 <input type="file" class="edit-video-file-replace" data-video-id="${video.id}" accept="video/mp4,video/webm,video/ogg" style="position: absolute; width: 0; height: 0; opacity: 0; overflow: hidden;">
