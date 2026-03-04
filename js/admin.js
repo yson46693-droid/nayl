@@ -2706,8 +2706,13 @@ async function saveCourseChanges() {
     if (coverInput && coverInput.files && coverInput.files[0]) {
         try {
             coverImageBase64 = await readFileAsBase64(coverInput.files[0]);
+            if (!coverImageBase64 || coverImageBase64.length < 100) {
+                showAdminToast('فشل قراءة صورة الواجهة. جرّب صورة أصغر أو بصيغة JPG/PNG.', 'error');
+                coverImageBase64 = null;
+            }
         } catch (err) {
             console.error('قراءة صورة الكورس:', err);
+            showAdminToast('فشل تحميل صورة الواجهة. جرّب مرة أخرى.', 'error');
         }
     }
 
@@ -2755,6 +2760,9 @@ async function saveCourseChanges() {
                 courses[courseIndex].cover_image_url = result.data.cover_image_url;
                 newCoverUrl = result.data.cover_image_url;
             }
+        }
+        if (result.data && result.data.cover_saved === false && result.data.cover_error) {
+            showAdminToast(result.data.cover_error, 'error');
         }
 
         if (newCoverUrl) {

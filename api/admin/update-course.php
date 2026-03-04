@@ -110,20 +110,38 @@ try {
 
     // صورة واجهة الكورس (اختيارية)
     if ($coverImageBase64 !== null && $coverImageBase64 !== '') {
-        $coverContent = base64_decode($coverImageBase64, true);
+        // إزالة أي prefix مثل data:image/jpeg;base64,
+        $base64Data = preg_replace('#^data:image/[^;]+;base64,#i', '', $coverImageBase64);
+        $base64Data = preg_replace('#\s+#', '', $base64Data);
+        $coverContent = base64_decode($base64Data, true);
         if ($coverContent !== false && strlen($coverContent) > 0) {
             $coversDir = __DIR__ . '/../../uploads/covers/';
+            $uploadsDir = __DIR__ . '/../../uploads/';
+            if (!is_dir($uploadsDir)) {
+                @mkdir($uploadsDir, 0755, true);
+            }
             if (!is_dir($coversDir)) {
-                mkdir($coversDir, 0755, true);
+                if (!@mkdir($coversDir, 0755, true)) {
+                    error_log('Update course: failed to create covers dir: ' . $coversDir);
+                }
             }
-            $coverExt = 'jpg';
-            $coverFileName = 'course_' . $courseId . '_' . uniqid() . '.' . $coverExt;
-            $coverPath = $coversDir . $coverFileName;
-            if (file_put_contents($coverPath, $coverContent) !== false) {
-                $coverUrl = '/uploads/covers/' . $coverFileName;
-                $updates[] = "cover_image_url = :cover_image_url";
-                $params['cover_image_url'] = $coverUrl;
+            if (is_dir($coversDir) && is_writable($coversDir)) {
+                $coverExt = 'jpg';
+                $coverFileName = 'course_' . $courseId . '_' . uniqid() . '.' . $coverExt;
+                $coverPath = $coversDir . $coverFileName;
+                $written = @file_put_contents($coverPath, $coverContent);
+                if ($written !== false && $written > 0) {
+                    $coverUrl = '/uploads/covers/' . $coverFileName;
+                    $updates[] = "cover_image_url = :cover_image_url";
+                    $params['cover_image_url'] = $coverUrl;
+                } else {
+                    error_log('Update course: file_put_contents failed for cover (path=' . $coverPath . ', len=' . strlen($coverContent) . ')');
+                }
+            } else {
+                error_log('Update course: covers dir not writable or missing: ' . $coversDir . ', is_dir=' . (is_dir($coversDir) ? '1' : '0'));
             }
+        } else {
+            error_log('Update course: cover base64_decode failed or empty (input_len=' . strlen($coverImageBase64) . ')');
         }
     }
 
@@ -139,6 +157,10 @@ try {
     $responseData = ['message' => 'تم تحديث الكورس بنجاح'];
     if (isset($params['cover_image_url'])) {
         $responseData['cover_image_url'] = $params['cover_image_url'];
+        $responseData['cover_saved'] = true;
+    } elseif ($coverImageBase64 !== null && $coverImageBase64 !== '') {
+        $responseData['cover_saved'] = false;
+        $responseData['cover_error'] = 'لم يتم حفظ صورة الواجهة (تحقق من مجلد uploads/covers وصلاحيات الكتابة)';
     }
     sendJsonResponse(true, $responseData, null, 200);
 } catch (PDOException $e) {
