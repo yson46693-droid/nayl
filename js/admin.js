@@ -2656,14 +2656,18 @@ async function editCourse(courseId) {
     `;
 
     document.getElementById('courseEditContent').innerHTML = modalContent;
-    document.getElementById('courseEditModal').style.display = 'flex';
+    modalEl.style.display = 'flex';
+    modalEl.dataset.originalCoverUrl = courseCoverUrl || '';
 
-    // Setup file input listeners for the new video form
     setupNewVideoFileListeners();
+    setupCourseCoverPreview(modalEl, courseCoverUrl || '');
 }
 
 function closeCourseEditModal() {
-    document.getElementById('courseEditModal').style.display = 'none';
+    const modalEl = document.getElementById('courseEditModal');
+    const originalUrl = modalEl && modalEl.dataset.originalCoverUrl !== undefined ? (modalEl.dataset.originalCoverUrl || '') : '';
+    if (modalEl) restoreCourseCoverPreview(modalEl, originalUrl);
+    if (modalEl) modalEl.style.display = 'none';
     currentCourseId = null;
 }
 
@@ -2738,6 +2742,7 @@ async function saveCourseChanges() {
         const courses = JSON.parse(localStorage.getItem('nayl_courses')) || [];
         const courseIndex = courses.findIndex(c => c && (c.id === courseIdToSave || String(c.id) === String(courseIdToSave)));
         const course = courseIndex !== -1 ? courses[courseIndex] : null;
+        let newCoverUrl = null;
         if (courseIndex !== -1) {
             courses[courseIndex].title = title;
             courses[courseIndex].description = description;
@@ -2745,6 +2750,17 @@ async function saveCourseChanges() {
             courses[courseIndex].price = price;
             if (result.data && result.data.cover_image_url) {
                 courses[courseIndex].cover_image_url = result.data.cover_image_url;
+                newCoverUrl = result.data.cover_image_url;
+            }
+        }
+
+        if (newCoverUrl) {
+            const containerForCover = (document.getElementById('courseEditPage')?.style?.display === 'block')
+                ? document.getElementById('courseEditPage')
+                : document.getElementById('courseEditModal');
+            if (containerForCover) {
+                containerForCover.dataset.originalCoverUrl = newCoverUrl;
+                restoreCourseCoverPreview(containerForCover, newCoverUrl);
             }
         }
 
@@ -2878,9 +2894,13 @@ function deleteVideoFromCourse(courseId, videoId) {
     }
 }
 
-// Show add video form
+// Show add video form (يعمل من المودال أو من صفحة التعديل)
 function showAddVideoForm(courseId) {
-    const form = document.getElementById('addVideoForm');
+    const pageEl = document.getElementById('courseEditPage');
+    const modalEl = document.getElementById('courseEditModal');
+    const isPageVisible = pageEl && pageEl.style.display !== 'none';
+    const container = isPageVisible ? pageEl : modalEl;
+    const form = container ? container.querySelector('#addVideoForm') : document.getElementById('addVideoForm');
     if (form) {
         form.style.display = 'block';
         form.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
@@ -2889,85 +2909,165 @@ function showAddVideoForm(courseId) {
 
 // Hide add video form
 function hideAddVideoForm() {
-    const form = document.getElementById('addVideoForm');
+    const pageEl = document.getElementById('courseEditPage');
+    const modalEl = document.getElementById('courseEditModal');
+    const isPageVisible = pageEl && pageEl.style.display !== 'none';
+    const container = isPageVisible ? pageEl : modalEl;
+    const form = container ? container.querySelector('#addVideoForm') : document.getElementById('addVideoForm');
     if (form) {
         form.style.display = 'none';
-        // Reset form fields
-        document.getElementById('newVideoTitle').value = '';
-        document.getElementById('newVideoDescription').value = '';
-        document.getElementById('newVideoThumbnail').value = '';
-        document.getElementById('newVideoFile').value = '';
+        const titleEl = form.querySelector('#newVideoTitle');
+        const descEl = form.querySelector('#newVideoDescription');
+        const thumbEl = form.querySelector('#newVideoThumbnail');
+        const fileEl = form.querySelector('#newVideoFile');
+        if (titleEl) titleEl.value = '';
+        if (descEl) descEl.value = '';
+        if (thumbEl) thumbEl.value = '';
+        if (fileEl) fileEl.value = '';
     }
 }
 
-// Save new video to course
-function saveNewVideo(courseId) {
-    const title = document.getElementById('newVideoTitle').value.trim();
-    const order = parseInt(document.getElementById('newVideoOrder').value);
-    const description = document.getElementById('newVideoDescription').value.trim();
-    const thumbnailInput = document.getElementById('newVideoThumbnail');
-    const videoFileInput = document.getElementById('newVideoFile');
+// Save new video to course (يعمل من المودال أو من صفحة التعديل) — يرفع إلى السيرفر
+async function saveNewVideo(courseId) {
+    const pageEl = document.getElementById('courseEditPage');
+    const isPageVisible = pageEl && pageEl.style.display !== 'none';
+    const container = isPageVisible ? pageEl : document.getElementById('courseEditModal');
+    const form = container ? container.querySelector('#addVideoForm') : null;
+    const scope = form || document;
 
-    // Validation
+    const titleEl = scope.querySelector('#newVideoTitle');
+    const orderEl = scope.querySelector('#newVideoOrder');
+    const descEl = scope.querySelector('#newVideoDescription');
+    const thumbnailInput = scope.querySelector('#newVideoThumbnail');
+    const videoFileInput = scope.querySelector('#newVideoFile');
+
+    const title = titleEl ? titleEl.value.trim() : '';
+    const order = orderEl ? (parseInt(orderEl.value, 10) || 1) : 1;
+    const description = descEl ? descEl.value.trim() : '';
+
     if (!title) {
         alert('يرجى إدخال عنوان الفيديو');
         return;
     }
-
     if (!description) {
         alert('يرجى إدخال وصف الفيديو');
         return;
     }
-
-    if (!thumbnailInput.files || !thumbnailInput.files[0]) {
+    if (!thumbnailInput || !thumbnailInput.files || !thumbnailInput.files[0]) {
         alert('يرجى اختيار صورة واجهة الفيديو');
         return;
     }
-
-    if (!videoFileInput.files || !videoFileInput.files[0]) {
+    if (!videoFileInput || !videoFileInput.files || !videoFileInput.files[0]) {
         alert('يرجى اختيار ملف الفيديو');
         return;
     }
 
-    // Get courses
-    const courses = JSON.parse(localStorage.getItem('nayl_courses')) || [];
-    const courseIndex = courses.findIndex(c => c.id === courseId);
-
-    if (courseIndex === -1) {
-        alert('الكورس غير موجود');
+    const token = localStorage.getItem('admin_session_token') || getCookie('admin_session_token');
+    if (!token) {
+        alert('يرجى تسجيل الدخول كأدمن مرة أخرى.');
         return;
     }
 
-    // Create new video object
-    const newVideo = {
-        id: Date.now(),
-        title: title,
-        order: order,
-        thumbnail: thumbnailInput.files[0].name,
-        description: description,
-        fileName: videoFileInput.files[0].name,
-        fileSize: (videoFileInput.files[0].size / (1024 * 1024)).toFixed(2) + ' MB'
-    };
-
-    // Add video to course
-    if (!courses[courseIndex].videos) {
-        courses[courseIndex].videos = [];
+    let videoBase64;
+    let thumbnailBase64;
+    try {
+        videoBase64 = await readFileAsBase64(videoFileInput.files[0]);
+        thumbnailBase64 = await readFileAsBase64(thumbnailInput.files[0]);
+    } catch (e) {
+        console.error(e);
+        alert('فشل قراءة الملفات. تأكد من حجم الملف وحاول مرة أخرى.');
+        return;
     }
-    courses[courseIndex].videos.push(newVideo);
-    courses[courseIndex].videosCount = courses[courseIndex].videos.length;
 
-    // Save to localStorage
-    localStorage.setItem('nayl_courses', JSON.stringify(courses));
+    const saveBtn = scope.querySelector('button[onclick*="saveNewVideo"]');
+    if (saveBtn) {
+        saveBtn.disabled = true;
+        saveBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> جاري الرفع...';
+    }
 
-    // Show success message
-    alert('✓ تم إضافة الفيديو بنجاح');
+    try {
+        const response = await fetch('../api/admin/add-video-to-course.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + token
+            },
+            credentials: 'include',
+            body: JSON.stringify({
+                course_id: courseId,
+                title: title,
+                description: description,
+                video_order: order,
+                videoFile: videoBase64,
+                thumbnailFile: thumbnailBase64
+            })
+        });
 
-    // Refresh the edit page
-    editCoursePage(courseId);
-    renderCourses(currentCoursesPage);
+        const result = await response.json();
 
-    // Hide the form
-    hideAddVideoForm();
+        if (!result.success) {
+            alert(result.error || 'فشل إضافة الفيديو');
+            return;
+        }
+
+        showAdminToast('تم إضافة الفيديو بنجاح', 'success');
+        hideAddVideoForm();
+
+        // تحديث قائمة الكورسات من السيرفر ثم إعادة عرض صفحة التعديل
+        try {
+            const listRes = await fetch('../api/admin/get-courses.php', {
+                method: 'GET',
+                headers: { 'Authorization': 'Bearer ' + token },
+                credentials: 'include'
+            });
+            if (listRes.ok) {
+                const listData = await listRes.json();
+                if (listData.success && listData.data && listData.data.courses) {
+                    localStorage.setItem('nayl_courses', JSON.stringify(listData.data.courses));
+                }
+            }
+        } catch (e) {
+            console.error('Refresh courses list:', e);
+        }
+
+        try {
+            const detailRes = await fetch('../api/admin/get-course-details.php?course_id=' + encodeURIComponent(courseId), {
+                method: 'GET',
+                headers: { 'Authorization': 'Bearer ' + token },
+                credentials: 'include'
+            });
+            if (detailRes.ok) {
+                const detailData = await detailRes.json();
+                if (detailData.success && detailData.data && detailData.data.course) {
+                    const courses = JSON.parse(localStorage.getItem('nayl_courses')) || [];
+                    const idx = courses.findIndex(c => c && (c.id === courseId || String(c.id) === String(courseId)));
+                    if (idx !== -1) {
+                        courses[idx].videos = detailData.data.course.videos;
+                        courses[idx].videosCount = detailData.data.course.videosCount;
+                        courses[idx].cover_image_url = detailData.data.course.cover_image_url;
+                        localStorage.setItem('nayl_courses', JSON.stringify(courses));
+                    }
+                }
+            }
+        } catch (e) {
+            console.error('Refresh course details:', e);
+        }
+
+        if (isPageVisible) {
+            editCoursePage(courseId);
+        } else {
+            await editCourse(courseId);
+        }
+        renderCourses(currentCoursesPage);
+    } catch (err) {
+        console.error('saveNewVideo error:', err);
+        alert('حدث خطأ في الاتصال. تحقق من الإنترنت وحاول مرة أخرى.');
+    } finally {
+        if (saveBtn) {
+            saveBtn.disabled = false;
+            saveBtn.innerHTML = '<i class="bi bi-check-lg"></i><span>حفظ الفيديو</span>';
+        }
+    }
 }
 
 // Setup file input listeners for new video form
@@ -3228,7 +3328,7 @@ async function editCoursePage(courseId) {
                         </div>
                         ${video.video_url ? `<div class="admin-form-group" style="grid-column: 1 / -1;"><label>مشاهدة الفيديو</label><div style="width: 100%; max-width: 100%; height: 320px; border-radius: 8px; overflow: hidden; background: #1a2332;"><iframe src="${escapeHtml(getEmbedUrlNoAutoplay(video.video_url))}" style="width: 100%; height: 100%; border: none; border-radius: 8px;" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen title="معاينة الفيديو"></iframe></div></div>` : ''}
                         <div class="admin-form-group">
-                            <label>تحديث صورة الواجهة (اختياري)</label>
+                            <label>تعديل صورة الفيديو</label>
                             <input type="file" class="edit-video-thumbnail" data-video-id="${video.id}" accept="image/*">
                         </div>
                         <div class="admin-form-group" style="grid-column: 1 / -1;">
@@ -3251,22 +3351,74 @@ async function editCoursePage(courseId) {
 
     if (pageContentEl) {
         pageContentEl.innerHTML = editContent;
+        const pageEl = document.getElementById('courseEditPage');
+        if (pageEl) pageEl.dataset.originalCoverUrl = courseCoverUrlPage || '';
         setupNewVideoFileListeners();
+        setupCourseCoverPreview(pageContentEl, courseCoverUrlPage || '');
     }
 }
 
+function setupCourseCoverPreview(container, originalUrl) {
+    if (!container) return;
+    const coverInput = container.querySelector('#editCourseCoverImage');
+    const previewWrap = container.querySelector('.course-cover-preview-wrap');
+    if (!coverInput || !previewWrap) return;
+    const original = typeof originalUrl === 'string' ? originalUrl : '';
+
+    coverInput.addEventListener('change', function () {
+        const file = this.files && this.files[0];
+        if (!file || !file.type.startsWith('image/')) return;
+        const reader = new FileReader();
+        reader.onload = function (e) {
+            previewWrap.innerHTML = '';
+            const img = document.createElement('img');
+            img.className = 'course-cover-preview';
+            img.alt = 'واجهة الكورس';
+            img.style.cssText = 'max-width: 280px; max-height: 160px; border-radius: var(--radius-md); object-fit: cover; border: 1px solid #e0e6ed;';
+            img.src = e.target.result;
+            previewWrap.appendChild(img);
+            const restoreLink = document.createElement('button');
+            restoreLink.type = 'button';
+            restoreLink.className = 'btn btn-secondary';
+            restoreLink.style.cssText = 'margin-top: 8px; font-size: 0.85rem;';
+            restoreLink.textContent = 'استعادة الصورة الأصلية';
+            restoreLink.addEventListener('click', function () {
+                restoreCourseCoverPreview(container, original);
+                restoreLink.remove();
+            });
+            previewWrap.appendChild(restoreLink);
+        };
+        reader.readAsDataURL(file);
+    });
+}
+
+function restoreCourseCoverPreview(container, originalUrl) {
+    if (!container) return;
+    const previewWrap = container.querySelector('.course-cover-preview-wrap');
+    const coverInput = container.querySelector('#editCourseCoverImage');
+    if (previewWrap) {
+        if (originalUrl) {
+            previewWrap.innerHTML = '<img src="' + escapeHtml(originalUrl) + '" alt="واجهة الكورس" class="course-cover-preview" style="max-width: 280px; max-height: 160px; border-radius: var(--radius-md); object-fit: cover; border: 1px solid #e0e6ed;">';
+        } else {
+            previewWrap.innerHTML = '<p style="color: var(--text-gray); font-size: 0.9rem;">لا توجد صورة حالياً</p>';
+        }
+    }
+    if (coverInput) coverInput.value = '';
+}
+
 function closeCourseEditPage() {
-    // Show upload form and courses table, hide edit page
+    const pageEl = document.getElementById('courseEditPage');
+    const contentEl = document.getElementById('courseEditPageContent');
+    const originalUrl = pageEl && pageEl.dataset.originalCoverUrl !== undefined ? (pageEl.dataset.originalCoverUrl || '') : '';
+    if (contentEl) restoreCourseCoverPreview(contentEl, originalUrl);
     const uploadForm = document.querySelector('#uploadCourseForm').closest('.data-card');
     if (uploadForm) uploadForm.style.display = 'block';
     document.querySelector('#coursesTable').closest('.data-card').style.display = 'block';
-    document.getElementById('courseEditPage').style.display = 'none';
+    if (pageEl) pageEl.style.display = 'none';
     currentCourseId = null;
 }
 
-function closeCourseEditModal() {
-    document.getElementById('courseEditModal').style.display = 'none';
-}
+// closeCourseEditModal معرّفة أعلى (مع استعادة صورة الكورس)
 
 // ===========================
 // Recharge Requests Functions
