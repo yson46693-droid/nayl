@@ -2800,7 +2800,7 @@ async function saveCourseChanges() {
             ? document.getElementById('courseEditPage')
             : document.getElementById('courseEditModal');
         const videoItems = editContainer ? editContainer.querySelectorAll('.video-upload-item') : [];
-        if (course && course.videos && course.videos.length && videoItems.length > 0) {
+        if (videoItems.length > 0) {
             for (const item of videoItems) {
                 const videoId = parseInt(item.getAttribute('data-video-id'), 10);
                 if (!videoId) continue;
@@ -2809,17 +2809,12 @@ async function saveCourseChanges() {
                 const descEl = item.querySelector('.edit-video-description');
                 const thumbEl = item.querySelector('.edit-video-thumbnail');
                 const replaceVideoEl = item.querySelector('.edit-video-file-replace');
-                const origVideo = course.videos.find(v => v.id === videoId || String(v.id) === String(videoId));
-                if (!origVideo) continue;
-                const newTitle = titleEl ? titleEl.value.trim() : origVideo.title;
-                const newOrder = orderEl ? (parseInt(orderEl.value, 10) || origVideo.order) : origVideo.order;
-                const newDesc = descEl ? descEl.value.trim() : (origVideo.description || '');
+                const newTitle = titleEl ? titleEl.value.trim() : '';
+                const newOrder = orderEl ? (parseInt(orderEl.value, 10) || 1) : 1;
+                const newDesc = descEl ? descEl.value.trim() : '';
+                if (!newTitle) continue;
                 const hasThumbFile = thumbEl && thumbEl.files && thumbEl.files.length > 0;
                 const hasReplaceVideoFile = replaceVideoEl && replaceVideoEl.files && replaceVideoEl.files.length > 0;
-                const titleChanged = newTitle !== (origVideo.title || '');
-                const orderChanged = Number(newOrder) !== Number(origVideo.order);
-                const descChanged = newDesc !== (origVideo.description || '');
-                if (!titleChanged && !orderChanged && !descChanged && !hasThumbFile && !hasReplaceVideoFile) continue;
                 let thumbnailBase64 = null;
                 if (hasThumbFile) {
                     try {
@@ -2865,7 +2860,6 @@ async function saveCourseChanges() {
                 });
                 const videoResult = await videoRes.json();
                 if (videoResult.success && videoResult.data && videoResult.data.thumbnail_url) {
-                    origVideo.thumbnail_url = videoResult.data.thumbnail_url;
                     var displayEl = item.querySelector('.video-thumb-current-display');
                     var thumbImgStyle = 'max-width: 120px; max-height: 68px; border-radius: 4px;';
                     var newThumbUrl = videoResult.data.thumbnail_url;
@@ -2884,14 +2878,7 @@ async function saveCourseChanges() {
                     var restoreThumbBtn = item.querySelector('.restore-video-thumb-btn');
                     if (restoreThumbBtn) restoreThumbBtn.style.display = 'none';
                 }
-                if (videoResult.success) {
-                    origVideo.title = newTitle;
-                    origVideo.order = newOrder;
-                    origVideo.description = newDesc;
-                    if (videoResult.data && videoResult.data.video_url) {
-                        origVideo.video_url = videoResult.data.video_url;
-                    }
-                } else {
+                if (!videoResult.success) {
                     showAdminToast('فيديو: ' + (videoResult.error || 'فشل التحديث'), 'error');
                 }
             }
