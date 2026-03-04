@@ -2822,8 +2822,13 @@ async function saveCourseChanges() {
                 if (hasThumbFile) {
                     try {
                         thumbnailBase64 = await readFileAsBase64(thumbEl.files[0]);
+                        if (!thumbnailBase64 || thumbnailBase64.length < 100) {
+                            showAdminToast('فشل قراءة صورة الفيديو. جرّب صورة أصغر أو JPG/PNG.', 'error');
+                            thumbnailBase64 = null;
+                        }
                     } catch (e) {
-                        console.error('قراءة صورة الواجهة:', e);
+                        console.error('قراءة صورة الفيديو:', e);
+                        showAdminToast('فشل تحميل صورة الفيديو.', 'error');
                     }
                 }
                 const videoPayload = {
@@ -3231,6 +3236,10 @@ async function editCoursePage(courseId) {
     const courseCoverUrlPage = course.cover_image_url || '';
 
     let editContent = `
+        <p class="course-edit-hint" style="margin: 0 0 var(--spacing-md) 0; padding: 10px 14px; background: #e8f4fd; border: 1px solid #4a90e2; border-radius: var(--radius-sm); color: var(--primary-dark); font-size: 0.9rem;">
+            <i class="bi bi-info-circle-fill" style="margin-left: 6px;"></i>
+            بعد تعديل أي حقل (صورة الكورس، عنوان الفيديو، صورة الفيديو، الوصف...) اضغط زر <strong>«حفظ التعديلات»</strong> أعلى الصفحة لحفظ كل التغييرات.
+        </p>
         <div class="course-edit-section">
             <h4>معلومات الكورس الأساسية</h4>
             <div class="admin-form-group course-cover-edit-group">
@@ -3330,11 +3339,8 @@ async function editCoursePage(courseId) {
                 <div class="video-upload-item" data-video-id="${video.id}">
                     <div class="video-item-header">
                         <h4 style="font-size: 1rem; font-weight: 700; color: var(--primary-dark); margin: 0;">
-                            <svg width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" style="display: inline-block; vertical-align: middle; margin-left: 6px;">
-                                <path d="M14.752 11.168l-3.197-2.132A1 1 0 0010 9.87v4.263a1 1 0 001.555.832l3.197-2.132a1 1 0 000-1.664z"/>
-                                <path d="M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
-                            </svg>
-                            الفيديو #${index + 1}
+                            <i class="bi bi-pencil-square" style="margin-left: 6px; font-size: 1.1rem;"></i>
+                            تعديل الفيديو #${index + 1}
                         </h4>
                         <button type="button" class="remove-video-btn" onclick="deleteVideoFromCourse(${courseId}, ${video.id})">
                             <svg width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" style="display: inline-block; vertical-align: middle; margin-left: 4px;">

@@ -93,23 +93,31 @@ try {
 
     $thumbnailUrl = null;
     if (!empty($thumbnailBase64) && is_string($thumbnailBase64)) {
-        $thumbnailContent = base64_decode($thumbnailBase64, true);
+        $base64Data = preg_replace('#^data:image/[^;]+;base64,#i', '', trim($thumbnailBase64));
+        $base64Data = preg_replace('#\s+#', '', $base64Data);
+        $thumbnailContent = base64_decode($base64Data, true);
         if ($thumbnailContent !== false && strlen($thumbnailContent) > 0 && strlen($thumbnailContent) <= 5 * 1024 * 1024) {
             $finfo = new finfo(FILEINFO_MIME_TYPE);
             $mime = $finfo->buffer($thumbnailContent);
             $allowedMimes = ['image/jpeg', 'image/png', 'image/gif', 'image/webp'];
             if (in_array($mime, $allowedMimes, true)) {
                 $ext = $mime === 'image/png' ? 'png' : ($mime === 'image/gif' ? 'gif' : ($mime === 'image/webp' ? 'webp' : 'jpg'));
-                $uploadsDir = __DIR__ . '/../../uploads/thumbnails/';
-                if (!is_dir($uploadsDir)) {
-                    mkdir($uploadsDir, 0755, true);
+                $uploadsBase = __DIR__ . '/../../uploads/';
+                $uploadsDir = $uploadsBase . 'thumbnails/';
+                if (!is_dir($uploadsBase)) {
+                    @mkdir($uploadsBase, 0755, true);
                 }
-                $thumbnailFileName = 'thumb_' . $courseId . '_' . $videoId . '_' . uniqid() . '.' . $ext;
-                $thumbnailPath = $uploadsDir . $thumbnailFileName;
-                if (file_put_contents($thumbnailPath, $thumbnailContent) !== false) {
-                    $thumbnailUrl = '/uploads/thumbnails/' . $thumbnailFileName;
-                    $updates[] = "thumbnail_url = :thumbnail_url";
-                    $params['thumbnail_url'] = $thumbnailUrl;
+                if (!is_dir($uploadsDir)) {
+                    @mkdir($uploadsDir, 0755, true);
+                }
+                if (is_dir($uploadsDir) && is_writable($uploadsDir)) {
+                    $thumbnailFileName = 'thumb_' . $courseId . '_' . $videoId . '_' . uniqid() . '.' . $ext;
+                    $thumbnailPath = $uploadsDir . $thumbnailFileName;
+                    if (@file_put_contents($thumbnailPath, $thumbnailContent) !== false) {
+                        $thumbnailUrl = '/uploads/thumbnails/' . $thumbnailFileName;
+                        $updates[] = "thumbnail_url = :thumbnail_url";
+                        $params['thumbnail_url'] = $thumbnailUrl;
+                    }
                 }
             }
         }
