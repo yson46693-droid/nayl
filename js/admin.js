@@ -66,6 +66,32 @@ function escapeHtml(text) {
         .replace(/'/g, '&#039;');
 }
 
+/** إرجاع رابط embed بدون تشغيل تلقائي (autoplay=0) */
+function getEmbedUrlNoAutoplay(url) {
+    if (!url || typeof url !== 'string') return url;
+    try {
+        const u = new URL(url);
+        u.searchParams.set('autoplay', '0');
+        return u.toString();
+    } catch (e) {
+        return url;
+    }
+}
+
+/** قراءة ملف كـ base64 (لرفع صورة الواجهة) */
+function readFileAsBase64(file) {
+    return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => {
+            const dataUrl = reader.result;
+            const base64 = dataUrl && dataUrl.indexOf(',') >= 0 ? dataUrl.split(',')[1] : dataUrl;
+            resolve(base64 || '');
+        };
+        reader.onerror = () => reject(reader.error);
+        reader.readAsDataURL(file);
+    });
+}
+
 /**
  * عرض إشعار toast (نجاح أو خطأ) - متوافق مع RTL
  * @param {string} message - النص
@@ -2602,7 +2628,7 @@ async function editCourse(courseId) {
                         </div>
                     </div>
                     <p style="color: var(--text-gray); font-size: 0.9rem; margin: 0;">${escapeHtml(video.description)}</p>
-                    ${video.video_url ? `<div style="margin-top: 8px; width: 100%; max-width: 100%; height: 220px; border-radius: 8px; overflow: hidden; background: #1a2332;"><iframe src="${escapeHtml(video.video_url)}" style="width: 100%; height: 100%; border: none; border-radius: 8px;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen title="معاينة الفيديو"></iframe></div>` : '<p style="color: var(--text-gray); font-size: 0.85rem; margin-top: 6px;">لا يوجد رابط فيديو</p>'}
+                    ${video.video_url ? `<div style="margin-top: 8px; width: 100%; max-width: 100%; height: 220px; border-radius: 8px; overflow: hidden; background: #1a2332;"><iframe src="${escapeHtml(getEmbedUrlNoAutoplay(video.video_url))}" style="width: 100%; height: 100%; border: none; border-radius: 8px;" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen title="معاينة الفيديو"></iframe></div>` : '<p style="color: var(--text-gray); font-size: 0.85rem; margin-top: 6px;">لا يوجد رابط فيديو</p>'}
                 </div>
             `;
         });
@@ -2684,11 +2710,72 @@ async function saveCourseChanges() {
 
         const courses = JSON.parse(localStorage.getItem('nayl_courses')) || [];
         const courseIndex = courses.findIndex(c => c && (c.id === courseIdToSave || String(c.id) === String(courseIdToSave)));
+        const course = courseIndex !== -1 ? courses[courseIndex] : null;
         if (courseIndex !== -1) {
             courses[courseIndex].title = title;
             courses[courseIndex].description = description;
             courses[courseIndex].status = status;
             courses[courseIndex].price = price;
+        }
+
+        const editContainer = (document.getElementById('courseEditPage')?.style?.display === 'block')
+            ? document.getElementById('courseEditPage')
+            : document.getElementById('courseEditModal');
+        const videoItems = editContainer ? editContainer.querySelectorAll('.video-upload-item') : [];
+        if (course && course.videos && course.videos.length && videoItems.length > 0) {
+            for (const item of videoItems) {
+                const videoId = parseInt(item.getAttribute('data-video-id'), 10);
+                if (!videoId) continue;
+                const titleEl = item.querySelector('.edit-video-title');
+                const orderEl = item.querySelector('.edit-video-order');
+                const descEl = item.querySelector('.edit-video-description');
+                const thumbEl = item.querySelector('.edit-video-thumbnail');
+                const origVideo = course.videos.find(v => v.id === videoId || String(v.id) === String(videoId));
+                if (!origVideo) continue;
+                const newTitle = titleEl ? titleEl.value.trim() : origVideo.title;
+                const newOrder = orderEl ? (parseInt(orderEl.value, 10) || origVideo.order) : origVideo.order;
+                const newDesc = descEl ? descEl.value.trim() : (origVideo.description || '');
+                const hasThumbFile = thumbEl && thumbEl.files && thumbEl.files.length > 0;
+                const titleChanged = newTitle !== (origVideo.title || '');
+                const orderChanged = Number(newOrder) !== Number(origVideo.order);
+                const descChanged = newDesc !== (origVideo.description || '');
+                if (!titleChanged && !orderChanged && !descChanged && !hasThumbFile) continue;
+                let thumbnailBase64 = null;
+                if (hasThumbFile) {
+                    try {
+                        thumbnailBase64 = await readFileAsBase64(thumbEl.files[0]);
+                    } catch (e) {
+                        console.error('قراءة صورة الواجهة:', e);
+                    }
+                }
+                const videoPayload = {
+                    video_id: videoId,
+                    title: newTitle,
+                    description: newDesc,
+                    video_order: newOrder
+                };
+                if (thumbnailBase64) videoPayload.thumbnail_base64 = thumbnailBase64;
+                const videoRes = await fetch('../api/admin/update-video.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer ' + (localStorage.getItem('admin_session_token') || getCookie('admin_session_token'))
+                    },
+                    credentials: 'include',
+                    body: JSON.stringify(videoPayload)
+                });
+                const videoResult = await videoRes.json();
+                if (videoResult.success && videoResult.data && videoResult.data.thumbnail_url) {
+                    origVideo.thumbnail_url = videoResult.data.thumbnail_url;
+                }
+                if (videoResult.success) {
+                    origVideo.title = newTitle;
+                    origVideo.order = newOrder;
+                    origVideo.description = newDesc;
+                } else {
+                    showAdminToast('فيديو: ' + (videoResult.error || 'فشل التحديث'), 'error');
+                }
+            }
             localStorage.setItem('nayl_courses', JSON.stringify(courses));
         }
 
@@ -3046,7 +3133,7 @@ async function editCoursePage(courseId) {
                                 ${thumbDisplay}
                             </div>
                         </div>
-                        ${video.video_url ? `<div class="admin-form-group" style="grid-column: 1 / -1;"><label>مشاهدة الفيديو</label><div style="width: 100%; max-width: 100%; height: 320px; border-radius: 8px; overflow: hidden; background: #1a2332;"><iframe src="${escapeHtml(video.video_url)}" style="width: 100%; height: 100%; border: none; border-radius: 8px;" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen title="معاينة الفيديو"></iframe></div></div>` : ''}
+                        ${video.video_url ? `<div class="admin-form-group" style="grid-column: 1 / -1;"><label>مشاهدة الفيديو</label><div style="width: 100%; max-width: 100%; height: 320px; border-radius: 8px; overflow: hidden; background: #1a2332;"><iframe src="${escapeHtml(getEmbedUrlNoAutoplay(video.video_url))}" style="width: 100%; height: 100%; border: none; border-radius: 8px;" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen title="معاينة الفيديو"></iframe></div></div>` : ''}
                         <div class="admin-form-group">
                             <label>تحديث صورة الواجهة (اختياري)</label>
                             <input type="file" class="edit-video-thumbnail" data-video-id="${video.id}" accept="image/*">
