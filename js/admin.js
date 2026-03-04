@@ -2184,10 +2184,8 @@ async function handleCourseUpload(e) {
         videoCounter = 1;
         setupFileInputListeners();
 
-        // تحديث قائمة الكورسات إذا كانت مفتوحة
-        if (document.getElementById('videos').classList.contains('active')) {
-            renderCourses(1);
-        }
+        closeCourseAddPage();
+        renderCourses(1);
 
     } catch (error) {
         console.error('Upload error:', error);
@@ -3125,13 +3123,13 @@ async function editCoursePage(courseId) {
     currentCourseId = courseId;
 
     const pageContentEl = document.getElementById('courseEditPageContent');
-    const uploadForm = document.querySelector('#uploadCourseForm').closest('.data-card');
-    const coursesTable = document.querySelector('#coursesTable').closest('.data-card');
+    const listCard = document.getElementById('coursesListCard');
+    const addPage = document.getElementById('courseAddPage');
     const editPage = document.getElementById('courseEditPage');
 
     if (pageContentEl) pageContentEl.innerHTML = '<div style="text-align: center; padding: 2rem; color: var(--text-gray);">جاري تحميل تفاصيل الكورس...</div>';
-    if (uploadForm) uploadForm.style.display = 'none';
-    if (coursesTable) coursesTable.style.display = 'none';
+    if (listCard) listCard.style.display = 'none';
+    if (addPage) addPage.style.display = 'none';
     if (editPage) {
         editPage.style.display = 'block';
         editPage.setAttribute('data-course-id', String(courseId));
@@ -3478,11 +3476,26 @@ function closeCourseEditPage() {
     const contentEl = document.getElementById('courseEditPageContent');
     const originalUrl = pageEl && pageEl.dataset.originalCoverUrl !== undefined ? (pageEl.dataset.originalCoverUrl || '') : '';
     if (contentEl) restoreCourseCoverPreview(contentEl, originalUrl);
-    const uploadForm = document.querySelector('#uploadCourseForm').closest('.data-card');
-    if (uploadForm) uploadForm.style.display = 'block';
-    document.querySelector('#coursesTable').closest('.data-card').style.display = 'block';
+    const listCard = document.getElementById('coursesListCard');
+    if (listCard) listCard.style.display = 'block';
     if (pageEl) pageEl.style.display = 'none';
     currentCourseId = null;
+}
+
+function openCourseAddPage() {
+    const listCard = document.getElementById('coursesListCard');
+    const addPage = document.getElementById('courseAddPage');
+    const editPage = document.getElementById('courseEditPage');
+    if (listCard) listCard.style.display = 'none';
+    if (editPage) editPage.style.display = 'none';
+    if (addPage) addPage.style.display = 'block';
+}
+
+function closeCourseAddPage() {
+    const addPage = document.getElementById('courseAddPage');
+    const listCard = document.getElementById('coursesListCard');
+    if (addPage) addPage.style.display = 'none';
+    if (listCard) listCard.style.display = 'block';
 }
 
 // closeCourseEditModal معرّفة أعلى (مع استعادة صورة الكورس)
