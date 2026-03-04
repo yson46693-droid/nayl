@@ -3399,7 +3399,8 @@ async function editCoursePage(courseId) {
                                 </div>
                             </div>
                         </div>
-                        <div class="admin-form-group replace-video-wrap">
+                        ${video.video_url ? `<div class="admin-form-group" style="grid-column: 1 / -1;"><label>مشاهدة الفيديو</label><div style="width: 100%; max-width: 100%; height: 320px; border-radius: 8px; overflow: hidden; background: #1a2332;"><iframe src="${escapeHtml(getEmbedUrlNoAutoplay(video.video_url))}" style="width: 100%; height: 100%; border: none; border-radius: 8px;" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen title="معاينة الفيديو"></iframe></div></div>` : ''}
+                         <div class="admin-form-group replace-video-wrap">
                             <label>استبدال ملف الفيديو</label>
                             <div class="file-upload-trigger-wrap">
                                 <input type="file" class="edit-video-file-replace" data-video-id="${video.id}" accept="video/mp4,video/webm,video/ogg" style="position: absolute; width: 0; height: 0; opacity: 0; overflow: hidden;">
@@ -3410,7 +3411,6 @@ async function editCoursePage(courseId) {
                             </div>
                             <p style="color: var(--text-gray); font-size: 0.85rem; margin-top: 6px; margin-bottom: 0; width: 100%;">سيتم رفع الفيديو الجديد عند حفظ التعديلات.</p>
                         </div>
-                        ${video.video_url ? `<div class="admin-form-group" style="grid-column: 1 / -1;"><label>مشاهدة الفيديو</label><div style="width: 100%; max-width: 100%; height: 320px; border-radius: 8px; overflow: hidden; background: #1a2332;"><iframe src="${escapeHtml(getEmbedUrlNoAutoplay(video.video_url))}" style="width: 100%; height: 100%; border: none; border-radius: 8px;" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen title="معاينة الفيديو"></iframe></div></div>` : ''}
                         <div class="admin-form-group" style="grid-column: 1 / -1;">
                             <label>تفاصيل وشرح الفيديو</label>
                             <textarea class="edit-video-description" data-video-id="${video.id}" rows="3">${escapeHtml(video.description)}</textarea>
