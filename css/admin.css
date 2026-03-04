@@ -975,6 +975,24 @@ tr:hover td {
     gap: 8px;
 }
 
+.label-with-btn-row {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 12px;
+}
+
+.label-with-btn-row label {
+    margin-bottom: 0;
+}
+
+@media (max-width: 480px) {
+    .label-with-btn-row {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}
+
 .course-cell {
     display: flex;
     align-items: center;

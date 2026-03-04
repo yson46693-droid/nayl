@@ -2527,11 +2527,14 @@ async function editCourse(courseId) {
                 <div class="course-cover-preview-wrap" style="margin-bottom: 12px;">
                     ${courseCoverUrl ? `<img src="${escapeHtml(courseCoverUrl)}" alt="واجهة الكورس" class="course-cover-preview" style="max-width: 280px; max-height: 160px; border-radius: var(--radius-md); object-fit: cover; border: 1px solid #e0e6ed;">` : '<p style="color: var(--text-gray); font-size: 0.9rem;">لا توجد صورة حالياً</p>'}
                 </div>
-                <div class="file-upload-wrapper file-upload-compact">
-                    <input type="file" id="editCourseCoverImage" accept="image/*">
-                    <div class="file-upload-label">
-                        <i class="bi bi-image" style="font-size: 1.25rem;"></i>
-                        <span>تغيير صورة واجهة الكورس</span>
+                <div class="admin-form-group label-with-btn-row" style="margin-bottom: 0;">
+                    <label>تغيير صورة واجهة الكورس</label>
+                    <div class="file-upload-trigger-wrap">
+                        <input type="file" id="editCourseCoverImage" accept="image/*" style="position: absolute; width: 0; height: 0; opacity: 0; overflow: hidden;">
+                        <button type="button" class="btn btn-secondary btn-with-icon file-trigger-btn" onclick="this.closest('.file-upload-trigger-wrap').querySelector('input[type=file]').click()">
+                            <i class="bi bi-image"></i>
+                            <span>اختر صورة</span>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -2869,14 +2872,12 @@ async function saveCourseChanges() {
                     }
                     if (thumbEl) {
                         thumbEl.value = '';
-                        var label = thumbEl.parentElement && thumbEl.parentElement.querySelector('.file-upload-label span');
-                        if (label) {
-                            label.textContent = 'اختر صورة جديدة';
-                            label.style.color = '';
+                        var btnSpan = thumbEl.parentElement && thumbEl.parentElement.querySelector('.file-trigger-btn span');
+                        if (btnSpan) {
+                            btnSpan.textContent = 'اختر صورة جديدة';
+                            btnSpan.style.color = '';
                         }
                     }
-                    var restoreThumbBtn = item.querySelector('.restore-video-thumb-btn');
-                    if (restoreThumbBtn) restoreThumbBtn.style.display = 'none';
                 }
                 if (!videoResult.success) {
                     showAdminToast('فيديو: ' + (videoResult.error || 'فشل التحديث'), 'error');
@@ -3270,11 +3271,14 @@ async function editCoursePage(courseId) {
                 <div class="course-cover-preview-wrap" style="margin-bottom: 12px;">
                     ${courseCoverUrlPage ? `<img src="${escapeHtml(courseCoverUrlPage)}" alt="واجهة الكورس" class="course-cover-preview" style="max-width: 280px; max-height: 160px; border-radius: var(--radius-md); object-fit: cover; border: 1px solid #e0e6ed;">` : '<p style="color: var(--text-gray); font-size: 0.9rem;">لا توجد صورة حالياً</p>'}
                 </div>
-                <div class="file-upload-wrapper file-upload-compact">
-                    <input type="file" id="editCourseCoverImage" accept="image/*">
-                    <div class="file-upload-label">
-                        <i class="bi bi-image" style="font-size: 1.25rem;"></i>
-                        <span>تغيير صورة واجهة الكورس</span>
+                <div class="admin-form-group label-with-btn-row" style="margin-bottom: 0;">
+                    <label>تغيير صورة واجهة الكورس</label>
+                    <div class="file-upload-trigger-wrap">
+                        <input type="file" id="editCourseCoverImage" accept="image/*" style="position: absolute; width: 0; height: 0; opacity: 0; overflow: hidden;">
+                        <button type="button" class="btn btn-secondary btn-with-icon file-trigger-btn" onclick="this.closest('.file-upload-trigger-wrap').querySelector('input[type=file]').click()">
+                            <i class="bi bi-image"></i>
+                            <span>اختر صورة</span>
+                        </button>
                     </div>
                 </div>
             </div>
@@ -3384,21 +3388,18 @@ async function editCoursePage(courseId) {
                             <div class="video-thumb-current-display" data-original-thumb="${escapeHtml(video.thumbnail_url || '')}" style="padding: 10px; background: #f8fafc; border: 1px solid #e0e6ed; border-radius: var(--radius-sm); color: var(--text-gray); font-size: 0.9rem;">
                                 ${thumbDisplay}
                             </div>
-                            <div class="admin-form-group video-thumbnail-edit-wrap" style="margin-top: 10px; margin-bottom: 0;">
+                            <div class="admin-form-group video-thumbnail-edit-wrap label-with-btn-row" style="margin-top: 10px; margin-bottom: 0;">
                                 <label>تعديل صورة الفيديو</label>
-                                <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px;">
-                                    <div class="file-upload-trigger-wrap">
-                                        <input type="file" class="edit-video-thumbnail" data-video-id="${video.id}" accept="image/*" style="position: absolute; width: 0; height: 0; opacity: 0; overflow: hidden;">
-                                        <button type="button" class="btn btn-secondary btn-with-icon file-trigger-btn" onclick="this.closest('.file-upload-trigger-wrap').querySelector('input[type=file]').click()">
-                                            <i class="bi bi-image"></i>
-                                            <span>اختر صورة جديدة</span>
-                                        </button>
-                                    </div>
-                                    <button type="button" class="btn btn-secondary restore-video-thumb-btn" style="display: none; font-size: 0.85rem;" data-video-id="${video.id}">استعادة الصورة الأصلية</button>
+                                <div class="file-upload-trigger-wrap">
+                                    <input type="file" class="edit-video-thumbnail" data-video-id="${video.id}" accept="image/*" style="position: absolute; width: 0; height: 0; opacity: 0; overflow: hidden;">
+                                    <button type="button" class="btn btn-secondary btn-with-icon file-trigger-btn" onclick="this.closest('.file-upload-trigger-wrap').querySelector('input[type=file]').click()">
+                                        <i class="bi bi-image"></i>
+                                        <span>اختر صورة جديدة</span>
+                                    </button>
                                 </div>
                             </div>
                         </div>
-                        <div class="admin-form-group replace-video-wrap">
+                        <div class="admin-form-group replace-video-wrap label-with-btn-row">
                             <label>استبدال ملف الفيديو</label>
                             <div class="file-upload-trigger-wrap">
                                 <input type="file" class="edit-video-file-replace" data-video-id="${video.id}" accept="video/mp4,video/webm,video/ogg" style="position: absolute; width: 0; height: 0; opacity: 0; overflow: hidden;">
@@ -3407,7 +3408,7 @@ async function editCoursePage(courseId) {
                                     <span>اختر ملف فيديو جديد (يستبدل الحالي)</span>
                                 </button>
                             </div>
-                            <p style="color: var(--text-gray); font-size: 0.85rem; margin-top: 6px; margin-bottom: 0;">سيتم رفع الفيديو الجديد عند حفظ التعديلات.</p>
+                            <p style="color: var(--text-gray); font-size: 0.85rem; margin-top: 6px; margin-bottom: 0; width: 100%;">سيتم رفع الفيديو الجديد عند حفظ التعديلات.</p>
                         </div>
                         ${video.video_url ? `<div class="admin-form-group" style="grid-column: 1 / -1;"><label>مشاهدة الفيديو</label><div style="width: 100%; max-width: 100%; height: 320px; border-radius: 8px; overflow: hidden; background: #1a2332;"><iframe src="${escapeHtml(getEmbedUrlNoAutoplay(video.video_url))}" style="width: 100%; height: 100%; border: none; border-radius: 8px;" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen title="معاينة الفيديو"></iframe></div></div>` : ''}
                         <div class="admin-form-group" style="grid-column: 1 / -1;">
@@ -3443,11 +3444,11 @@ function setupReplaceVideoFileLabels(container) {
     if (!container) return;
     container.querySelectorAll('.edit-video-file-replace').forEach(function (input) {
         input.addEventListener('change', function () {
-            var label = this.parentElement && this.parentElement.querySelector('.file-upload-label span');
-            if (label) {
+            var btnSpan = this.parentElement && this.parentElement.querySelector('.file-trigger-btn span');
+            if (btnSpan) {
                 var file = this.files && this.files[0];
-                label.textContent = file ? file.name : 'اختر ملف فيديو جديد (يستبدل الحالي)';
-                label.style.color = file ? 'var(--accent-green)' : '';
+                btnSpan.textContent = file ? file.name : 'اختر ملف فيديو جديد (يستبدل الحالي)';
+                btnSpan.style.color = file ? 'var(--accent-green)' : '';
             }
         });
     });
@@ -3462,6 +3463,11 @@ function setupCourseCoverPreview(container, originalUrl) {
 
     coverInput.addEventListener('change', function () {
         const file = this.files && this.files[0];
+        var btnSpan = this.parentElement && this.parentElement.querySelector('.file-trigger-btn span');
+        if (btnSpan) {
+            btnSpan.textContent = file ? file.name : 'اختر صورة';
+            btnSpan.style.color = file ? 'var(--accent-green)' : '';
+        }
         if (!file || !file.type.startsWith('image/')) return;
         const reader = new FileReader();
         reader.onload = function (e) {
@@ -3472,16 +3478,6 @@ function setupCourseCoverPreview(container, originalUrl) {
             img.style.cssText = 'max-width: 280px; max-height: 160px; border-radius: var(--radius-md); object-fit: cover; border: 1px solid #e0e6ed;';
             img.src = e.target.result;
             previewWrap.appendChild(img);
-            const restoreLink = document.createElement('button');
-            restoreLink.type = 'button';
-            restoreLink.className = 'btn btn-secondary';
-            restoreLink.style.cssText = 'margin-top: 8px; font-size: 0.85rem;';
-            restoreLink.textContent = 'استعادة الصورة الأصلية';
-            restoreLink.addEventListener('click', function () {
-                restoreCourseCoverPreview(container, original);
-                restoreLink.remove();
-            });
-            previewWrap.appendChild(restoreLink);
         };
         reader.readAsDataURL(file);
     });
@@ -3509,7 +3505,6 @@ function setupVideoThumbnailRestoreButtons(container) {
         var item = input.closest('.video-upload-item');
         if (!item) return;
         var displayEl = item.querySelector('.video-thumb-current-display');
-        var restoreBtn = item.querySelector('.restore-video-thumb-btn');
 
         input.addEventListener('change', function () {
             var file = this.files && this.files[0];
@@ -3517,43 +3512,14 @@ function setupVideoThumbnailRestoreButtons(container) {
                 var reader = new FileReader();
                 reader.onload = function (e) {
                     displayEl.innerHTML = '<img src="' + e.target.result + '" alt="" style="' + thumbImgStyle + '">';
-                    if (restoreBtn) restoreBtn.style.display = 'inline-block';
                 };
                 reader.readAsDataURL(file);
-            } else if (restoreBtn) {
-                restoreBtn.style.display = file ? 'inline-block' : 'none';
             }
-            var label = input.parentElement.querySelector('.file-upload-label span');
-            if (label) {
-                label.textContent = file ? file.name : 'اختر صورة جديدة';
-                label.style.color = file ? 'var(--accent-green)' : '';
+            var btnSpan = input.parentElement.querySelector('.file-trigger-btn span');
+            if (btnSpan) {
+                btnSpan.textContent = file ? file.name : 'اختر صورة جديدة';
+                btnSpan.style.color = file ? 'var(--accent-green)' : '';
             }
-        });
-    });
-
-    container.querySelectorAll('.restore-video-thumb-btn').forEach(function (btn) {
-        btn.addEventListener('click', function () {
-            var item = this.closest('.video-upload-item');
-            if (!item) return;
-            var displayEl = item.querySelector('.video-thumb-current-display');
-            var input = item.querySelector('.edit-video-thumbnail');
-            var originalUrl = displayEl && displayEl.getAttribute('data-original-thumb');
-            if (displayEl) {
-                if (originalUrl) {
-                    displayEl.innerHTML = '<img src="' + escapeHtml(originalUrl) + '" alt="" style="' + thumbImgStyle + '">';
-                } else {
-                    displayEl.innerHTML = '—';
-                }
-            }
-            if (input) {
-                input.value = '';
-                var label = input.parentElement.querySelector('.file-upload-label span');
-                if (label) {
-                    label.textContent = 'اختر صورة جديدة';
-                    label.style.color = '';
-                }
-            }
-            this.style.display = 'none';
         });
     });
 }
