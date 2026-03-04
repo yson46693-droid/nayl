@@ -1504,9 +1504,59 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-function addUserInline() {
-    alert('⚠️ تم تعطيل إضافة المستخدمين مؤقتاً لأن النظام متصل بقاعدة البيانات الحية.\nيرجى استخدام واجهة التسجيل أو طلب تطوير API الإضافة.');
-    toggleAddUserForm();
+async function addUserInline() {
+    const fullName = document.getElementById('newUserNameInline')?.value?.trim();
+    const email = document.getElementById('newUserEmailInline')?.value?.trim();
+    const phoneRaw = document.getElementById('newUserPhoneInline')?.value?.trim();
+    const password = document.getElementById('newUserPassInline')?.value;
+    const statusSelect = document.getElementById('newUserStatusInline');
+    const isActive = statusSelect ? statusSelect.value === 'نشط' : true;
+
+    if (!fullName || !email || !phoneRaw || !password) {
+        showAdminToast('يرجى تعبئة جميع الحقول المطلوبة', 'error');
+        return;
+    }
+    if (password.length < 6) {
+        showAdminToast('كلمة المرور يجب أن تكون 6 أحرف على الأقل', 'error');
+        return;
+    }
+
+    const phone = (phoneRaw || '').replace(/\D/g, '');
+    if (phone.length < 7) {
+        showAdminToast('رقم الهاتف غير صالح (7 أرقام على الأقل)', 'error');
+        return;
+    }
+
+    try {
+        const token = localStorage.getItem('admin_session_token') || getCookie('admin_session_token');
+        const response = await fetch('../api/admin/create-user.php', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': 'Bearer ' + token
+            },
+            body: JSON.stringify({
+                full_name: fullName,
+                email: email,
+                phone: phone,
+                password: password,
+                is_active: isActive
+            })
+        });
+        const result = await response.json();
+
+        if (result.success && result.data) {
+            toggleAddUserForm();
+            document.getElementById('addUserFormInline')?.reset();
+            await renderUsers(currentUsersPage);
+            showAdminToast('تم إضافة المستخدم بنجاح', 'success');
+        } else {
+            showAdminToast(result.error || 'فشل إضافة المستخدم', 'error');
+        }
+    } catch (err) {
+        console.error('Error creating user:', err);
+        showAdminToast('حدث خطأ أثناء الاتصال بالخادم', 'error');
+    }
 }
 
 // Add User (from modal - kept for backward compatibility)
