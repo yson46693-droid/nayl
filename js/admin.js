@@ -2765,6 +2765,27 @@ async function saveCourseChanges() {
                 containerForCover.dataset.originalCoverUrl = newCoverUrl;
                 restoreCourseCoverPreview(containerForCover, newCoverUrl);
             }
+            (async function () {
+                try {
+                    const token = localStorage.getItem('admin_session_token') || getCookie('admin_session_token');
+                    const res = await fetch('../api/admin/get-course-details.php?course_id=' + encodeURIComponent(courseIdToSave), {
+                        method: 'GET',
+                        headers: { 'Authorization': 'Bearer ' + token },
+                        credentials: 'include'
+                    });
+                    if (res.ok) {
+                        const data = await res.json();
+                        if (data.success && data.data && data.data.course) {
+                            const courses = JSON.parse(localStorage.getItem('nayl_courses')) || [];
+                            const idx = courses.findIndex(function (c) { return c && (c.id === courseIdToSave || String(c.id) === String(courseIdToSave)); });
+                            if (idx !== -1) {
+                                courses[idx].cover_image_url = data.data.course.cover_image_url || newCoverUrl;
+                                localStorage.setItem('nayl_courses', JSON.stringify(courses));
+                            }
+                        }
+                    }
+                } catch (e) { /* ignore */ }
+            })();
         }
 
         const editContainer = (document.getElementById('courseEditPage')?.style?.display === 'block')
@@ -3323,26 +3344,26 @@ async function editCoursePage(courseId) {
                             <label>ترتيب الفيديو</label>
                             <input type="number" class="edit-video-order" value="${video.order}" data-video-id="${video.id}" min="1">
                         </div>
-                        <div class="admin-form-group">
+                        <div class="admin-form-group video-thumb-block">
                             <label>صورة الواجهة الحالية</label>
                             <div class="video-thumb-current-display" data-original-thumb="${escapeHtml(video.thumbnail_url || '')}" style="padding: 10px; background: #f8fafc; border: 1px solid #e0e6ed; border-radius: var(--radius-sm); color: var(--text-gray); font-size: 0.9rem;">
                                 ${thumbDisplay}
                             </div>
-                        </div>
-                        ${video.video_url ? `<div class="admin-form-group" style="grid-column: 1 / -1;"><label>مشاهدة الفيديو</label><div style="width: 100%; max-width: 100%; height: 320px; border-radius: 8px; overflow: hidden; background: #1a2332;"><iframe src="${escapeHtml(getEmbedUrlNoAutoplay(video.video_url))}" style="width: 100%; height: 100%; border: none; border-radius: 8px;" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen title="معاينة الفيديو"></iframe></div></div>` : ''}
-                        <div class="admin-form-group video-thumbnail-edit-wrap">
-                            <label>تعديل صورة الفيديو</label>
-                            <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px;">
-                                <div class="file-upload-wrapper">
-                                    <input type="file" class="edit-video-thumbnail" data-video-id="${video.id}" accept="image/*">
-                                    <div class="file-upload-label">
-                                        <i class="bi bi-image"></i>
-                                        <span>اختر صورة جديدة</span>
+                            <div class="admin-form-group video-thumbnail-edit-wrap" style="margin-top: 10px; margin-bottom: 0;">
+                                <label>تعديل صورة الفيديو</label>
+                                <div style="display: flex; flex-wrap: wrap; align-items: center; gap: 12px;">
+                                    <div class="file-upload-wrapper">
+                                        <input type="file" class="edit-video-thumbnail" data-video-id="${video.id}" accept="image/*">
+                                        <div class="file-upload-label">
+                                            <i class="bi bi-image"></i>
+                                            <span>اختر صورة جديدة</span>
+                                        </div>
                                     </div>
+                                    <button type="button" class="btn btn-secondary restore-video-thumb-btn" style="display: none; font-size: 0.85rem;" data-video-id="${video.id}">استعادة الصورة الأصلية</button>
                                 </div>
-                                <button type="button" class="btn btn-secondary restore-video-thumb-btn" style="display: none; font-size: 0.85rem;" data-video-id="${video.id}">استعادة الصورة الأصلية</button>
                             </div>
                         </div>
+                        ${video.video_url ? `<div class="admin-form-group" style="grid-column: 1 / -1;"><label>مشاهدة الفيديو</label><div style="width: 100%; max-width: 100%; height: 320px; border-radius: 8px; overflow: hidden; background: #1a2332;"><iframe src="${escapeHtml(getEmbedUrlNoAutoplay(video.video_url))}" style="width: 100%; height: 100%; border: none; border-radius: 8px;" allow="accelerometer; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen title="معاينة الفيديو"></iframe></div></div>` : ''}
                         <div class="admin-form-group" style="grid-column: 1 / -1;">
                             <label>تفاصيل وشرح الفيديو</label>
                             <textarea class="edit-video-description" data-video-id="${video.id}" rows="3">${escapeHtml(video.description)}</textarea>
