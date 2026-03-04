@@ -3,10 +3,10 @@
  * ============================================
  * Update Video API (Admin)
  * ============================================
- * API لتعديل بيانات فيديو (العنوان، الوصف، الترتيب، صورة الواجهة)
+ * API لتعديل بيانات فيديو (العنوان، الوصف، الترتيب، صورة الواجهة، استبدال ملف الفيديو)
  *
  * Endpoint: POST /api/admin/update-video.php
- * Body: { video_id, title?, description?, video_order?, thumbnail_base64? }
+ * Body: { video_id, title?, description?, video_order?, thumbnail_base64?, video_base64? }
  */
 
 session_start();
@@ -15,6 +15,7 @@ require_once __DIR__ . '/../config/env.php';
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../config/auth.php';
 require_once __DIR__ . '/../config/security.php';
+require_once __DIR__ . '/../config/bunny-cdn.php';
 
 loadEnv(__DIR__ . '/../.env');
 
@@ -56,6 +57,7 @@ $title = isset($data['title']) ? sanitizeInput(trim($data['title'])) : null;
 $description = isset($data['description']) ? sanitizeInput($data['description']) : null;
 $videoOrder = isset($data['video_order']) ? (int) $data['video_order'] : null;
 $thumbnailBase64 = isset($data['thumbnail_base64']) ? $data['thumbnail_base64'] : null;
+$videoBase64 = isset($data['video_base64']) && is_string($data['video_base64']) ? trim($data['video_base64']) : '';
 
 if ($videoOrder !== null && ($videoOrder < 1 || $videoOrder > 9999)) {
     sendJsonResponse(false, null, 'ترتيب الفيديو يجب أن يكون بين 1 و 9999', 400);
@@ -67,7 +69,7 @@ try {
         sendJsonResponse(false, null, 'خطأ في الاتصال بقاعدة البيانات', 500);
     }
 
-    $check = $pdo->prepare("SELECT id, course_id FROM course_videos WHERE id = ?");
+    $check = $pdo->prepare("SELECT id, course_id, title FROM course_videos WHERE id = ?");
     $check->execute([$videoId]);
     $row = $check->fetch(PDO::FETCH_ASSOC);
     if (!$row) {
@@ -75,8 +77,10 @@ try {
     }
 
     $courseId = (int) $row['course_id'];
+    $currentTitle = isset($row['title']) ? trim($row['title']) : 'Video';
     $updates = [];
     $params = ['video_id' => $videoId];
+    $newVideoUrl = null;
 
     if ($title !== null) {
         $updates[] = "title = :title";
@@ -123,6 +127,56 @@ try {
         }
     }
 
+    if (!empty($videoBase64)) {
+        $videoContent = base64_decode($videoBase64, true);
+        if ($videoContent !== false && strlen($videoContent) > 0) {
+            $courseLibraryId = defined('BUNNY_LIBRARY_ID') ? (int) BUNNY_LIBRARY_ID : 0;
+            if ($courseLibraryId <= 0) {
+                $courseLibraryId = 602302;
+            }
+            $courseLibraryApiKey = defined('BUNNY_API_KEY') ? (string) BUNNY_API_KEY : '';
+            if ($courseLibraryApiKey !== '') {
+                $tempVideoPath = sys_get_temp_dir() . '/bunny_replace_' . uniqid() . '.mp4';
+                if (file_put_contents($tempVideoPath, $videoContent) !== false) {
+                    $bunnyVideo = createBunnyVideo($title !== null ? $title : $currentTitle, $courseLibraryId, $courseLibraryApiKey);
+                    if ($bunnyVideo && !empty($bunnyVideo['guid'])) {
+                        $bunnyVideoId = $bunnyVideo['guid'];
+                        $uploadSuccess = uploadBunnyVideo($bunnyVideoId, $tempVideoPath, $courseLibraryId, $courseLibraryApiKey);
+                        @unlink($tempVideoPath);
+                        if ($uploadSuccess) {
+                            $videoInfo = getBunnyVideoInfo($bunnyVideoId, $courseLibraryId, $courseLibraryApiKey);
+                            $newVideoUrl = getBunnyVideoUrl($bunnyVideoId, $courseLibraryId);
+                            $duration = null;
+                            if ($videoInfo && isset($videoInfo['length'])) {
+                                $duration = (int) $videoInfo['length'];
+                            }
+                            $updates[] = "video_url = :video_url";
+                            $params['video_url'] = $newVideoUrl;
+                            $updates[] = "bunny_video_id = :bunny_video_id";
+                            $params['bunny_video_id'] = $bunnyVideoId;
+                            if ($duration !== null) {
+                                $updates[] = "duration = :duration";
+                                $params['duration'] = $duration;
+                            }
+                        } else {
+                            sendJsonResponse(false, null, 'فشل رفع الفيديو الجديد إلى Bunny CDN', 500);
+                        }
+                    } else {
+                        @unlink($tempVideoPath);
+                        $err = ($bunnyVideo && isset($bunnyVideo['error'])) ? $bunnyVideo['error'] : 'فشل إنشاء فيديو في Bunny CDN';
+                        sendJsonResponse(false, null, $err, 500);
+                    }
+                } else {
+                    sendJsonResponse(false, null, 'فشل حفظ ملف الفيديو مؤقتاً', 500);
+                }
+            } else {
+                sendJsonResponse(false, null, 'مفتاح Bunny API مفقود. أضف BUNNY_API_KEY في ملف .env', 500);
+            }
+        } else {
+            sendJsonResponse(false, null, 'فشل فك تشفير ملف الفيديو أو الملف فارغ', 400);
+        }
+    }
+
     if (empty($updates)) {
         sendJsonResponse(true, ['message' => 'لم يتم تغيير أي حقل'], null, 200);
     }
@@ -131,7 +185,11 @@ try {
     $stmt = $pdo->prepare($sql);
     $stmt->execute($params);
 
-    sendJsonResponse(true, ['message' => 'تم تحديث الفيديو بنجاح', 'thumbnail_url' => $thumbnailUrl], null, 200);
+    $responseData = ['message' => 'تم تحديث الفيديو بنجاح', 'thumbnail_url' => $thumbnailUrl];
+    if ($newVideoUrl !== null) {
+        $responseData['video_url'] = $newVideoUrl;
+    }
+    sendJsonResponse(true, $responseData, null, 200);
 } catch (PDOException $e) {
     error_log('Update video error: ' . $e->getMessage());
     sendJsonResponse(false, null, 'حدث خطأ أثناء تحديث الفيديو', 500);

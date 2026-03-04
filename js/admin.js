@@ -3450,7 +3450,22 @@ async function editCoursePage(courseId) {
         setupNewVideoFileListeners();
         setupCourseCoverPreview(pageContentEl, courseCoverUrlPage || '');
         setupVideoThumbnailRestoreButtons(pageContentEl);
+        setupReplaceVideoFileLabels(pageContentEl);
     }
+}
+
+function setupReplaceVideoFileLabels(container) {
+    if (!container) return;
+    container.querySelectorAll('.edit-video-file-replace').forEach(function (input) {
+        input.addEventListener('change', function () {
+            var label = this.parentElement && this.parentElement.querySelector('.file-upload-label span');
+            if (label) {
+                var file = this.files && this.files[0];
+                label.textContent = file ? file.name : 'اختر ملف فيديو جديد (يستبدل الحالي)';
+                label.style.color = file ? 'var(--accent-green)' : '';
+            }
+        });
+    });
 }
 
 function setupCourseCoverPreview(container, originalUrl) {
