@@ -216,13 +216,20 @@
                 lessonsListEl.innerHTML = videos.map(function (v, i) {
                     const duration = formatDuration(v.duration);
                     const title = escapeHtml(v.title);
+                    const desc = (v.description || '').trim();
+                    const descHtml = desc ? ('<span class="schedule-description">' + escapeHtml(desc) + '</span>') : '';
                     const dayNum = i + 1;
+                    const thumbHtml = (v.thumbnail_url)
+                        ? ('<img class="lesson-thumb" src="' + escapeHtml(v.thumbnail_url) + '" alt="">')
+                        : '<div class="lesson-thumb lesson-thumb-placeholder"><i class="bi bi-play-circle-fill"></i></div>';
                     return (
                         '<div class="lesson-item schedule-card" data-video-id="' + v.id + '" role="button" tabindex="0">' +
+                        '<div class="lesson-thumb-wrap">' + thumbHtml + '</div>' +
                         '<span class="schedule-date">' + dayNum + '</span>' +
                         '<div class="schedule-info">' +
                         '<span class="schedule-course">' + courseName + '</span>' +
                         '<span class="schedule-activity">' + title + '</span>' +
+                        descHtml +
                         '</div>' +
                         '<span class="schedule-time">' + escapeHtml(duration) + '</span>' +
                         '</div>'
@@ -300,16 +307,26 @@
         var videoUrl = (video && video.video_url) ? video.video_url : '';
         var hlsUrl = (video && video.hls_url) ? video.hls_url : '';
         var userId = getUserIdForWatermark();
+        var videoTitle = (video && video.title) ? escapeHtml(video.title) : (title ? escapeHtml(title) : '');
+        var videoDesc = (video && video.description) ? escapeHtml(video.description.trim()) : '';
+        var descriptionBlock = videoDesc
+            ? ('<div class="course-video-description"><p>' + videoDesc + '</p></div>')
+            : '';
+        var titleBlock = videoTitle
+            ? ('<h3 class="course-video-title-display">' + videoTitle + '</h3>')
+            : '';
 
         if (hlsUrl) {
             videoSectionEl.innerHTML =
                 '<div class="video-player-wrapper">' +
+                titleBlock +
                 '<div id="course-video-container" class="course-video-container">' +
                 '<video id="course-video-player" class="course-video-player" controls playsinline>' +
                 '<source src="' + escapeHtml(hlsUrl) + '" type="application/x-mpegURL">' +
                 '</video>' +
                 '<div id="course-video-watermark" class="course-video-watermark" aria-hidden="true">' + escapeHtml(String(userId)) + '</div>' +
                 '</div>' +
+                descriptionBlock +
                 '</div>';
 
             var videoEl = document.getElementById('course-video-player');
@@ -333,8 +350,10 @@
         } else {
             videoSectionEl.innerHTML =
                 '<div class="video-player-wrapper">' +
+                titleBlock +
                 '<iframe id="course-video-player" class="course-video-player" src="' + escapeHtml(videoUrl) + '" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen loading="lazy">' +
                 '</iframe>' +
+                descriptionBlock +
                 '</div>';
         }
     }

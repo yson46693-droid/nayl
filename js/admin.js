@@ -2678,10 +2678,15 @@ async function saveCourseChanges() {
         return;
     }
 
-    const titleEl = document.getElementById('editCourseTitle');
-    const descriptionEl = document.getElementById('editCourseDescription');
-    const statusEl = document.getElementById('editCourseStatus');
-    const priceEl = document.getElementById('editCoursePrice');
+    const editPageEl = document.getElementById('courseEditPage');
+    const isEditPageVisible = editPageEl && editPageEl.style.display !== 'none';
+    const activeEditContainer = isEditPageVisible ? editPageEl : document.getElementById('courseEditModal');
+    const scope = activeEditContainer || document;
+
+    const titleEl = scope.querySelector('#editCourseTitle');
+    const descriptionEl = scope.querySelector('#editCourseDescription');
+    const statusEl = scope.querySelector('#editCourseStatus');
+    const priceEl = scope.querySelector('#editCoursePrice');
     if (!titleEl || !descriptionEl || !statusEl || !priceEl) {
         showAdminToast('لم يتم العثور على حقول التعديل. تأكد من فتح نافذة التعديل.', 'error');
         return;
@@ -2696,7 +2701,7 @@ async function saveCourseChanges() {
         return;
     }
 
-    const coverInput = document.getElementById('editCourseCoverImage');
+    const coverInput = scope.querySelector('#editCourseCoverImage');
     let coverImageBase64 = null;
     if (coverInput && coverInput.files && coverInput.files[0]) {
         try {

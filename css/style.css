@@ -1100,6 +1100,27 @@ body::-webkit-scrollbar-thumb:hover {
     color: var(--primary-blue);
 }
 
+.course-video-title-display {
+    margin: 0 0 var(--spacing-sm) 0;
+    font-size: 1.1rem;
+    font-weight: 700;
+    color: var(--primary-dark);
+}
+
+.course-video-description {
+    margin-top: var(--spacing-md);
+    padding: var(--spacing-md);
+    background: var(--bg-light);
+    border-radius: var(--radius-sm);
+    color: var(--text-gray);
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+
+.course-video-description p {
+    margin: 0;
+}
+
 .video-player-wrapper {
     position: relative;
     width: 100%;
@@ -1303,6 +1324,52 @@ body::-webkit-scrollbar-thumb:hover {
 
 .lesson-item.schedule-card.active .schedule-time {
     color: rgba(255, 255, 255, 0.95);
+}
+
+.lesson-thumb-wrap {
+    flex-shrink: 0;
+    width: 120px;
+    height: 68px;
+    border-radius: 6px;
+    overflow: hidden;
+    background: #1a2332;
+}
+
+.lesson-thumb {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.lesson-thumb-placeholder {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: rgba(255, 255, 255, 0.6);
+    font-size: 1.5rem;
+}
+
+.lesson-item.schedule-card.active .lesson-thumb-placeholder {
+    color: rgba(255, 255, 255, 0.8);
+}
+
+.schedule-description {
+    font-size: 0.8rem;
+    color: #8b95a5;
+    margin-top: 2px;
+    line-height: 1.35;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+}
+
+.lesson-item.schedule-card.active .schedule-description {
+    color: rgba(255, 255, 255, 0.85);
 }
 
 .lesson-item:hover {
@@ -3197,6 +3264,10 @@ body::-webkit-scrollbar-thumb:hover {
     .course-detail-section .course-video-player {
         width: 100%;
         height: 100%;
+    }
+    .lesson-thumb-wrap {
+        width: 80px;
+        height: 45px;
     }
 }
 
