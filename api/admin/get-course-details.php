@@ -60,7 +60,7 @@ try {
     }
 
     $stmt = $pdo->prepare("
-        SELECT id, title, description, COALESCE(price, 500) AS price, status, created_at
+        SELECT id, title, description, cover_image_url, COALESCE(price, 500) AS price, status, created_at
         FROM courses
         WHERE id = ?
     ");
@@ -118,6 +118,7 @@ try {
         'id' => (int) $row['id'],
         'title' => $row['title'],
         'description' => $row['description'] ?: '',
+        'cover_image_url' => !empty($row['cover_image_url']) ? $row['cover_image_url'] : null,
         'price' => isset($row['price']) ? (float) $row['price'] : 500.00,
         'status' => $statusAr,
         'statusRaw' => $row['status'],

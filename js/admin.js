@@ -2519,10 +2519,24 @@ async function editCourse(courseId) {
 
     const videosCountModal = (course.videos && course.videos.length) ? course.videos.length : (course.videosCount != null ? course.videosCount : 0);
 
-    // Build edit modal content
+    const courseCoverUrl = course.cover_image_url || '';
+    // Build edit modal content — صورة الكورس في الأعلى (ليست داخل تعديلات الفيديو)
     let modalContent = `
         <div class="course-edit-section">
             <h4>معلومات الكورس</h4>
+            <div class="admin-form-group course-cover-edit-group">
+                <label>صورة واجهة الكورس</label>
+                <div class="course-cover-preview-wrap" style="margin-bottom: 12px;">
+                    ${courseCoverUrl ? `<img src="${escapeHtml(courseCoverUrl)}" alt="واجهة الكورس" class="course-cover-preview" style="max-width: 280px; max-height: 160px; border-radius: var(--radius-md); object-fit: cover; border: 1px solid #e0e6ed;">` : '<p style="color: var(--text-gray); font-size: 0.9rem;">لا توجد صورة حالياً</p>'}
+                </div>
+                <div class="file-upload-wrapper file-upload-compact">
+                    <input type="file" id="editCourseCoverImage" accept="image/*">
+                    <div class="file-upload-label">
+                        <i class="bi bi-image" style="font-size: 1.25rem;"></i>
+                        <span>تغيير صورة واجهة الكورس</span>
+                    </div>
+                </div>
+            </div>
             <div class="admin-form-group">
                 <label>عنوان الكورس</label>
                 <input type="text" id="editCourseTitle" value="${escapeHtml(course.title)}" class="form-control">
@@ -2680,12 +2694,31 @@ async function saveCourseChanges() {
         return;
     }
 
+    const coverInput = document.getElementById('editCourseCoverImage');
+    let coverImageBase64 = null;
+    if (coverInput && coverInput.files && coverInput.files[0]) {
+        try {
+            coverImageBase64 = await readFileAsBase64(coverInput.files[0]);
+        } catch (err) {
+            console.error('قراءة صورة الكورس:', err);
+        }
+    }
+
     let saveBtn = document.querySelector('#courseEditModal .btn-primary[onclick="saveCourseChanges()"], #courseEditPage .btn-primary[onclick="saveCourseChanges()"]');
     if (saveBtn) {
         saveBtn.disabled = true;
         saveBtn.innerHTML = '<i class="bi bi-hourglass-split"></i> جاري الحفظ...';
     }
     const token = localStorage.getItem('admin_session_token') || getCookie('admin_session_token');
+    const payload = {
+        course_id: courseIdToSave,
+        title: title,
+        description: description,
+        status: status,
+        price: price
+    };
+    if (coverImageBase64) payload.cover_image_base64 = coverImageBase64;
+
     try {
         const response = await fetch('../api/admin/update-course.php', {
             method: 'POST',
@@ -2694,13 +2727,7 @@ async function saveCourseChanges() {
                 'Authorization': 'Bearer ' + token
             },
             credentials: 'include',
-            body: JSON.stringify({
-                course_id: courseIdToSave,
-                title: title,
-                description: description,
-                status: status,
-                price: price
-            })
+            body: JSON.stringify(payload)
         });
         const result = await response.json();
         if (!result.success) {
@@ -2716,6 +2743,9 @@ async function saveCourseChanges() {
             courses[courseIndex].description = description;
             courses[courseIndex].status = status;
             courses[courseIndex].price = price;
+            if (result.data && result.data.cover_image_url) {
+                courses[courseIndex].cover_image_url = result.data.cover_image_url;
+            }
         }
 
         const editContainer = (document.getElementById('courseEditPage')?.style?.display === 'block')
@@ -3066,10 +3096,24 @@ async function editCoursePage(courseId) {
     }
 
     const videosCountDisplay = (course.videos && course.videos.length) ? course.videos.length : (course.videosCount != null ? course.videosCount : 0);
+    const courseCoverUrlPage = course.cover_image_url || '';
 
     let editContent = `
         <div class="course-edit-section">
             <h4>معلومات الكورس الأساسية</h4>
+            <div class="admin-form-group course-cover-edit-group">
+                <label>صورة واجهة الكورس</label>
+                <div class="course-cover-preview-wrap" style="margin-bottom: 12px;">
+                    ${courseCoverUrlPage ? `<img src="${escapeHtml(courseCoverUrlPage)}" alt="واجهة الكورس" class="course-cover-preview" style="max-width: 280px; max-height: 160px; border-radius: var(--radius-md); object-fit: cover; border: 1px solid #e0e6ed;">` : '<p style="color: var(--text-gray); font-size: 0.9rem;">لا توجد صورة حالياً</p>'}
+                </div>
+                <div class="file-upload-wrapper file-upload-compact">
+                    <input type="file" id="editCourseCoverImage" accept="image/*">
+                    <div class="file-upload-label">
+                        <i class="bi bi-image" style="font-size: 1.25rem;"></i>
+                        <span>تغيير صورة واجهة الكورس</span>
+                    </div>
+                </div>
+            </div>
             <div class="admin-form-group">
                 <label>عنوان الكورس</label>
                 <input type="text" id="editCourseTitle" value="${escapeHtml(course.title)}" style="width: 100%; padding: 12px; border: 1px solid #e0e6ed; border-radius: var(--radius-sm); font-family: inherit;">
@@ -3092,8 +3136,57 @@ async function editCoursePage(courseId) {
         </div>
 
         <div class="course-edit-section">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-md);">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--spacing-md); flex-wrap: wrap; gap: var(--spacing-sm);">
                 <h4 style="margin: 0;">فيديوهات الكورس (${videosCountDisplay})</h4>
+                <button type="button" class="btn btn-secondary btn-with-icon" onclick="showAddVideoForm(${courseId})">
+                    <i class="bi bi-plus-circle-fill"></i>
+                    <span>إضافة فيديو جديد</span>
+                </button>
+            </div>
+            <div id="addVideoForm" style="display: none; background: #f8f9fa; padding: var(--spacing-lg); border-radius: var(--radius-md); margin-bottom: var(--spacing-md);">
+                <h5 style="margin-bottom: var(--spacing-md);">إضافة فيديو جديد</h5>
+                <div class="admin-form-group">
+                    <label>عنوان الفيديو</label>
+                    <input type="text" id="newVideoTitle" placeholder="مثال: مقدمة عن الدرس" class="form-control">
+                </div>
+                <div class="admin-form-group">
+                    <label>ترتيب الفيديو</label>
+                    <input type="number" id="newVideoOrder" value="${(course.videos && course.videos.length) ? course.videos.length + 1 : 1}" min="1" class="form-control">
+                </div>
+                <div class="admin-form-group">
+                    <label>صورة واجهة الفيديو</label>
+                    <div class="file-upload-wrapper">
+                        <input type="file" id="newVideoThumbnail" accept="image/*" class="form-control">
+                        <div class="file-upload-label">
+                            <i class="bi bi-image"></i>
+                            <span>اختر صورة الواجهة</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="admin-form-group">
+                    <label>رفع الفيديو</label>
+                    <div class="file-upload-wrapper">
+                        <input type="file" id="newVideoFile" accept="video/*" class="form-control">
+                        <div class="file-upload-label">
+                            <i class="bi bi-file-earmark-play"></i>
+                            <span>اختر ملف الفيديو</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="admin-form-group">
+                    <label>تفاصيل وشرح الفيديو</label>
+                    <textarea id="newVideoDescription" rows="3" placeholder="اكتب وصف تفصيلي عن محتوى الفيديو..." class="form-control"></textarea>
+                </div>
+                <div style="display: flex; gap: var(--spacing-sm); justify-content: flex-end; margin-top: var(--spacing-md);">
+                    <button type="button" class="btn btn-secondary" onclick="hideAddVideoForm()">
+                        <i class="bi bi-x-lg"></i>
+                        إلغاء
+                    </button>
+                    <button type="button" class="btn btn-primary btn-with-icon" onclick="saveNewVideo(${courseId})">
+                        <i class="bi bi-check-lg"></i>
+                        <span>حفظ الفيديو</span>
+                    </button>
+                </div>
             </div>
             <div id="editVideosList">
     `;
@@ -3156,7 +3249,10 @@ async function editCoursePage(courseId) {
         </div>
     `;
 
-    if (pageContentEl) pageContentEl.innerHTML = editContent;
+    if (pageContentEl) {
+        pageContentEl.innerHTML = editContent;
+        setupNewVideoFileListeners();
+    }
 }
 
 function closeCourseEditPage() {

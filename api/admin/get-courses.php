@@ -56,13 +56,14 @@ try {
             c.id,
             c.title,
             c.description,
+            c.cover_image_url,
             COALESCE(c.price, 500) AS price,
             c.status,
             c.created_at,
             COUNT(cv.id) AS videos_count
         FROM courses c
         LEFT JOIN course_videos cv ON cv.course_id = c.id
-        GROUP BY c.id, c.title, c.description, c.price, c.status, c.created_at
+        GROUP BY c.id, c.title, c.description, c.cover_image_url, c.price, c.status, c.created_at
         ORDER BY c.created_at DESC
     ");
     $rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -81,6 +82,7 @@ try {
             'id' => (int) $row['id'],
             'title' => $row['title'],
             'description' => $row['description'] ?: '',
+            'cover_image_url' => !empty($row['cover_image_url']) ? $row['cover_image_url'] : null,
             'status' => $statusAr,
             'statusRaw' => $row['status'],
             'uploadDate' => $uploadDate,

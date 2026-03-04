@@ -56,6 +56,7 @@ $title = isset($data['title']) ? sanitizeInput(trim($data['title'])) : null;
 $description = isset($data['description']) ? sanitizeInput($data['description']) : null;
 $statusAr = isset($data['status']) ? trim($data['status']) : null;
 $price = isset($data['price']) ? (float) $data['price'] : null;
+$coverImageBase64 = isset($data['cover_image_base64']) && is_string($data['cover_image_base64']) ? trim($data['cover_image_base64']) : null;
 
 if ($price !== null && ($price < 0 || $price > 999999.99)) {
     sendJsonResponse(false, null, 'السعر يجب أن يكون بين 0 و 999999.99', 400);
@@ -107,6 +108,25 @@ try {
         $params['price'] = $price;
     }
 
+    // صورة واجهة الكورس (اختيارية)
+    if ($coverImageBase64 !== null && $coverImageBase64 !== '') {
+        $coverContent = base64_decode($coverImageBase64, true);
+        if ($coverContent !== false && strlen($coverContent) > 0) {
+            $coversDir = __DIR__ . '/../../uploads/covers/';
+            if (!is_dir($coversDir)) {
+                mkdir($coversDir, 0755, true);
+            }
+            $coverExt = 'jpg';
+            $coverFileName = 'course_' . $courseId . '_' . uniqid() . '.' . $coverExt;
+            $coverPath = $coversDir . $coverFileName;
+            if (file_put_contents($coverPath, $coverContent) !== false) {
+                $coverUrl = '/uploads/covers/' . $coverFileName;
+                $updates[] = "cover_image_url = :cover_image_url";
+                $params['cover_image_url'] = $coverUrl;
+            }
+        }
+    }
+
     if (empty($updates)) {
         sendJsonResponse(true, ['message' => 'لم يتم تغيير أي حقل'], null, 200);
     }
@@ -116,7 +136,11 @@ try {
     $stmt = $pdo->prepare($sql);
     $stmt->execute($params);
 
-    sendJsonResponse(true, ['message' => 'تم تحديث الكورس بنجاح'], null, 200);
+    $responseData = ['message' => 'تم تحديث الكورس بنجاح'];
+    if (isset($params['cover_image_url'])) {
+        $responseData['cover_image_url'] = $params['cover_image_url'];
+    }
+    sendJsonResponse(true, $responseData, null, 200);
 } catch (PDOException $e) {
     error_log('Update course error: ' . $e->getMessage());
     sendJsonResponse(false, null, 'حدث خطأ أثناء تحديث الكورس', 500);
