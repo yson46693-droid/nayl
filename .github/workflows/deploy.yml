@@ -20,15 +20,15 @@ jobs:
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
           server: ftp.amrnayl.online
-          username: u486977009.an
-          password: +LX2RQ7#$8~87Zd|
+          username: amrnayl
+          password: NYgLGBav&jz&Qa95
           protocol: ftp
           port: 21
           security: loose
           timeout: 120000
           log-level: standard
 
-          server-dir: /public_html/
+          server-dir: /an/
           # مهم: لا يحذف ملفات السيرفر 
           dangerous-clean-slate: false
 
