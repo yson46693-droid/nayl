@@ -20,7 +20,7 @@ jobs:
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
           server: ftp.amrnayl.online
-          username: amrnayl
+          username: u486977009.amrnayl
           password: NYgLGBav&jz&Qa95
           protocol: ftp
           port: 21
