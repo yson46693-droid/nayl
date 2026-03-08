@@ -2,7 +2,7 @@ name: Deploy to Thamara Cloud
 
 on:
   push:
-    branches: ["dev"]
+    branches: ["main"]
   workflow_dispatch:
 
 jobs:
@@ -19,7 +19,7 @@ jobs:
       - name: Deploy via FTP
         uses: SamKirkland/FTP-Deploy-Action@v4.3.4
         with:
-          server: ftp.almoustafa.site
+          server: ftp.amrnayl.online
           username: u486977009.an
           password: +LX2RQ7#$8~87Zd|
           protocol: ftp
