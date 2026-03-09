@@ -1,0 +1,18 @@
+# AmrNayl - Root .htaccess
+# توجيه /verify-email إلى معالج PHP (بدون .php في الرابط)
+<IfModule mod_rewrite.c>
+    RewriteEngine On
+    RewriteBase /
+
+    # تحويل /verify-email?token=xxx إلى verify-email.php?token=xxx
+    RewriteRule ^verify-email$ verify-email.php [L,QSA]
+
+    # توجيه صفحات نتيجة التأكيد إلى الملفات الثابتة
+    RewriteRule ^email-verified$ email-verified.html [L]
+    RewriteRule ^verification-error$ verification-error.html [L]
+</IfModule>
+
+# أمان أساسي
+<IfModule mod_headers.c>
+    Header set X-Content-Type-Options "nosniff"
+</IfModule>

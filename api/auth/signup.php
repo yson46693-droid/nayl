@@ -304,7 +304,7 @@ try {
         $host = $_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? 'localhost';
         $baseUrl = $protocol . '://' . $host;
     }
-    $verifyLink = $baseUrl . '/api/auth/verify-email.php?token=' . urlencode($verifyToken);
+    $verifyLink = $baseUrl . '/verify-email?token=' . urlencode($verifyToken);
 
     error_log("Signup: sending verification email to: " . $email . " link: " . substr($verifyLink, 0, 60) . "...");
     $emailSent = sendVerificationEmail($email, $verifyLink, $fullName ?: null);
