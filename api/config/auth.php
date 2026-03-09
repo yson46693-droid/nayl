@@ -11,7 +11,8 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// استيراد الملفات المطلوبة
+// استيراد الملفات المطلوبة (CORS أولاً لمصدر واحد للنطاقات من .env)
+require_once __DIR__ . '/cors.php';
 require_once __DIR__ . '/database.php';
 require_once __DIR__ . '/security.php';
 
@@ -517,67 +518,4 @@ function requireAdminAuth($returnAdmin = false) {
     return $admin;
 }
 
-/**
- * الحصول على Origin المسموح (نفس الدالة في login.php)
- * @return string|null
- */
-function getAllowedOrigin() {
-    $allowedOrigins = [
-        'http://localhost',
-        'https://localhost',
-        'http://127.0.0.1',
-        'https://127.0.0.1',
-        'https://almoustafa.site',
-        'http://almoustafa.site',
-        'https://www.almoustafa.site',
-        'http://www.almoustafa.site',
-        'https://an.almoustafa.site',
-        'http://an.almoustafa.site'
-    ];
-    
-    if (function_exists('env')) {
-        $appUrl = env('APP_URL', '');
-        if ($appUrl) {
-            $allowedOrigins[] = rtrim($appUrl, '/');
-            $parsed = parse_url($appUrl);
-            if ($parsed && isset($parsed['host'])) {
-                $allowedOrigins[] = ($parsed['scheme'] ?? 'http') . '://' . $parsed['host'];
-            }
-        }
-    }
-
-    // السماح بنفس نطاق الخادم (مهم على الاستضافة مثل Hostinger عند عدم وجود APP_URL)
-    $serverProtocol = 'http';
-    if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') {
-        $serverProtocol = 'https';
-    } elseif (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') {
-        $serverProtocol = 'https';
-    }
-    $serverHost = $_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? '';
-    if ($serverHost !== '') {
-        $allowedOrigins[] = $serverProtocol . '://' . $serverHost;
-    }
-    
-    $requestOrigin = $_SERVER['HTTP_ORIGIN'] ?? null;
-    
-    if ($requestOrigin) {
-        $parsedOrigin = parse_url($requestOrigin);
-        if ($parsedOrigin && isset($parsedOrigin['host'])) {
-            $originDomain = ($parsedOrigin['scheme'] ?? 'http') . '://' . $parsedOrigin['host'];
-            
-            foreach ($allowedOrigins as $allowed) {
-                if ($originDomain === $allowed) {
-                    return $requestOrigin;
-                }
-            }
-        }
-    }
-    
-    $serverOrigin = $serverProtocol . '://' . ($serverHost !== '' ? $serverHost : 'localhost');
-    
-    if (!$requestOrigin) {
-        return $serverOrigin;
-    }
-    
-    return null;
-}
+// getAllowedOrigin() و getAdminAllowedOrigin() معرّفتان في config/cors.php

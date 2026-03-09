@@ -64,7 +64,7 @@ $userIdBytes = substr(hash('sha256', (string) $userId, true), 0, 32);
 $options = [
     'challenge' => base64urlEncode($challenge),
     'rp' => [
-        'name' => 'AmrNayl Academy',
+        'name' => function_exists('env') ? (env('APP_NAME', '') ?: 'AmrNayl Academy') : 'AmrNayl Academy',
         'id' => $rpId
     ],
     'user' => [

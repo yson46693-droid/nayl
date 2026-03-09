@@ -24,7 +24,7 @@ if (!file_exists($envFile)) {
 $libraryId = env('BUNNY_LIBRARY_ID', '');
 $apiKey = env('BUNNY_API_KEY', '');
 $accountApiKey = env('BUNNY_ACCOUNT_API_KEY', '');
-$tokenKey = env('BUNNY_TOKEN_KEY', 'b6fb2c1d-ca86-4c33-b731-3ba56b24e363');
+$tokenKey = env('BUNNY_TOKEN_KEY', '');
 $cdnUrl = env('BUNNY_CDN_URL', 'https://video.bunnycdn.com');
 
 // تسجيل للتحقق (بدون عرض القيم الحساسة)

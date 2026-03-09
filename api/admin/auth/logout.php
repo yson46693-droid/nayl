@@ -12,17 +12,13 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-require_once __DIR__ . '/../../config/env.php';
-loadEnv(__DIR__ . '/../.env');
+require_once __DIR__ . '/../../config/cors.php';
 
-// دالة التحقق من Origin (نسخ مختصر)
-$allowedOrigins = ['http://localhost','https://localhost','http://127.0.0.1','https://127.0.0.1'];
-if (function_exists('env') && $url = env('APP_URL')) $allowedOrigins[] = rtrim($url, '/');
-
-$origin = $_SERVER['HTTP_ORIGIN'] ?? '';
-$allowedOrigin = in_array($origin, $allowedOrigins) ? $origin : ($allowedOrigins[0] ?? '*');
-
-header("Access-Control-Allow-Origin: $allowedOrigin");
+$allowedOrigin = getAdminAllowedOrigin();
+if (!$allowedOrigin) {
+    $allowedOrigin = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http') . '://' . ($_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? 'localhost');
+}
+header('Access-Control-Allow-Origin: ' . $allowedOrigin);
 header('Access-Control-Allow-Credentials: true');
 header('Access-Control-Allow-Methods: POST, OPTIONS');
 header('Access-Control-Allow-Headers: Content-Type, Authorization');

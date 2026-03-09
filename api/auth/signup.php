@@ -11,77 +11,8 @@
 // بدء الجلسة للـ CSRF Token
 session_start();
 
-// تحميل env.php للوصول إلى دالة env()
-require_once __DIR__ . '/../config/env.php';
-loadEnv(__DIR__ . '/../.env');
+require_once __DIR__ . '/../config/cors.php';
 
-/**
- * وظيفة للتحقق من Origin المسموح
- * @return string|null - Origin المسموح أو null
- */
-function getAllowedOrigin() {
-    // قائمة النطاقات المسموحة
-    $allowedOrigins = [
-        'http://localhost',
-        'https://localhost',
-        'http://127.0.0.1',
-        'https://127.0.0.1',
-        'https://almoustafa.site',
-        'http://almoustafa.site',
-        'https://www.almoustafa.site',
-        'http://www.almoustafa.site',
-        'https://an.almoustafa.site',
-        'http://an.almoustafa.site'
-    ];
-
-    // إضافة النطاق من .env إذا كان موجوداً
-    if (function_exists('env')) {
-        $appUrl = env('APP_URL', '');
-        if ($appUrl) {
-            $allowedOrigins[] = rtrim($appUrl, '/');
-            $parsed = parse_url($appUrl);
-            if ($parsed && isset($parsed['host'])) {
-                $allowedOrigins[] = ($parsed['scheme'] ?? 'http') . '://' . $parsed['host'];
-            }
-        }
-    }
-    
-    // الحصول على Origin من الطلب
-    $requestOrigin = $_SERVER['HTTP_ORIGIN'] ?? null;
-    
-    if ($requestOrigin) {
-        // استخراج النطاق من Origin
-        $parsedOrigin = parse_url($requestOrigin);
-        if ($parsedOrigin && isset($parsedOrigin['host'])) {
-            $originDomain = ($parsedOrigin['scheme'] ?? 'http') . '://' . $parsedOrigin['host'];
-            
-            // التحقق من أن النطاق مسموح
-            foreach ($allowedOrigins as $allowed) {
-                if ($originDomain === $allowed) {
-                    return $requestOrigin;
-                }
-            }
-        }
-    }
-    
-    // إذا لم يكن هناك Origin في الطلب (مثل طلبات من نفس النطاق)، نسمح
-    // لكن فقط إذا كان الطلب من نفس النطاق
-    $serverProtocol = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on') ? 'https' : 'http';
-    $serverHost = $_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? 'localhost';
-    $serverOrigin = $serverProtocol . '://' . $serverHost;
-    
-    // إذا لم يكن هناك Origin في الطلب، نعتبره من نفس النطاق
-    if (!$requestOrigin) {
-        return $serverOrigin;
-    }
-    
-    // إذا كان Origin موجود لكن غير مسموح، نرفض
-    return null;
-}
-
-/**
- * إعدادات CORS الآمنة
- */
 $allowedOrigin = getAllowedOrigin();
 if ($allowedOrigin) {
     header('Access-Control-Allow-Origin: ' . $allowedOrigin);

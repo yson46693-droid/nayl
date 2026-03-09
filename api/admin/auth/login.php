@@ -13,67 +13,8 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-// تحميل الإعدادات
-require_once __DIR__ . '/../../config/env.php';
-loadEnv(__DIR__ . '/../.env');
+require_once __DIR__ . '/../../config/cors.php';
 
-// دالة التحقق من Origin (مشتركة)
-function getAdminAllowedOrigin() {
-    $allowedOrigins = [
-        'http://localhost',
-        'https://localhost',
-        'http://127.0.0.1',
-        'https://127.0.0.1',
-        'https://almoustafa.site',
-        'http://almoustafa.site',
-        'https://www.almoustafa.site',
-        'http://www.almoustafa.site',
-        'https://an.almoustafa.site',
-        'http://an.almoustafa.site'
-    ];
-    
-    if (function_exists('env')) {
-        $appUrl = env('APP_URL', '');
-        if ($appUrl) {
-            $allowedOrigins[] = rtrim($appUrl, '/');
-            $parsed = parse_url($appUrl);
-            if ($parsed && isset($parsed['host'])) {
-                $allowedOrigins[] = ($parsed['scheme'] ?? 'http') . '://' . $parsed['host'];
-            }
-        }
-    }
-    // السماح بنفس نطاق الخادم (استضافة مثل Hostinger)
-    $serverProtocol = 'http';
-    if (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') {
-        $serverProtocol = 'https';
-    } elseif (!empty($_SERVER['HTTP_X_FORWARDED_PROTO']) && $_SERVER['HTTP_X_FORWARDED_PROTO'] === 'https') {
-        $serverProtocol = 'https';
-    }
-    $serverHost = $_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? '';
-    if ($serverHost !== '') {
-        $allowedOrigins[] = $serverProtocol . '://' . $serverHost;
-    }
-    $serverOrigin = $serverProtocol . '://' . ($serverHost !== '' ? $serverHost : 'localhost');
-
-    $requestOrigin = $_SERVER['HTTP_ORIGIN'] ?? null;
-    if ($requestOrigin) {
-        $parsedOrigin = parse_url($requestOrigin);
-        if ($parsedOrigin && isset($parsedOrigin['host'])) {
-            $originDomain = ($parsedOrigin['scheme'] ?? 'http') . '://' . $parsedOrigin['host'];
-            foreach ($allowedOrigins as $allowed) {
-                if ($originDomain === $allowed) {
-                    return $requestOrigin;
-                }
-            }
-        }
-    }
-    if (!$requestOrigin) {
-        return $serverOrigin;
-    }
-    return null;
-}
-
-// CORS Headers
 $allowedOrigin = getAdminAllowedOrigin();
 if ($allowedOrigin) {
     header('Access-Control-Allow-Origin: ' . $allowedOrigin);

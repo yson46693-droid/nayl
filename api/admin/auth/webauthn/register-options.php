@@ -56,7 +56,7 @@ $username = $admin['username'] ?? ('admin' . $adminId);
 $options = [
     'challenge' => base64urlEncode($challenge),
     'rp' => [
-        'name' => 'AmrNayl Academy - لوحة التحكم',
+        'name' => (function_exists('env') ? (env('APP_NAME', '') ?: 'AmrNayl Academy') : 'AmrNayl Academy') . ' - لوحة التحكم',
         'id' => $rpId
     ],
     'user' => [

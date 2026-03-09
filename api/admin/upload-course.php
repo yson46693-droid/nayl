@@ -205,9 +205,9 @@ try {
         
         $courseId = $pdo->lastInsertId();
         
-        $courseLibraryId = defined('BUNNY_LIBRARY_ID') ? (int) BUNNY_LIBRARY_ID : 0;
+        $courseLibraryId = (int) env('BUNNY_LIBRARY_ID', '');
         if ($courseLibraryId <= 0) {
-            $courseLibraryId = 602302;
+            throw new Exception('معرف مكتبة الكورسات مطلوب. أضف BUNNY_LIBRARY_ID في ملف .env');
         }
         $courseLibraryApiKey = defined('BUNNY_API_KEY') ? (string) BUNNY_API_KEY : '';
         if ($courseLibraryApiKey === '') {

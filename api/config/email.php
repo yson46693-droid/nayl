@@ -17,7 +17,7 @@ require_once __DIR__ . '/env.php';
  * @return bool - نجاح الإرسال
  */
 function sendPasswordResetEmail($to, $resetLink, $userName = '') {
-    $appName = 'AmrNayl Academy';
+    $appName = function_exists('env') ? (env('APP_NAME', '') ?: env('MAIL_FROM_NAME', 'AmrNayl Academy')) : 'AmrNayl Academy';
     $subject = 'استعادة كلمة المرور - ' . $appName;
     
     $greeting = $userName ? "مرحباً {$userName}," : 'مرحباً،';
@@ -84,7 +84,13 @@ function sendEmail($to, $subject, $bodyHtml) {
  * @return string
  */
 function getMailFrom() {
-    $fromEmail = function_exists('env') ? env('MAIL_FROM_EMAIL', 'noreply@amrnayl.com') : 'noreply@amrnayl.com';
-    $fromName = function_exists('env') ? env('MAIL_FROM_NAME', 'AmrNayl Academy') : 'AmrNayl Academy';
+    $fromEmail = function_exists('env') ? env('MAIL_FROM_EMAIL', '') : '';
+    $fromName = function_exists('env') ? env('MAIL_FROM_NAME', '') : '';
+    if ($fromEmail === '') {
+        $fromEmail = 'noreply@localhost';
+    }
+    if ($fromName === '') {
+        $fromName = 'AmrNayl Academy';
+    }
     return $fromName . ' <' . $fromEmail . '>';
 }

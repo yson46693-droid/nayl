@@ -130,9 +130,9 @@ try {
     if (!empty($videoBase64)) {
         $videoContent = base64_decode($videoBase64, true);
         if ($videoContent !== false && strlen($videoContent) > 0) {
-            $courseLibraryId = defined('BUNNY_LIBRARY_ID') ? (int) BUNNY_LIBRARY_ID : 0;
+            $courseLibraryId = (int) env('BUNNY_LIBRARY_ID', '');
             if ($courseLibraryId <= 0) {
-                $courseLibraryId = 602302;
+                sendJsonResponse(false, null, 'معرف مكتبة الكورسات مطلوب. أضف BUNNY_LIBRARY_ID في ملف .env', 500);
             }
             $courseLibraryApiKey = defined('BUNNY_API_KEY') ? (string) BUNNY_API_KEY : '';
             if ($courseLibraryApiKey !== '') {
