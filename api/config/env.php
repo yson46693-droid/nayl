@@ -67,8 +67,13 @@ function loadEnv($envFile = null) {
  */
 function env($key, $default = null) {
     $value = getenv($key);
-    
-    if ($value === false) {
+    if ($value === false && isset($_ENV[$key])) {
+        $value = $_ENV[$key];
+    }
+    if ($value === false && isset($_SERVER[$key])) {
+        $value = $_SERVER[$key];
+    }
+    if ($value === false || $value === null) {
         return $default;
     }
     

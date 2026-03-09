@@ -64,11 +64,10 @@ try {
     $stmt->execute(['email' => $email]);
     $user = $stmt->fetch(PDO::FETCH_ASSOC);
 
-    // دائماً نعيد نفس الرسالة (منع اكتشاف البريد المسجل)
-    $successMessage = 'إذا كان البريد مسجلاً، تم إرسال رابط استعادة كلمة المرور إليه. تحقق من صندوق الوارد والرسائل غير المرغوبة.';
+    $successMessage = 'تم إرسال رابط استعادة كلمة المرور إلى بريدك. تحقق من صندوق الوارد والرسائل غير المرغوبة.';
 
     if (!$user) {
-        sendJsonResponse(true, ['message' => $successMessage], null, 200);
+        sendJsonResponse(false, null, 'لا يوجد حساب مرتبط بهذا البريد الإلكتروني', 404);
         exit;
     }
 
