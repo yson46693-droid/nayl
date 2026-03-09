@@ -59,6 +59,55 @@ function sendPasswordResetEmail($to, $resetLink, $userName = '') {
 }
 
 /**
+ * إرسال بريد تأكيد البريد الإلكتروني عند التسجيل
+ * @param string $to - البريد الإلكتروني للمستلم
+ * @param string $verifyLink - رابط تأكيد البريد
+ * @param string $userName - اسم المستخدم (اختياري)
+ * @return bool - نجاح الإرسال
+ */
+function sendVerificationEmail($to, $verifyLink, $userName = '') {
+    $appName = function_exists('env') ? (env('APP_NAME', '') ?: env('MAIL_FROM_NAME', 'AmrNayl Academy')) : 'AmrNayl Academy';
+    $subject = 'تأكيد بريدك الإلكتروني - ' . $appName;
+
+    $greeting = $userName ? "مرحباً {$userName}," : 'مرحباً،';
+
+    $body = "
+<!DOCTYPE html>
+<html dir='rtl' lang='ar'>
+<head>
+    <meta charset='UTF-8'>
+    <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, sans-serif; background: #f5f7fa; margin: 0; padding: 20px; }
+        .container-app { max-width: 500px; margin: 0 auto; background: #fff; border-radius: 12px; padding: 30px; box-shadow: 0 2px 10px rgba(0,0,0,0.08); }
+        .logo { font-size: 1.5rem; font-weight: bold; color: #4a90e2; margin-bottom: 20px; }
+        h1 { color: #1a2332; font-size: 1.25rem; margin: 0 0 15px; }
+        p { color: #2c3e50; line-height: 1.7; margin: 0 0 15px; font-size: 0.95rem; }
+        .btn { display: inline-block; background: #4a90e2; color: #fff !important; padding: 12px 24px; text-decoration: none; border-radius: 8px; font-weight: 600; margin: 15px 0; }
+        .btn:hover { background: #3a7bc8; }
+        .link-note { font-size: 0.85rem; color: #8b95a5; word-break: break-all; }
+        .footer { margin-top: 25px; padding-top: 15px; border-top: 1px solid #eee; font-size: 0.85rem; color: #8b95a5; }
+    </style>
+</head>
+<body>
+    <div class='container-app'>
+        <div class='logo'>{$appName}</div>
+        <h1>تأكيد البريد الإلكتروني</h1>
+        <p>{$greeting}</p>
+        <p>شكراً لتسجيلك. يرجى النقر على الزر أدناه لتأكيد بريدك الإلكتروني وتفعيل حسابك:</p>
+        <p><a href='{$verifyLink}' class='btn'>تأكيد البريد الإلكتروني</a></p>
+        <p class='link-note'>إن لم يعمل الزر، انسخ الرابط التالي إلى المتصفح:<br>{$verifyLink}</p>
+        <p>رابط التأكيد صالح لمدة 24 ساعة.</p>
+        <div class='footer'>إن لم تكن أنت من أنشأ هذا الحساب، تجاهل هذه الرسالة.</div>
+    </div>
+</body>
+</html>
+";
+
+    return sendEmail($to, $subject, $body);
+}
+
+/**
  * إرسال بريد إلكتروني عام
  * يستخدم SMTP إذا وُجدت SMTP_HOST و SMTP_USERNAME و SMTP_PASSWORD، وإلا mail()
  * @param string $to - البريد الإلكتروني للمستلم

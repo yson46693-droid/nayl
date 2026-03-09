@@ -175,6 +175,10 @@ if (!$user) {
     sendJsonResponse(false, null, 'المستخدم غير موجود أو غير نشط', 404);
 }
 
+if (empty($user['is_verified'])) {
+    sendJsonResponse(false, null, 'يجب تأكيد بريدك الإلكتروني أولاً. راجع صندوق الوارد أو البريد المزعج للنقر على رابط التأكيد.', 403);
+}
+
 $user['account_type'] = 'free';
 try {
     $atStmt = $pdo->prepare("SELECT COALESCE(account_type, 'free') AS account_type FROM users WHERE id = ? LIMIT 1");

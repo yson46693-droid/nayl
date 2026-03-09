@@ -541,27 +541,17 @@ document.addEventListener('DOMContentLoaded', function () {
                 const result = await signup(userData);
 
                 if (result.success) {
-                    // نجح التسجيل - البيانات الفعلية في result.data.data (استجابة API)
                     const apiData = result.data?.data || result.data;
-                    const user = apiData?.user;
-                    if (user) {
-                        const fullPhone = user.full_phone || (countryCode + phone);
-                        localStorage.setItem('userData_' + fullPhone, JSON.stringify(user));
-                        localStorage.setItem('userPhone', fullPhone);
-                        localStorage.setItem('isLoggedIn', 'true');
-                    }
-
-                    // إظهار رسالة النجاح
-                    if (whatsappClicked) {
-                        alert('تم إنشاء الحساب بنجاح! يمكنك الآن استرجاع كلمة المرور عبر واتساب في حال نسيانها.');
-                    } else {
-                        alert('تم إنشاء الحساب بنجاح! يمكنك تسجيل الدخول الآن.');
-                    }
+                    const message = apiData?.message || result.data?.message || 'تم إنشاء الحساب. يرجى تأكيد بريدك الإلكتروني من الرابط المرسل إلى بريدك ثم تسجيل الدخول.';
 
                     sessionStorage.removeItem('whatsappVerificationClicked');
 
-                    // إعادة التوجيه إلى الصفحة الرئيسية
-                    window.location.href = 'home.html';
+                    // لا يتم تسجيل الدخول تلقائياً - يجب تأكيد البريد أولاً
+                    alert(message + (whatsappClicked ? '\n\nيمكنك استرجاع كلمة المرور عبر واتساب في حال نسيانها.' : ''));
+
+                    // التوجيه لصفحة تسجيل الدخول
+                    const loginPage = window.location.pathname.includes('mobile') ? 'index-mobile.html' : 'index.html';
+                    window.location.href = loginPage;
                 } else {
                     // فشل التسجيل
                     let errorMessage = result.error || 'حدث خطأ أثناء إنشاء الحساب';

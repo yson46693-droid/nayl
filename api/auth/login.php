@@ -201,7 +201,12 @@ try {
     if (!isset($user['is_active']) || !$user['is_active']) {
         sendJsonResponse(false, null, 'تم تعطيل حسابك. يرجى التواصل مع الدعم', 403);
     }
-    
+
+    // التحقق من تأكيد البريد الإلكتروني
+    if (empty($user['is_verified'])) {
+        sendJsonResponse(false, null, 'يجب تأكيد بريدك الإلكتروني أولاً. راجع صندوق الوارد أو البريد المزعج للنقر على رابط التأكيد.', 403);
+    }
+
     // التحقق من كلمة المرور
     if (!verifyPassword($password, $user['password_hash'])) {
         recordLoginAttempt($deviceUuid, $email, $clientIP);

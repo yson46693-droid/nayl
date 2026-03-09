@@ -59,6 +59,7 @@ if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
 require_once __DIR__ . '/../config/database.php';
 require_once __DIR__ . '/../config/security.php';
 require_once __DIR__ . '/../config/rateLimiter.php';
+require_once __DIR__ . '/../config/email.php';
 
 /**
  * Rate Limiting: منع الضغط على API إنشاء الحساب
@@ -282,7 +283,30 @@ try {
         'whatsapp_verified' => $whatsappVerified ? 1 : 0,
         'terms_accepted' => $termsAccepted ? 1 : 0
     ]);
-    
+
+    // إنشاء رمز تأكيد البريد وإرسال الإيميل
+    $verifyToken = bin2hex(random_bytes(32));
+    $verifyExpires = date('Y-m-d H:i:s', strtotime('+24 hours'));
+    $verifyStmt = $pdo->prepare("
+        INSERT INTO verification_tokens (user_id, token, token_type, expires_at)
+        VALUES (:uid, :token, 'email_verification', :expires)
+    ");
+    $verifyStmt->execute([
+        'uid' => $userId,
+        'token' => $verifyToken,
+        'expires' => $verifyExpires
+    ]);
+
+    $baseUrl = rtrim(function_exists('env') ? env('APP_URL', '') : '', '/');
+    if (empty($baseUrl)) {
+        $baseUrl = (isset($_SERVER['HTTPS']) && $_SERVER['HTTPS'] === 'on' ? 'https' : 'http') . '://' . ($_SERVER['HTTP_HOST'] ?? $_SERVER['SERVER_NAME'] ?? 'localhost');
+    }
+    $verifyLink = $baseUrl . '/api/auth/verify-email.php?token=' . urlencode($verifyToken);
+    $emailSent = sendVerificationEmail($email, $verifyLink, $fullName ?: null);
+    if (!$emailSent) {
+        error_log("Failed to send verification email to: " . $email);
+    }
+
     // إرجاع بيانات المستخدم (بدون كلمة المرور)
     $responseData = [
         'user' => [
@@ -296,9 +320,10 @@ try {
             'whatsapp_verified' => $whatsappVerified,
             'created_at' => date('Y-m-d H:i:s')
         ],
-        'message' => 'تم إنشاء الحساب بنجاح'
+        'message' => 'تم إنشاء الحساب. يرجى تأكيد بريدك الإلكتروني من الرابط المرسل إلى بريدك ثم تسجيل الدخول.',
+        'email_verification_sent' => $emailSent
     ];
-    
+
     sendJsonResponse(true, $responseData, null, 201);
     
 } catch (PDOException $e) {
