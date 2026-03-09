@@ -4,7 +4,7 @@
  * Email Helper
  * ============================================
  * إرسال رسائل البريد الإلكتروني
- * يستخدم PHP mail() أو SMTP حسب الإعداد
+ * يستخدم SMTP إذا وُجدت إعدادات SMTP في .env، وإلا PHP mail()
  */
 
 require_once __DIR__ . '/env.php';
@@ -60,12 +60,16 @@ function sendPasswordResetEmail($to, $resetLink, $userName = '') {
 
 /**
  * إرسال بريد إلكتروني عام
+ * يستخدم SMTP إذا وُجدت SMTP_HOST و SMTP_USERNAME و SMTP_PASSWORD، وإلا mail()
  * @param string $to - البريد الإلكتروني للمستلم
  * @param string $subject - موضوع الرسالة
  * @param string $bodyHtml - محتوى HTML للرسالة
  * @return bool
  */
 function sendEmail($to, $subject, $bodyHtml) {
+    if (isSmtpConfigured()) {
+        return sendEmailViaSmtp($to, $subject, $bodyHtml);
+    }
     $headers = [
         'MIME-Version: 1.0',
         'Content-type: text/html; charset=UTF-8',
@@ -73,10 +77,155 @@ function sendEmail($to, $subject, $bodyHtml) {
         'Reply-To: ' . getMailFrom(),
         'X-Mailer: PHP/' . phpversion()
     ];
-    
     $encodedSubject = '=?UTF-8?B?' . base64_encode($subject) . '?=';
-    
     return @mail($to, $encodedSubject, $bodyHtml, implode("\r\n", $headers));
+}
+
+/**
+ * التحقق من وجود إعدادات SMTP
+ * @return bool
+ */
+function isSmtpConfigured() {
+    if (!function_exists('env')) {
+        return false;
+    }
+    $host = env('SMTP_HOST', '');
+    $user = env('SMTP_USERNAME', '');
+    $pass = env('SMTP_PASSWORD', '');
+    return $host !== '' && $user !== '' && $pass !== '';
+}
+
+/**
+ * إرسال بريد عبر SMTP (اتصال TLS على المنفذ 587 أو SSL على 465)
+ * @param string $to - البريد الإلكتروني للمستلم
+ * @param string $subject - موضوع الرسالة
+ * @param string $bodyHtml - محتوى HTML للرسالة
+ * @return bool
+ */
+function sendEmailViaSmtp($to, $subject, $bodyHtml) {
+    $host = trim(env('SMTP_HOST', ''));
+    $port = (int) env('SMTP_PORT', 587);
+    $encryption = strtolower(trim(env('SMTP_ENCRYPTION', 'tls')));
+    $username = trim(env('SMTP_USERNAME', ''));
+    $password = env('SMTP_PASSWORD', '');
+    $fromEmail = trim(env('MAIL_FROM_EMAIL', $username));
+    $fromName = trim(env('MAIL_FROM_NAME', 'AmrNayl Academy'));
+    if ($fromEmail === '') {
+        $fromEmail = $username;
+    }
+
+    $useSsl = ($port === 465 || $encryption === 'ssl');
+    $scheme = $useSsl ? 'ssl' : 'tcp';
+    $addr = $scheme . '://' . $host . ':' . $port;
+    $timeout = 15;
+    $errno = 0;
+    $errstr = '';
+
+    $socket = @stream_socket_client(
+        $addr,
+        $errno,
+        $errstr,
+        $timeout,
+        STREAM_CLIENT_CONNECT,
+        stream_context_create(['ssl' => ['verify_peer' => false, 'verify_peer_name' => false]])
+    );
+    if (!is_resource($socket)) {
+        error_log("SMTP connection failed: {$addr} ({$errno}) {$errstr}");
+        return false;
+    }
+    stream_set_timeout($socket, $timeout);
+
+    $read = function () use ($socket) {
+        $line = @fgets($socket, 512);
+        return $line === false ? '' : trim($line);
+    };
+    $expect = function ($code) use ($socket, $read) {
+        $line = $read();
+        $got = substr($line, 0, 3);
+        while (strlen($line) >= 4 && $line[3] === '-') {
+            $line = $read();
+            $got = substr($line, 0, 3);
+        }
+        return (int) $got === (int) $code;
+    };
+    $send = function ($cmd) use ($socket) {
+        return @fwrite($socket, $cmd . "\r\n") !== false;
+    };
+
+    if (!$expect(220)) {
+        fclose($socket);
+        return false;
+    }
+
+    $send('EHLO ' . ($_SERVER['SERVER_NAME'] ?? 'localhost'));
+    if (!$expect(250)) {
+        fclose($socket);
+        return false;
+    }
+
+    if (!$useSsl && ($port === 587 || $encryption === 'tls')) {
+        if (!$send('STARTTLS') || !$expect(220)) {
+            fclose($socket);
+            return false;
+        }
+        if (!@stream_socket_enable_crypto($socket, true, STREAM_CRYPTO_METHOD_TLS_CLIENT)) {
+            fclose($socket);
+            return false;
+        }
+        $send('EHLO ' . ($_SERVER['SERVER_NAME'] ?? 'localhost'));
+        if (!$expect(250)) {
+            fclose($socket);
+            return false;
+        }
+    }
+
+    $send('AUTH LOGIN');
+    if (!$expect(334)) {
+        fclose($socket);
+        return false;
+    }
+    $send(base64_encode($username));
+    if (!$expect(334)) {
+        fclose($socket);
+        return false;
+    }
+    $send(base64_encode($password));
+    if (!$expect(235)) {
+        fclose($socket);
+        return false;
+    }
+
+    $send('MAIL FROM:<' . $fromEmail . '>');
+    if (!$expect(250)) {
+        fclose($socket);
+        return false;
+    }
+    $send('RCPT TO:<' . $to . '>');
+    if (!$expect(250)) {
+        fclose($socket);
+        return false;
+    }
+    $send('DATA');
+    if (!$expect(354)) {
+        fclose($socket);
+        return false;
+    }
+
+    $encodedSubject = '=?UTF-8?B?' . base64_encode($subject) . '?=';
+    $fromHeader = $fromName . ' <' . $fromEmail . '>';
+    $bodyEscaped = preg_replace('/^\./m', '..', $bodyHtml);
+    $data = "From: {$fromHeader}\r\nTo: {$to}\r\nSubject: {$encodedSubject}\r\nMIME-Version: 1.0\r\nContent-Type: text/html; charset=UTF-8\r\n\r\n" . $bodyEscaped . "\r\n.";
+    if (!@fwrite($socket, $data . "\r\n")) {
+        fclose($socket);
+        return false;
+    }
+    if (!$expect(250)) {
+        fclose($socket);
+        return false;
+    }
+    $send('QUIT');
+    fclose($socket);
+    return true;
 }
 
 /**
