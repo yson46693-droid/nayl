@@ -490,16 +490,37 @@
             }
 
             // Fullscreen
-            // iOS Safari: requestFullscreen مش شغال على div — لازم webkitEnterFullscreen على الـ video
+            // iOS Safari: requestFullscreen مش شغال على div — نعمل simulated fullscreen بـ position:fixed
             var isIOS = /iPad|iPhone|iPod/.test(navigator.userAgent) && !window.MSStream;
+            var iosSimFS = false;
+
+            function enterIOSSimFS() {
+                iosSimFS = true;
+                container.classList.add('cvp-simulated-fs');
+                container.classList.add('cvp-show-controls');
+                document.body.style.overflow = 'hidden';
+                if (fsIcon) fsIcon.className = 'bi bi-fullscreen-exit';
+                if (screen.orientation && screen.orientation.lock) {
+                    screen.orientation.lock('landscape').catch(function () {});
+                }
+                moveWatermark();
+            }
+
+            function exitIOSSimFS() {
+                iosSimFS = false;
+                container.classList.remove('cvp-simulated-fs');
+                document.body.style.overflow = '';
+                if (fsIcon) fsIcon.className = 'bi bi-fullscreen';
+                if (screen.orientation && screen.orientation.unlock) {
+                    screen.orientation.unlock();
+                }
+                moveWatermark();
+            }
 
             if (fsBtn && container) {
                 fsBtn.addEventListener('click', function () {
                     if (isIOS) {
-                        // iOS: fullscreen على الـ video element مباشرةً
-                        if (videoEl.webkitEnterFullscreen) {
-                            videoEl.webkitEnterFullscreen();
-                        }
+                        if (!iosSimFS) { enterIOSSimFS(); } else { exitIOSSimFS(); }
                     } else {
                         var fsEl = document.fullscreenElement || document.webkitFullscreenElement;
                         if (!fsEl) {
@@ -520,16 +541,6 @@
             }
             document.addEventListener('fullscreenchange', onFsChange);
             document.addEventListener('webkitfullscreenchange', onFsChange);
-
-            // iOS fullscreen events
-            if (isIOS && videoEl) {
-                videoEl.addEventListener('webkitbeginfullscreen', function () {
-                    if (fsIcon) fsIcon.className = 'bi bi-fullscreen-exit';
-                });
-                videoEl.addEventListener('webkitendfullscreen', function () {
-                    if (fsIcon) fsIcon.className = 'bi bi-fullscreen';
-                });
-            }
 
             function showControls() {
                 if (!container) return;

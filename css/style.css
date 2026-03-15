@@ -1200,6 +1200,29 @@ body::-webkit-scrollbar-thumb:hover {
     z-index: 2147483647;
 }
 
+/* iOS simulated fullscreen */
+.cvp-container.cvp-simulated-fs {
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    width: 100vw !important;
+    height: 100dvh !important;
+    z-index: 99999 !important;
+    background: #000;
+}
+.cvp-container.cvp-simulated-fs video.course-video-player {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%; height: 100%;
+    object-fit: contain;
+}
+.cvp-container.cvp-simulated-fs .course-video-watermark {
+    z-index: 2147483646;
+}
+.cvp-container.cvp-simulated-fs .cvp-controls {
+    z-index: 2147483647;
+}
+
 /* Click overlay — transparent, sits over video for click-to-play */
 .cvp-click-overlay {
     position: absolute;
