@@ -322,11 +322,24 @@
             videoSectionEl.innerHTML =
                 '<div class="video-player-wrapper">' +
                 titleBlock +
-                '<div id="course-video-container" class="course-video-container">' +
-                '<video id="course-video-player" class="course-video-player" controls playsinline' + posterAttr + '>' +
-                '<source src="' + escapeHtml(hlsUrl) + '" type="application/x-mpegURL">' +
-                '</video>' +
+                '<div id="course-video-container" class="course-video-container cvp-container">' +
+                '<video id="course-video-player" class="course-video-player" playsinline' + posterAttr + '></video>' +
                 '<div id="course-video-watermark" class="course-video-watermark" aria-hidden="true">' + escapeHtml(String(userId)) + '</div>' +
+                '<div class="cvp-click-overlay" id="cvp-click-overlay"></div>' +
+                '<div class="cvp-controls" id="cvp-controls">' +
+                '<div class="cvp-progress-wrap"><input type="range" class="cvp-progress" id="cvp-progress" value="0" min="0" max="100" step="0.1"></div>' +
+                '<div class="cvp-bottom">' +
+                '<div class="cvp-left">' +
+                '<button type="button" class="cvp-btn" id="cvp-play" title="تشغيل/إيقاف"><i class="bi bi-play-fill" id="cvp-play-icon"></i></button>' +
+                '<span class="cvp-time" id="cvp-time">0:00 / 0:00</span>' +
+                '<button type="button" class="cvp-btn" id="cvp-mute" title="صوت"><i class="bi bi-volume-up-fill" id="cvp-mute-icon"></i></button>' +
+                '<input type="range" class="cvp-volume" id="cvp-volume" value="100" min="0" max="100">' +
+                '</div>' +
+                '<div class="cvp-right">' +
+                '<button type="button" class="cvp-btn" id="cvp-fullscreen" title="ملء الشاشة"><i class="bi bi-fullscreen" id="cvp-fs-icon"></i></button>' +
+                '</div>' +
+                '</div>' +
+                '</div>' +
                 '</div>' +
                 '</div>' +
                 descriptionBlock;
@@ -341,34 +354,133 @@
                     currentHlsInstance.attachMedia(videoEl);
                 } else if (videoEl.canPlayType && videoEl.canPlayType('application/vnd.apple.mpegurl')) {
                     videoEl.src = src;
-                } else {
-                    var source = videoEl.querySelector('source');
-                    if (source) source.src = src;
                 }
             }
 
             moveWatermark();
             watermarkIntervalId = setInterval(moveWatermark, 3000);
 
-            // عند الدخول للـ fullscreen عبر controls الفيديو، نعمل fullscreen على الـ container بدلاً منه حتى يظهر الواترمارك
-            if (videoEl) {
-                var onFullscreenChange = function () {
-                    var container = document.getElementById('course-video-container');
-                    var vid = document.getElementById('course-video-player');
-                    var fsEl = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement;
-                    if (fsEl === vid && container) {
-                        var exitFs = document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen;
-                        if (exitFs) {
-                            exitFs.call(document).then(function () {
-                                var reqFs = container.requestFullscreen || container.webkitRequestFullscreen || container.mozRequestFullScreen;
-                                if (reqFs) reqFs.call(container);
-                            }).catch(function () {});
-                        }
+            // ── Custom Player Controls ──
+            var container   = document.getElementById('course-video-container');
+            var playBtn     = document.getElementById('cvp-play');
+            var playIcon    = document.getElementById('cvp-play-icon');
+            var muteBtn     = document.getElementById('cvp-mute');
+            var muteIcon    = document.getElementById('cvp-mute-icon');
+            var volumeRange = document.getElementById('cvp-volume');
+            var progressRange = document.getElementById('cvp-progress');
+            var timeEl      = document.getElementById('cvp-time');
+            var fsBtn       = document.getElementById('cvp-fullscreen');
+            var fsIcon      = document.getElementById('cvp-fs-icon');
+            var clickOverlay = document.getElementById('cvp-click-overlay');
+            var hideTimeout;
+
+            function fmtTime(s) {
+                if (!s || isNaN(s)) return '0:00';
+                var h = Math.floor(s / 3600);
+                var m = Math.floor((s % 3600) / 60);
+                var sec = Math.floor(s % 60);
+                if (h > 0) return h + ':' + (m < 10 ? '0' : '') + m + ':' + (sec < 10 ? '0' : '') + sec;
+                return m + ':' + (sec < 10 ? '0' : '') + sec;
+            }
+
+            function togglePlay() {
+                if (videoEl.paused) { videoEl.play(); } else { videoEl.pause(); }
+            }
+
+            if (playBtn) playBtn.addEventListener('click', togglePlay);
+            if (clickOverlay) clickOverlay.addEventListener('click', togglePlay);
+
+            videoEl.addEventListener('play', function () {
+                if (playIcon) playIcon.className = 'bi bi-pause-fill';
+                showControls();
+            });
+            videoEl.addEventListener('pause', function () {
+                if (playIcon) playIcon.className = 'bi bi-play-fill';
+                if (container) container.classList.add('cvp-show-controls');
+            });
+            videoEl.addEventListener('ended', function () {
+                if (playIcon) playIcon.className = 'bi bi-arrow-counterclockwise';
+                if (container) container.classList.add('cvp-show-controls');
+            });
+            videoEl.addEventListener('waiting', function () {
+                if (container) container.classList.add('cvp-buffering');
+            });
+            videoEl.addEventListener('canplay', function () {
+                if (container) container.classList.remove('cvp-buffering');
+            });
+
+            videoEl.addEventListener('timeupdate', function () {
+                if (videoEl.duration && progressRange) {
+                    progressRange.value = (videoEl.currentTime / videoEl.duration) * 100;
+                    var pct = (progressRange.value / 100) * 100;
+                    progressRange.style.setProperty('--cvp-progress-pct', pct + '%');
+                }
+                if (timeEl) timeEl.textContent = fmtTime(videoEl.currentTime) + ' / ' + fmtTime(videoEl.duration);
+            });
+
+            videoEl.addEventListener('loadedmetadata', function () {
+                if (timeEl) timeEl.textContent = fmtTime(0) + ' / ' + fmtTime(videoEl.duration);
+            });
+
+            if (progressRange) {
+                progressRange.addEventListener('input', function () {
+                    if (videoEl.duration) {
+                        videoEl.currentTime = (progressRange.value / 100) * videoEl.duration;
+                        progressRange.style.setProperty('--cvp-progress-pct', progressRange.value + '%');
                     }
-                };
-                document.addEventListener('fullscreenchange', onFullscreenChange);
-                document.addEventListener('webkitfullscreenchange', onFullscreenChange);
-                document.addEventListener('mozfullscreenchange', onFullscreenChange);
+                });
+            }
+
+            if (muteBtn) {
+                muteBtn.addEventListener('click', function () {
+                    videoEl.muted = !videoEl.muted;
+                    if (muteIcon) muteIcon.className = videoEl.muted ? 'bi bi-volume-mute-fill' : 'bi bi-volume-up-fill';
+                    if (volumeRange) volumeRange.value = videoEl.muted ? 0 : Math.round(videoEl.volume * 100);
+                });
+            }
+            if (volumeRange) {
+                volumeRange.addEventListener('input', function () {
+                    videoEl.volume = volumeRange.value / 100;
+                    videoEl.muted = (volumeRange.value == 0);
+                    if (muteIcon) muteIcon.className = videoEl.muted ? 'bi bi-volume-mute-fill' : (volumeRange.value < 50 ? 'bi bi-volume-down-fill' : 'bi bi-volume-up-fill');
+                });
+            }
+
+            // Fullscreen — نعمله على الـ container مش على الـ video
+            if (fsBtn && container) {
+                fsBtn.addEventListener('click', function () {
+                    var fsEl = document.fullscreenElement || document.webkitFullscreenElement;
+                    if (!fsEl) {
+                        var req = container.requestFullscreen || container.webkitRequestFullscreen;
+                        if (req) req.call(container);
+                    } else {
+                        var exit = document.exitFullscreen || document.webkitExitFullscreen;
+                        if (exit) exit.call(document);
+                    }
+                });
+            }
+
+            function onFsChange() {
+                var fsEl = document.fullscreenElement || document.webkitFullscreenElement;
+                if (fsIcon) fsIcon.className = fsEl ? 'bi bi-fullscreen-exit' : 'bi bi-fullscreen';
+                moveWatermark();
+            }
+            document.addEventListener('fullscreenchange', onFsChange);
+            document.addEventListener('webkitfullscreenchange', onFsChange);
+
+            function showControls() {
+                if (!container) return;
+                container.classList.add('cvp-show-controls');
+                clearTimeout(hideTimeout);
+                hideTimeout = setTimeout(function () {
+                    if (!videoEl.paused) container.classList.remove('cvp-show-controls');
+                }, 3000);
+            }
+
+            if (container) {
+                container.addEventListener('mousemove', showControls);
+                container.addEventListener('touchstart', showControls, { passive: true });
+                container.classList.add('cvp-show-controls');
             }
         } else {
             // لا iframe — نعرض صورة الواجهة مع رسالة أن التشغيل عبر HLS فقط
