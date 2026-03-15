@@ -328,8 +328,8 @@
                 '</video>' +
                 '<div id="course-video-watermark" class="course-video-watermark" aria-hidden="true">' + escapeHtml(String(userId)) + '</div>' +
                 '</div>' +
-                descriptionBlock +
-                '</div>';
+                '</div>' +
+                descriptionBlock;
 
             var videoEl = document.getElementById('course-video-player');
             var src = hlsUrl;
@@ -361,8 +361,8 @@
                       '</div>'
                     : '<div class="course-video-no-hls-msg only"><i class="bi bi-broadcast"></i> الفيديو غير متاح للتشغيل (يتطلب HLS)</div>') +
                 '</div>' +
-                descriptionBlock +
-                '</div>';
+                '</div>' +
+                descriptionBlock;
             videoSectionEl.innerHTML = noHlsHtml;
         }
     }
