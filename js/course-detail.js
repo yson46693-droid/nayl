@@ -349,6 +349,27 @@
 
             moveWatermark();
             watermarkIntervalId = setInterval(moveWatermark, 3000);
+
+            // عند الدخول للـ fullscreen عبر controls الفيديو، نعمل fullscreen على الـ container بدلاً منه حتى يظهر الواترمارك
+            if (videoEl) {
+                var onFullscreenChange = function () {
+                    var container = document.getElementById('course-video-container');
+                    var vid = document.getElementById('course-video-player');
+                    var fsEl = document.fullscreenElement || document.webkitFullscreenElement || document.mozFullScreenElement;
+                    if (fsEl === vid && container) {
+                        var exitFs = document.exitFullscreen || document.webkitExitFullscreen || document.mozCancelFullScreen;
+                        if (exitFs) {
+                            exitFs.call(document).then(function () {
+                                var reqFs = container.requestFullscreen || container.webkitRequestFullscreen || container.mozRequestFullScreen;
+                                if (reqFs) reqFs.call(container);
+                            }).catch(function () {});
+                        }
+                    }
+                };
+                document.addEventListener('fullscreenchange', onFullscreenChange);
+                document.addEventListener('webkitfullscreenchange', onFullscreenChange);
+                document.addEventListener('mozfullscreenchange', onFullscreenChange);
+            }
         } else {
             // لا iframe — نعرض صورة الواجهة مع رسالة أن التشغيل عبر HLS فقط
             var noHlsHtml = '<div class="video-player-wrapper">' +
