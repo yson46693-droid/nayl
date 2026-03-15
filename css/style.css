@@ -1240,6 +1240,7 @@ body::-webkit-scrollbar-thumb:hover {
     outline: none;
     transition: height 0.15s;
     --cvp-progress-pct: 0%;
+    direction: ltr;
 }
 .cvp-progress:hover { height: 6px; }
 .cvp-progress::-webkit-slider-thumb {
@@ -1304,9 +1305,12 @@ body::-webkit-scrollbar-thumb:hover {
     width: 70px;
     height: 4px;
     border-radius: 2px;
-    background: rgba(255,255,255,0.3);
+    background: linear-gradient(to right, var(--cvp-vol-color, #fff) var(--cvp-vol-pct, 100%), rgba(255,255,255,0.3) var(--cvp-vol-pct, 100%));
     cursor: pointer;
     outline: none;
+    direction: ltr;
+    --cvp-vol-pct: 100%;
+    --cvp-vol-color: #fff;
 }
 .cvp-volume::-webkit-slider-thumb {
     -webkit-appearance: none;
