@@ -280,15 +280,40 @@
     function moveWatermark() {
         var watermark = document.getElementById('course-video-watermark');
         var container = document.getElementById('course-video-container');
+        var video = document.getElementById('course-video-player');
         if (!watermark || !container) return;
-        var maxX = container.offsetWidth - watermark.offsetWidth;
-        var maxY = container.offsetHeight - watermark.offsetHeight;
-        if (maxX < 0) maxX = 0;
-        if (maxY < 0) maxY = 0;
-        var randomX = Math.floor(Math.random() * (maxX + 1));
-        var randomY = Math.floor(Math.random() * (maxY + 1));
-        watermark.style.left = randomX + 'px';
-        watermark.style.top = randomY + 'px';
+
+        var cw = container.offsetWidth;
+        var ch = container.offsetHeight;
+
+        // حساب المساحة الفعلية للفيديو بدون الأشرطة السوداء (object-fit: contain)
+        var vx = 0, vy = 0, vw = cw, vh = ch;
+        if (video && video.videoWidth && video.videoHeight) {
+            var ar = video.videoWidth / video.videoHeight;
+            if (cw / ch > ar) {
+                // أشرطة سوداء على الجانبين
+                vw = ch * ar;
+                vh = ch;
+                vx = (cw - vw) / 2;
+                vy = 0;
+            } else {
+                // أشرطة سوداء فوق وتحت
+                vw = cw;
+                vh = cw / ar;
+                vx = 0;
+                vy = (ch - vh) / 2;
+            }
+        }
+
+        var minX = vx;
+        var minY = vy;
+        var maxX = vx + vw - watermark.offsetWidth;
+        var maxY = vy + vh - watermark.offsetHeight;
+        if (maxX < minX) maxX = minX;
+        if (maxY < minY) maxY = minY;
+
+        watermark.style.left = (minX + Math.floor(Math.random() * (maxX - minX + 1))) + 'px';
+        watermark.style.top  = (minY + Math.floor(Math.random() * (maxY - minY + 1))) + 'px';
     }
 
     function renderVideoPlayer(videoId, title) {
